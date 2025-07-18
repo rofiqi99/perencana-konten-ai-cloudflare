@@ -1,0 +1,2069 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generator Perencana Konten Media Sosial</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    <style>
+    /* --- Variabel Warna untuk Light & Dark Mode --- */
+    :root {
+        --bg-body: #f1f5f9;
+        --bg-main: rgba(255, 255, 255, 0.6);
+        --bg-card: #ffffff;
+        --bg-button: #e2e8f0; /* Tombol abu-abu */
+        --bg-button-hover: #cbd5e1;
+        --bg-input: #ffffff;
+        --bg-checked: #3b82f6;
+        --text-primary: #1e293b;
+        --text-secondary: #475569;
+        --text-tertiary: #64748b;
+        --text-placeholder: #94a3b8;
+        --text-heading: #0f172a;
+        --text-on-accent: #ffffff;
+        --text-on-light-bg: #374151;
+        --border-primary: #e2e8f0;
+        --border-secondary: #cbd5e1;
+        --border-active: #3b82f6;
+    }
+
+    body.dark {
+        --bg-body: #0f172a;
+        --bg-main: rgba(30, 41, 59, 0.6);
+        --bg-card: #1e293b;
+        --bg-button: #334155;
+        --bg-button-hover: #475569;
+        --bg-input: #334155;
+        --bg-checked: #2563eb;
+        --text-primary: #e2e8f0;
+        --text-secondary: #94a3b8;
+        --text-tertiary: #64748b;
+        --text-placeholder: #94a3b8;
+        --text-heading: #f1f5f9;
+        --border-primary: #334155;
+        --border-secondary: #475569;
+        --border-active: #60a5fa;
+    }
+
+    /* Pengaturan Dasar */
+    body {
+        font-family: 'Inter', sans-serif;
+        background-color: var(--bg-body);
+        color: var(--text-secondary);
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    main {
+        background: var(--bg-main);
+        backdrop-filter: blur(16px) saturate(180%);
+        -webkit-backdrop-filter: blur(16px) saturate(180%);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .form-step { display: none; }
+    .form-step.active { display: block; }
+
+    /* Aturan Teks Umum untuk Mode Gelap */
+    body.dark .text-slate-900 { color: var(--text-heading); }
+    body.dark .text-slate-800 { color: var(--text-primary); }
+    body.dark .text-slate-700 { color: var(--text-primary); }
+    body.dark .text-slate-600 { color: var(--text-secondary); }
+    body.dark .text-slate-500 { color: var(--text-tertiary); }
+    body.dark .text-slate-400 { color: var(--text-secondary); }
+
+    /* Aturan Form & Input */
+    .form-input { 
+        background-color: var(--bg-input);
+        color: var(--text-primary);
+    }
+    body.dark .border-slate-300 {
+        border-color: var(--border-secondary);
+    }
+    body.dark .focus\:border-slate-400:focus,
+    body.dark .focus-within\:border-slate-400:focus-within {
+        border-color: var(--border-active);
+    }
+    ::placeholder {
+        font-size: 0.98em;
+        color: var(--text-placeholder);
+        opacity: 1;
+    }
+
+    /* PERBAIKAN: Menyamakan tampilan input minat & perilakunya */
+    body.dark #interests-container.bg-white {
+        background-color: var(--bg-input);
+    }
+
+    /* Tag Minat yang sudah ditambahkan */
+    .interest-tag {
+        display: inline-flex;
+        align-items: center;
+        background-color: #e0e7ff; /* indigo-100 */
+        color: #4338ca; /* indigo-700 */
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+    .interest-tag button {
+        margin-left: 0.5rem; color: #4338ca; background: none; border: none;
+        cursor: pointer; padding: 0; line-height: 1;
+    }
+    body.dark .interest-tag {
+        background-color: #4f46e5; /* indigo-600 */
+        color: #e0e7ff; /* indigo-100 */
+    }
+    body.dark .interest-tag button { color: #e0e7ff; }
+    
+    /* PERBAIKAN: Memberi "bentuk" pada tag saran */
+    .suggestion-tag {
+        background-color: var(--bg-button);
+        color: var(--text-secondary);
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.875rem;
+        border: 1px solid var(--border-primary);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: inline-block; /* Memastikan tag tidak menyatu */
+        margin: 2px; /* Memberi sedikit jarak antar tag */
+    }
+    .suggestion-tag:hover {
+        background-color: var(--bg-button-hover);
+        border-color: var(--border-secondary);
+    }
+    
+    /* Tombol Header & Toggle */
+#auth-container .bg-white { background-color: #ffffff; color: var(--text-on-light-bg); }
+#auth-container .bg-white:hover { background-color: #f3f4f6; }
+
+/* Menyesuaikan tombol Draf & Masuk di mode gelap */
+body.dark #auth-container .bg-white {
+    background-color: var(--bg-button);
+    color: var(--text-primary);
+}
+body.dark #auth-container .bg-white:hover {
+    background-color: var(--bg-button-hover);
+}
+/* HAPUS BARIS INI: */
+/* body.dark #auth-container .fa-folder {
+    color: inherit;
+} */
+
+#dark-mode-toggle { background-color: var(--bg-card); color: var(--text-primary); }
+
+    /* Tombol abu-abu (Kembali, Jadwalkan, dll) */
+    .bg-slate-100, .bg-slate-200 { background-color: var(--bg-button); color: var(--text-secondary); }
+    .bg-slate-100:hover, .bg-slate-200:hover { background-color: var(--bg-button-hover); }
+    body.dark .bg-slate-100, body.dark .bg-slate-200 { background-color: var(--bg-button); color: var(--text-primary); }
+    body.dark .bg-slate-100:hover, body.dark .bg-slate-200:hover { background-color: var(--bg-button-hover); }
+    
+    /* Kartu Hasil */
+    #results-grid .bg-white { background-color: var(--bg-card); }
+    body.dark #results-grid .bg-white .text-slate-800,
+    body.dark #results-grid .bg-white .text-slate-600,
+    body.dark #results-grid .bg-white .text-slate-500 { color: var(--text-primary); }
+    body.dark #results-grid .bg-white .text-blue-600 { color: var(--border-active); }
+
+    /* Aturan Pilihan yang Aktif (Checkbox/Radio) */
+.option-radio:checked + label,
+.platform-checkbox:checked + label {
+    border-color: var(--border-active); /* HANYA mengubah warna border untuk semua mode */
+}
+
+/* KHUSUS mode gelap, tambahkan efek tambahan agar lebih jelas */
+body.dark .option-radio:checked + label,
+body.dark .platform-checkbox:checked + label {
+    background-color: rgba(59, 130, 246, 0.1); /* Latar belakang lembut */
+}
+body.dark .option-radio:checked + label i,
+body.dark .platform-checkbox:checked + label i,
+body.dark .option-radio:checked + label .font-semibold,
+body.dark .platform-checkbox:checked + label .font-semibold {
+    color: var(--border-active); /* Warna ikon dan judul ikut berubah */
+}
+
+    /* Wizard Steps */
+    .step-indicator { transition: all 0.3s ease; background-color: #e2e8f0; color: #64748b; }
+    body.dark .step-indicator { background-color: var(--bg-button); color: var(--text-secondary); }
+    .step-indicator.active { background-color: var(--bg-checked); color: var(--text-on-accent); }
+    .step-indicator.completed { background-color: #22c55e; color: white; }
+
+/* --- Aturan Tampilan Gelap untuk Semua Modal --- */
+body.dark .modal-content-bg {
+    background-color: var(--bg-card);
+}
+body.dark .modal-content-bg h3,
+body.dark .modal-content-bg h4,
+body.dark .modal-content-bg .text-slate-900,
+body.dark .modal-content-bg .text-slate-800 {
+    color: var(--text-heading);
+}
+body.dark .modal-content-bg p,
+body.dark .modal-content-bg li,
+body.dark .modal-content-bg .text-slate-700,
+body.dark .modal-content-bg .text-slate-600 {
+    color: var(--text-primary);
+}
+body.dark .modal-content-bg .text-slate-500,
+body.dark .modal-content-bg button.hover\:text-slate-800:hover {
+    color: var(--text-secondary);
+}
+body.dark .modal-content-bg .border-b,
+body.dark .modal-content-bg .border-t,
+body.dark .modal-content-bg .border-r,
+body.dark .modal-content-bg .border-slate-200 {
+    border-color: var(--border-primary);
+}
+body.dark .modal-content-bg .bg-slate-50 {
+     background-color: var(--bg-body);
+}
+body.dark .modal-content-bg .hover\:bg-slate-100:hover {
+    background-color: var(--bg-button-hover);
+}
+body.dark .modal-content-bg .text-blue-500 {
+    color: var(--border-active);
+}
+/* --- Akhir Aturan Tampilan Gelap untuk Modal --- */
+
+    /* Dark Mode Toggle Icon */
+    #dark-mode-toggle .fa-moon { display: block; }
+    #dark-mode-toggle .fa-sun { display: none; }
+    body.dark #dark-mode-toggle .fa-moon { display: none; }
+    body.dark #dark-mode-toggle .fa-sun { display: block; }
+
+    /* Menghilangkan outline/ring tambahan */
+    input:focus, textarea:focus, select:focus, #interests-container:focus-within {
+        outline: 2px solid transparent; outline-offset: 2px; box-shadow: none;
+    }
+
+/* ▼▼▼ LETAKKAN KODE BARU DI SINI ▼▼▼ */
+        .google-logo-icon {
+            width: 18px;
+            height: 18px;
+        }
+
+/* Perbaikan Tampilan Mode Gelap (Lanjutan) */
+
+        /* 1. Memperbaiki kontras bagian 'Fokus Produk' */
+        body.dark #product-focus-fields {
+            background-color: var(--bg-body);
+            border: 1px solid var(--border-primary);
+        }
+
+        /* 2. Membuat ikon TikTok terlihat di mode gelap */
+        body.dark label[for="platform-tiktok"] .fa-tiktok {
+            color: var(--text-primary);
+        }
+
+/* 1. Mengatur warna teks di daftar draf (kolom kiri) */
+body.dark #drafts-list .text-slate-800 {
+    color: var(--text-heading);
+}
+body.dark #drafts-list .text-slate-500 {
+    color: var(--text-secondary);
+}
+body.dark #drafts-list li:hover {
+    background-color: var(--bg-button-hover);
+}
+
+/* 2. Mengatur tampilan kartu detail draf (kolom kanan) */
+body.dark #draft-viewer-content .bg-white {
+    background-color: var(--bg-card);
+    border-color: var(--border-primary);
+}
+
+/* 3. Mengatur warna teks di dalam kartu detail draf */
+body.dark #draft-viewer-content .text-slate-800 { color: var(--text-heading); }
+body.dark #draft-viewer-content .text-slate-600 { color: var(--text-primary); }
+body.dark #draft-viewer-content .text-slate-500 { color: var(--text-secondary); }
+body.dark #draft-viewer-content .text-blue-600 { color: var(--border-active); }
+
+/* 4. Mengatur tombol di dalam kartu detail draf */
+body.dark #draft-viewer-content .bg-slate-100 {
+    background-color: var(--bg-button);
+    color: var(--text-primary);
+}
+body.dark #draft-viewer-content .bg-slate-100:hover {
+    background-color: var(--bg-button-hover);
+}
+
+</style>
+</head>
+<body>
+
+    <div id="app" class="container mx-auto p-4 md:p-8 max-w-6xl">
+        
+        <header class="text-center mb-12">
+            <h1 class="text-2xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight">Perencana Konten AI</h1>
+            <p class="mt-4 text-base sm:text-lg text-slate-600 max-w-2xl mx-auto">Hasilkan ide konten media sosial yang siap pakai hanya dalam beberapa detik.</p>
+            
+            <div id="auth-container" class="mt-8 flex justify-center items-center gap-3">
+                <button id="view-drafts-btn" title="Lihat Draf" class="bg-white text-slate-700 font-bold py-2 px-4 rounded-lg hover:bg-slate-100 transition-colors shadow-md flex items-center gap-2">
+                    <i class="fas fa-folder text-yellow-500"></i>
+                    <span>Draf</span>
+                </button>
+
+                <div id="user-info" class="hidden items-center gap-3 p-1 pl-2 bg-white rounded-full shadow-md">
+                    <img id="user-photo" class="w-8 h-8 rounded-full" src="" alt="User Photo">
+                    <span id="user-name" class="font-semibold text-slate-800 text-sm"></span>
+                    <button id="logout-btn" title="Keluar" class="bg-slate-200 text-slate-600 w-8 h-8 rounded-full hover:bg-red-200 hover:text-red-700 transition-colors flex items-center justify-center">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+                <button id="login-btn" title="Masuk dengan Google" class="bg-white text-slate-700 font-bold py-2 px-4 rounded-lg hover:bg-slate-100 transition-colors shadow-md flex items-center gap-2">
+    <img src="./assets/google-logo.png" alt="Google logo" class="google-logo-icon">
+    <span>Masuk</span>
+</button>
+                <button id="dark-mode-toggle" title="Ubah Tema" class="w-10 h-10 flex items-center justify-center font-bold rounded-lg hover:bg-slate-100 transition-colors shadow-md">
+                    <i class="fas fa-moon"></i>
+                    <i class="fas fa-sun"></i>
+                </button>
+            </div>
+        </header>
+
+        <main id="main-content" class="p-6 md:p-10 rounded-2xl shadow-2xl shadow-slate-300/20">
+
+            <div id="form-wizard">
+                <div class="flex items-start justify-between w-full max-w-2xl mx-auto mb-10">
+                    <div class="text-center w-40">
+                        <div id="step-indicator-1" class="step-indicator active w-10 h-10 rounded-full flex items-center justify-center font-bold border-2 border-transparent text-lg mx-auto">1</div>
+                        <p class="mt-2 text-xs sm:text-sm font-semibold text-slate-600">Info Bisnis</p>
+                    </div>
+                
+                    <div class="flex-1 border-t-2 border-slate-200 mt-5"></div>
+                
+                    <div class="text-center w-40">
+                        <div id="step-indicator-2" class="step-indicator w-10 h-10 rounded-full flex items-center justify-center font-bold border-2 border-transparent text-lg mx-auto">2</div>
+                        <p class="mt-2 text-xs sm:text-sm font-semibold text-slate-600">Gaya & Tujuan</p>
+                    </div>
+                
+                    <div class="flex-1 border-t-2 border-slate-200 mt-5"></div>
+                
+                    <div class="text-center w-40">
+                        <div id="step-indicator-3" class="step-indicator w-10 h-10 rounded-full flex items-center justify-center font-bold border-2 border-transparent text-lg mx-auto">3</div>
+                        <p class="mt-2 text-xs sm:text-sm font-semibold text-slate-600">Platform & Jadwal</p>
+                    </div>
+                </div>
+
+
+                <div id="step-1" class="form-step active">
+    <div class="max-w-xl mx-auto">
+        <h2 class="text-xl sm:text-2xl font-bold mb-2 text-center text-slate-900">Profil Bisnis & Audiens</h2>
+        <p class="text-center text-sm sm:text-base text-slate-500 mb-8">Semakin baik kami memahami bisnis Anda, semakin relevan ide konten yang akan dihasilkan.</p>
+        <div class="space-y-5">
+            <div>
+                <label for="business-name" class="block text-sm font-medium text-slate-700 mb-1">Nama Merek Anda</label>
+                <input type="text" id="business-name" autocomplete="off" class="form-input mt-1 block w-full px-4 py-2.5 border border-slate-300 rounded-lg shadow-sm focus:border-slate-400 text-xs sm:text-sm" placeholder="Contoh: Kopi Senja, Sinar Jaya Motor">
+            </div>
+            <div>
+                <label for="industry" class="block text-sm font-medium text-slate-700 mb-1">Industri atau Kategori Bisnis</label>
+                <input type="text" id="industry" autocomplete="off" class="form-input mt-1 block w-full px-4 py-2.5 border border-slate-300 rounded-lg shadow-sm focus:border-slate-400 text-xs sm:text-sm" placeholder="Contoh: Makanan & Minuman, Fashion, Otomotif, Jasa">
+            </div>
+            <div>
+                <label for="description" class="block text-sm font-medium text-slate-700 mb-1">Deskripsi Singkat Bisnis Anda</label>
+                <textarea id="description" rows="3" autocomplete="off" class="form-input mt-1 block w-full px-4 py-2.5 border border-slate-300 rounded-lg shadow-sm focus:border-slate-400 text-xs sm:text-sm" placeholder="Jelaskan produk/jasa utama dan keunggulan khas Anda."></textarea>
+            </div>
+            
+            <div class="pt-5 border-t border-dashed border-slate-200">
+                <p class="text-base sm:text-md font-semibold text-slate-800 mb-3 flex items-center"><i class="fas fa-users-viewfinder mr-2 text-slate-500"></i>Siapa Target Pelanggan Anda?</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-5">
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-slate-700">Rentang Usia</label>
+                        <div class="grid grid-cols-2 gap-2 mt-1">
+                            <input type="number" id="audience-age-from" class="form-input block w-full px-4 py-2.5 border border-slate-300 rounded-lg shadow-sm focus:border-slate-400 text-xs sm:text-sm" placeholder="Dari (Cth: 18)">
+                            <input type="number" id="audience-age-to" class="form-input block w-full px-4 py-2.5 border border-slate-300 rounded-lg shadow-sm focus:border-slate-400 text-xs sm:text-sm" placeholder="Sampai (Cth: 35)">
+                        </div>
+                    </div>
+                    <div>
+                        <label for="audience-gender" class="block text-sm font-medium text-slate-700">Jenis Kelamin</label>
+                        <select id="audience-gender" class="form-input mt-1 block w-full px-4 py-2.5 border border-slate-300 rounded-lg shadow-sm focus:border-slate-400 text-xs sm:text-sm">
+                            <option value="Semua">Semua</option>
+                            <option value="Pria">Pria</option>
+                            <option value="Wanita">Wanita</option>
+                        </select>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="interests-input" class="block text-sm font-medium text-slate-700">Minat & Hobi Target Audiens</label>
+                        <div id="interests-container" class="form-input bg-white mt-1 flex items-center flex-wrap gap-2 p-2 border border-slate-300 rounded-lg shadow-sm focus-within:border-slate-400">
+                            <input type="text" id="interests-input" autocomplete="off" class="flex-grow bg-transparent border-none focus:ring-0 p-0.5 text-xs sm:text-sm" placeholder="Contoh: Memasak, Kopi, Teknologi (lalu tekan Enter)">
+                        </div>
+                        <div class="mt-2 flex items-center gap-2">
+                            <div id="suggested-interests" class="flex flex-wrap gap-2">
+                                </div>
+                            <div id="suggestion-loader" class="hidden">
+                                <i class="fas fa-spinner fa-spin text-slate-500"></i>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-1">Saran diperbarui secara otomatis berdasarkan bidang usaha & minat Anda.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+                <div id="step-2" class="form-step">
+                        <div class="max-w-xl mx-auto">
+                            <h2 class="text-xl sm:text-2xl font-bold mb-2 text-center text-slate-900">Gaya & Tujuan Konten</h2>
+                            <p class="text-center text-sm sm:text-base text-slate-500 mb-8">Pilih gaya yang paling sesuai dengan kepribadian merek Anda.</p>
+                            <div class="space-y-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-3">Apa Tujuan Utama Konten Anda?</label>
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div><input type="radio" name="business-stage" id="stage-awareness" value="Kesadaran" class="hidden option-radio form-input" checked><label for="stage-awareness" class="cursor-pointer flex flex-col items-center justify-center text-center p-4 border-2 border-slate-200 rounded-lg h-full"><i class="fas fa-bullhorn text-2xl mb-2 text-purple-500"></i><span class="block text-sm font-semibold text-slate-700">Kesadaran</span><span class="text-xs text-slate-500">Jangkau audiens baru & perkenalkan merek</span></label></div>
+                                        <div><input type="radio" name="business-stage" id="stage-interaction" value="Interaksi" class="hidden option-radio form-input"><label for="stage-interaction" class="cursor-pointer flex flex-col items-center justify-center text-center p-4 border-2 border-slate-200 rounded-lg h-full"><i class="fas fa-comments text-2xl mb-2 text-sky-500"></i><span class="block text-sm font-semibold text-slate-700">Interaksi</span><span class="text-xs text-slate-500">Bangun interaksi & kepercayaan</span></label></div>
+                                        <div><input type="radio" name="business-stage" id="stage-loyalty" value="Loyalitas" class="hidden option-radio form-input"><label for="stage-loyalty" class="cursor-pointer flex flex-col items-center justify-center text-center p-4 border-2 border-slate-200 rounded-lg h-full"><i class="fas fa-crown text-2xl mb-2 text-amber-500"></i><span class="block text-sm font-semibold text-slate-700">Loyalitas</span><span class="text-xs text-slate-500">Pertahankan pelanggan & bangun komunitas</span></label></div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-3">Pilih Suasana Konten</label>
+                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                        <div><input type="radio" name="content-mood" id="mood-informative" value="Informatif dan Edukatif" class="hidden option-radio form-input" checked><label for="mood-informative" class="cursor-pointer flex flex-col items-center justify-center text-center p-4 border-2 border-slate-200 rounded-lg h-full"><i class="fas fa-graduation-cap text-2xl mb-2 text-blue-500"></i><span class="block text-sm font-semibold text-slate-700">Informatif</span></label></div>
+                                        <div><input type="radio" name="content-mood" id="mood-casual" value="Santai dan Humoris" class="hidden option-radio form-input"><label for="mood-casual" class="cursor-pointer flex flex-col items-center justify-center text-center p-4 border-2 border-slate-200 rounded-lg h-full"><i class="fas fa-smile-beam text-2xl mb-2 text-yellow-500"></i><span class="block text-sm font-semibold text-slate-700">Santai</span></label></div>
+                                        <div><input type="radio" name="content-mood" id="mood-professional" value="Profesional dan Formal" class="hidden option-radio form-input"><label for="mood-professional" class="cursor-pointer flex flex-col items-center justify-center text-center p-4 border-2 border-slate-200 rounded-lg h-full"><i class="fas fa-briefcase text-2xl mb-2 text-slate-700"></i><span class="block text-sm font-semibold text-slate-700">Profesional</span></label></div>
+                                        <div><input type="radio" name="content-mood" id="mood-inspirational" value="Inspiratif dan Motivasi" class="hidden option-radio form-input"><label for="mood-inspirational" class="cursor-pointer flex flex-col items-center justify-center text-center p-4 border-2 border-slate-200 rounded-lg h-full"><i class="fas fa-lightbulb text-2xl mb-2 text-orange-500"></i><span class="block text-sm font-semibold text-slate-700">Inspiratif</span></label></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                </div>
+
+                <div id="step-3" class="form-step">
+                        <div class="max-w-2xl mx-auto">
+                            <h2 class="text-xl sm:text-2xl font-bold mb-2 text-center text-slate-900">Platform & Penjadwalan</h2>
+                            <p class="text-center text-sm sm:text-base text-slate-500 mb-8">Atur jadwal dan platform agar rencana konten lebih terorganisir.</p>
+                            <div class="space-y-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-3">Pilih Platform Media Sosial</label>
+                                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                        <div><input type="checkbox" id="platform-instagram" value="Instagram" class="hidden platform-checkbox form-input" checked><label for="platform-instagram" class="cursor-pointer flex flex-col items-center justify-center text-center p-4 border-2 border-slate-200 rounded-lg h-full"><i class="fab fa-instagram text-3xl mb-2 text-pink-500"></i><span class="block text-sm font-semibold text-slate-700">Instagram</span></label></div>
+                                        <div><input type="checkbox" id="platform-tiktok" value="TikTok" class="hidden platform-checkbox form-input"><label for="platform-tiktok" class="cursor-pointer flex flex-col items-center justify-center text-center p-4 border-2 border-slate-200 rounded-lg h-full"><i class="fab fa-tiktok text-3xl mb-2 text-black"></i><span class="block text-sm font-semibold text-slate-700">TikTok</span></label></div>
+                                        <div><input type="checkbox" id="platform-facebook" value="Facebook" class="hidden platform-checkbox form-input"><label for="platform-facebook" class="cursor-pointer flex flex-col items-center justify-center text-center p-4 border-2 border-slate-200 rounded-lg h-full"><i class="fab fa-facebook text-3xl mb-2 text-blue-600"></i><span class="block text-sm font-semibold text-slate-700">Facebook</span></label></div>
+                                    </div>
+                                </div>
+                               <div id="plan-details-container" class="space-y-6">
+                                    <div>
+                                        <label for="start-date" class="block text-sm font-medium text-slate-700">Tanggal Mulai Rencana</label>
+                                        <input type="date" id="start-date" class="form-input mt-1 block w-full px-4 py-2.5 border border-slate-300 rounded-lg shadow-sm focus:border-slate-400 text-sm">
+                                    </div>
+                                    <div id="duration-container">
+                                        <label for="duration" class="block text-sm font-medium text-slate-700">Durasi Rencana Konten</label>
+                                        <select id="duration" class="form-input mt-1 block w-full px-4 py-2.5 border border-slate-300 rounded-lg shadow-sm focus:border-slate-400 text-sm">
+                                            <option value="7">1 Minggu</option>
+                                            <option value="14">2 Minggu</option>
+                                            <option value="30" selected>1 Bulan</option>
+                                        </select>
+                                    </div>
+                               </div>
+                               <div class="pt-6 border-t border-dashed border-slate-200">
+                                    <label class="flex items-center space-x-3 cursor-pointer">
+                                        <input type="checkbox" id="product-focus-toggle" class="form-input h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-0">
+                                        <span class="text-sm font-medium text-slate-700">Fokus pada Produk Unggulan? (Opsional)</span>
+                                    </label>
+                                    <div id="product-focus-fields" class="hidden mt-4 space-y-4 bg-slate-50 p-4 rounded-lg">
+                                        <div><label for="product-focus-input" class="block text-sm font-medium text-slate-700">Nama Produk/Layanan</label><input type="text" id="product-focus-input" class="form-input mt-1 block w-full px-4 py-2.5 border border-slate-300 rounded-lg shadow-sm focus:border-slate-400 text-sm" placeholder="Contoh: Es Kopi Pandan Gula Aren"></div>
+                                        <div><label for="product-description" class="block text-sm font-medium text-slate-700">Deskripsi Singkat Produk</label><textarea id="product-description" rows="2" class="form-input mt-1 block w-full px-4 py-2.5 border border-slate-300 rounded-lg shadow-sm focus:border-slate-400 text-sm" placeholder="Contoh: Minuman kopi dingin dengan rasa manis dan wangi pandan alami."></textarea></div>
+                                    </div>
+                               </div>
+                                <div class="pt-6 border-t border-dashed border-slate-200">
+                                    <h3 class="text-base sm:text-lg font-semibold text-center text-slate-800">Detail Promosi (Opsional)</h3>
+                                    <p class="text-center text-sm text-slate-500 mb-4">Isi jika ada promosi yang sedang berjalan.</p>
+                                    <div class="space-y-4">
+                                        <div><label for="promotion-details" class="block text-sm font-medium text-slate-700">Jelaskan Promosi Anda</label><textarea id="promotion-details" rows="2" class="form-input mt-1 block w-full px-4 py-2.5 border border-slate-300 rounded-lg shadow-sm focus:border-slate-400 text-sm" placeholder="Contoh: Diskon 20% untuk semua minuman, Beli 1 Gratis 1"></textarea></div>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div><label for="promotion-start-date" class="block text-sm font-medium text-slate-700">Tanggal Mulai</label><input type="date" id="promotion-start-date" class="form-input mt-1 block w-full px-4 py-2.5 border border-slate-300 rounded-lg shadow-sm focus:border-slate-400 text-sm"></div>
+                                            <div><label for="promotion-end-date" class="block text-sm font-medium text-slate-700">Tanggal Berakhir</label><input type="date" id="promotion-end-date" class="form-input mt-1 block w-full px-4 py-2.5 border border-slate-300 rounded-lg shadow-sm focus:border-slate-400 text-sm"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                </div>
+
+                <div class="mt-10 pt-5 border-t border-slate-200 flex justify-between items-center max-w-xl mx-auto">
+                    <div class="flex items-center gap-4">
+                        <button id="prev-btn" class="bg-slate-200 text-slate-700 font-bold py-2 px-6 rounded-lg hover:bg-slate-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base">Kembali</button>
+                        <button id="reset-btn" class="flex items-center gap-2 text-slate-500 font-semibold py-2 px-4 rounded-lg hover:bg-slate-100 transition-colors text-sm sm:text-base">
+                            <i class="fas fa-rotate-right"></i>
+                            <span>Reset</span>
+                        </button>
+                    </div>
+                    <div>
+                        <button id="next-btn" class="bg-blue-500 text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-600 transition-colors text-sm sm:text-base">Lanjutkan</button>
+                        <button id="generate-btn" class="bg-green-500 text-white font-bold py-2 px-6 rounded-lg hover:bg-green-600 transition-colors hidden text-sm sm:text-base md:text-lg"><i class="fas fa-magic mr-2"></i>Buat Rencana!</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="loading" class="text-center py-16 hidden">
+    <svg class="animate-spin h-10 w-10 text-blue-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+    </svg>
+    
+    <p class="mt-6 text-md font-semibold text-slate-700">Mempersiapkan Rencana Konten Anda</p>
+    <p class="text-slate-500 text-sm mt-1">Harap tunggu sebentar...</p>
+</div>
+
+            <div id="results" class="hidden">
+                <div class="flex flex-col md:flex-row justify-between md:items-center mb-8">
+                    <div class="mb-4 md:mb-0 text-center md:text-left">
+                        <h2 id="results-title" class="text-xl sm:text-2xl md:text-3xl font-bold text-slate-900">Rencana Konten untuk Kopi Senja</h2>
+                        <p id="results-subtitle" class="text-slate-600 mt-1 text-sm sm:text-base">Berikut adalah ide-ide yang dihasilkan khusus untuk Anda.</p>
+                    </div>
+                    <div class="flex justify-center md:justify-end gap-3">
+                        <button id="save-draft-btn" title="Simpan ke Draf" class="w-10 h-10 flex items-center justify-center bg-yellow-100 text-yellow-800 font-semibold rounded-lg hover:bg-yellow-200 transition-colors">
+                            <i class="fas fa-save"></i>
+                        </button>
+                        <button id="export-pdf-btn" title="Ekspor PDF" class="w-10 h-10 flex items-center justify-center bg-red-100 text-red-800 font-semibold rounded-lg hover:bg-red-200 transition-colors">
+                            <i class="fas fa-file-pdf"></i>
+                        </button>
+                        <button id="export-csv-btn" title="Ekspor CSV" class="w-10 h-10 flex items-center justify-center bg-blue-100 text-blue-800 font-semibold rounded-lg hover:bg-blue-200 transition-colors">
+                            <i class="fas fa-file-csv"></i>
+                        </button>
+                        <button id="restart-btn" title="Buat Rencana Baru" class="w-10 h-10 flex items-center justify-center bg-slate-600 text-white font-semibold rounded-lg hover:bg-slate-700 transition-colors">
+                            <i class="fas fa-redo"></i>
+                        </button>
+                    </div>
+                </div>
+                <div id="results-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    </div>
+            </div>
+        </main>
+        
+        <div id="drafts-modal" class="fixed inset-0 bg-black flex items-center justify-center p-4 hidden z-50">
+            <div class="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col modal-content-bg">
+                <div class="p-4 border-b border-slate-200 flex justify-between items-center">
+                    <h3 class="text-lg font-semibold text-slate-800"><i class="fas fa-folder-open mr-2 text-yellow-500"></i>Draf Tersimpan</h3>
+                    <button id="close-drafts-modal" class="text-slate-500 hover:text-slate-800"><i class="fas fa-times fa-lg"></i></button>
+                </div>
+                <div class="p-6 overflow-y-auto flex-grow grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div id="drafts-list-container" class="md:col-span-1 h-full overflow-y-auto pr-4 border-r border-slate-200">
+                         <ul id="drafts-list" class="space-y-3">
+                             </ul>
+                    </div>
+                    <div id="draft-viewer" class="md:col-span-2 hidden">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 pb-2 border-b">
+                            <h4 id="draft-viewer-title" class="text-xl font-bold text-slate-800">Detail Draf</h4>
+                            <div id="draft-viewer-actions" class="mt-3 sm:mt-0 flex gap-2">
+                                 <button id="export-draft-pdf-btn" class="bg-red-100 text-red-800 font-semibold py-1.5 px-3 rounded-lg hover:bg-red-200 transition-colors text-sm"><i class="fas fa-file-pdf mr-2"></i>PDF</button>
+                                 <button id="export-draft-csv-btn" class="bg-blue-100 text-blue-800 font-semibold py-1.5 px-3 rounded-lg hover:bg-blue-200 transition-colors text-sm"><i class="fas fa-download mr-2"></i>CSV</button>
+                            </div>
+                        </div>
+                        <div id="draft-viewer-content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-6">
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="draft-ai-result-modal" class="fixed inset-0 bg-black flex items-center justify-center p-4 hidden z-[60]">
+            <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col modal-content-bg">
+                <div class="p-4 border-b border-slate-200 flex justify-between items-center">
+                    <h3 class="text-lg font-semibold text-slate-800"><i class="fas fa-robot mr-2 text-blue-500"></i>Hasil AI dari Draf</h3>
+                    <button id="close-draft-ai-result-modal" class="text-slate-500 hover:text-slate-800"><i class="fas fa-times fa-lg"></i></button>
+                </div>
+                <div class="p-6 overflow-y-auto">
+                    <div id="draft-caption-loading" class="text-center py-10"><i class="fas fa-spinner fa-spin text-3xl text-blue-500"></i><p class="mt-3 font-semibold text-slate-700">AI sedang bekerja...</p></div>
+                    <div id="draft-caption-content" class="text-slate-700 hidden space-y-6 modal-content"></div>
+                </div>
+                 <div class="p-4 bg-slate-50 border-t border-slate-200">
+                     <button id="copy-draft-caption-btn" class="w-full bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors"><i class="fas fa-copy mr-2"></i>Salin Teks</button>
+                 </div>
+            </div>
+        </div>
+
+        <div id="error-modal" class="fixed inset-0 bg-black flex items-center justify-center p-4 hidden z-50">
+            <div class="bg-white rounded-lg shadow-xl p-8 max-w-sm w-full text-center modal-content-bg">
+                <div class="text-red-500 mx-auto w-16 h-16 flex items-center justify-center bg-red-100 rounded-full">
+                    <i class="fas fa-times fa-3x"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-slate-900 mt-6">Oops, Terjadi Kesalahan</h3>
+                <p id="error-message" class="text-slate-600 mt-2">Maaf, kami tidak dapat memproses permintaan Anda saat ini. Silakan coba beberapa saat lagi.</p>
+                <button id="close-error-modal" class="mt-6 bg-red-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-600 transition-colors w-full">Tutup</button>
+            </div>
+        </div>
+        
+        <div id="info-modal" class="fixed inset-0 bg-black flex items-center justify-center p-4 hidden z-50">
+            <div class="bg-white rounded-lg shadow-xl p-8 max-w-sm w-full text-center modal-content-bg">
+                <div class="text-blue-500 mx-auto w-16 h-16 flex items-center justify-center bg-blue-100 rounded-full">
+                    <i class="fas fa-info-circle fa-3x"></i>
+                </div>
+                <h3 id="info-title" class="text-xl font-semibold text-slate-900 mt-6">Informasi</h3>
+                <p id="info-message" class="text-slate-600 mt-2">Pesan informasi akan muncul di sini.</p>
+                <button id="close-info-modal" class="mt-6 bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors w-full">Mengerti</button>
+            </div>
+        </div>
+
+        <div id="caption-modal" class="fixed inset-0 bg-black flex items-center justify-center p-4 hidden z-40">
+            <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col modal-content-bg">
+                <div class="p-4 border-b border-slate-200 flex justify-between items-center">
+                    <h3 class="text-lg font-semibold text-slate-800"><i class="fas fa-robot mr-2 text-blue-500"></i>Hasil AI</h3>
+                    <button id="close-caption-modal" class="text-slate-500 hover:text-slate-800"><i class="fas fa-times fa-lg"></i></button>
+                </div>
+                <div class="p-6 overflow-y-auto">
+                    <div id="caption-loading" class="text-center py-10"><i class="fas fa-spinner fa-spin text-3xl text-blue-500"></i><p class="mt-3 font-semibold text-slate-700">AI sedang bekerja...</p></div>
+                    <div id="caption-content" class="text-slate-700 hidden space-y-6 modal-content"></div>
+                </div>
+                 <div class="p-4 bg-slate-50 border-t border-slate-200">
+                     <button id="copy-caption-btn" class="w-full bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors"><i class="fas fa-copy mr-2"></i>Salin Teks</button>
+                 </div>
+            </div>
+        </div>
+
+        <div id="calendar-modal" class="fixed inset-0 bg-black flex items-center justify-center p-4 hidden z-[60]">
+            <div class="bg-white rounded-xl shadow-2xl p-6 max-w-sm w-full text-center modal-content-bg">
+                <h3 class="text-xl font-semibold text-slate-900 mb-4">Tambahkan ke Kalender</h3>
+                <p class="text-slate-600 mb-6">Pilih layanan kalender Anda untuk menjadwalkan ide konten ini.</p>
+                <div class="space-y-3">
+                    <button id="google-calendar-btn" class="w-full bg-red-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-red-600 transition-colors flex items-center justify-center gap-2">
+                        <i class="fab fa-google"></i> Google Calendar
+                    </button>
+                    <button id="ics-download-btn" class="w-full bg-slate-700 text-white font-bold py-3 px-4 rounded-lg hover:bg-slate-800 transition-colors flex items-center justify-center gap-2">
+                        <i class="fas fa-file-download"></i> Outlook, Apple, dll (.ics)
+                    </button>
+                </div>
+                <button id="close-calendar-modal" class="mt-6 text-sm text-slate-500 hover:text-slate-700">Batal</button>
+            </div>
+        </div>
+
+
+    </div>
+
+    <script type="module">
+        // --- Firebase Imports ---
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, addDoc, getDocs, deleteDoc, collection, query, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- GLOBAL AND FIREBASE VARIABLES ---
+        const getEl = (id) => document.getElementById(id);
+        
+        // --- PERBAIKAN: Mengembalikan ke metode yang kompatibel dengan Canvas ---
+        const GEMINI_API_KEY = "";
+
+        // Firebase variables
+        let app, db, auth;
+        let userId, appId;
+        let draftsUnsubscribe = null; // To detach listener
+
+        let currentStep = 1;
+        const totalSteps = 3; // UPDATE: Total steps is now 3
+        let generatedData = [];
+        let currentInputs = {};
+        let currentCalendarItem = null;
+        let currentDraftObject = null;
+        let interestTags = [];
+
+	// --- (Tambahkan kode ini) ---
+	const defaultInterestSuggestions = {
+    'makanan': ['promo', 'menu baru', 'review pelanggan', 'resep', 'latte art', 'vegetarian', 'diskon'],
+    'minuman': ['promo', 'menu baru', 'review pelanggan', 'resep', 'latte art', 'kopi susu', 'non-kopi'],
+    'fashion': ['ootd', 'tren fashion', 'diskon', 'new arrival', 'styling tips', 'lookbook', 'sustainable fashion'],
+    'kecantikan': ['skincare routine', 'tutorial makeup', 'review produk', 'promo', 'tips & trik', 'before after', 'local brand'],
+    'kesehatan': ['tips sehat', 'olahraga', 'resep sehat', 'mitos vs fakta', 'konsultasi', 'mindfulness', 'kesehatan mental'],
+    'pendidikan': ['kursus online', 'beasiswa', 'tips belajar', 'webinar', 'info jurusan', 'skill baru', 'edutech'],
+    'teknologi': ['gadget review', 'tips teknologi', 'aplikasi rekomendasi', 'berita startup', 'AI', 'coding'],
+    'travel': ['destinasi wisata', 'tips packing', 'promo tiket', 'hidden gem', 'kuliner lokal', 'staycation'],
+    'hewan': ['perawatan hewan', 'fakta unik hewan', 'adopsi', 'produk hewan', 'tingkah lucu', 'komunitas pecinta hewan']
+};
+
+        // --- DEBOUNCE FUNCTION ---
+        const debounce = (func, delay) => {
+            let timeout;
+            return (...args) => {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), delay);
+            };
+        };
+        
+        // --- DATA STORAGE LOGIC (Firestore) ---
+        const getFormStateRef = () => doc(db, `artifacts/${appId}/users/${userId}/formState/latest`);
+        const getDraftsCollectionRef = () => collection(db, `artifacts/${appId}/users/${userId}/drafts`);
+
+        const loadFormStateFromFirestore = async () => {
+    // Fitur riwayat dinonaktifkan. Selalu mulai dengan form kosong.
+    console.log("History feature disabled. Setting default state.");
+    setDefaultDate(); // Hanya panggil fungsi untuk mengatur tanggal default
+};
+
+        const saveFormStateToFirestore = async () => {
+    // Fitur riwayat dinonaktifkan. Jangan lakukan apa-apa.
+    return;
+};
+        
+        const debouncedSave = debounce(saveFormStateToFirestore, 1500);
+
+        const populateForm = (data) => {
+             if (!data) return;
+             const productFocusToggle = getEl('product-focus-toggle');
+             
+             // This is a helper function to avoid repetition
+             const setValue = (el, value) => {
+                if (el.type === 'checkbox') {
+                    if (el.classList.contains('platform-checkbox')) {
+                        el.checked = Array.isArray(data.platforms) && data.platforms.includes(el.value);
+                    } else {
+                        el.checked = value;
+                    }
+                } else if (el.type === 'radio') {
+                    if (el.value === value) {
+                        el.checked = true;
+                    }
+                } else {
+                    el.value = value;
+                }
+             };
+
+             // Populate all form inputs based on their ID
+             document.querySelectorAll('.form-input').forEach(el => {
+                const key = el.id;
+                if (data[key] !== undefined && data[key] !== null) {
+                    setValue(el, data[key]);
+                }
+             });
+             
+             // Handle radio groups by name
+             const stage = data['business-stage'];
+             if (stage) {
+                const stageRadio = document.querySelector(`input[name="business-stage"][value="${stage}"]`);
+                if (stageRadio) stageRadio.checked = true;
+             }
+             const mood = data['content-mood'];
+             if (mood) {
+                const moodRadio = document.querySelector(`input[name="content-mood"][value="${mood}"]`);
+                if (moodRadio) moodRadio.checked = true;
+             }
+
+             if (productFocusToggle) {
+                 productFocusToggle.checked = !!data['product-focus-toggle'];
+                 productFocusToggle.dispatchEvent(new Event('change'));
+             }
+
+             if (data['audience-interests']) {
+                 interestTags = data['audience-interests'].split(',').map(t => t.trim()).filter(t => t);
+                 renderTags();
+             }
+};
+
+
+        // --- DRAFT (Firestore) LOGIC ---
+        const showDraftsModal = () => {
+            if (!auth.currentUser) {
+                showErrorModal("Terjadi kesalahan, silakan muat ulang halaman.");
+                return;
+            }
+            const draftsList = getEl('drafts-list');
+            const draftViewer = getEl('draft-viewer');
+            draftsList.innerHTML = `<p class="text-slate-500 text-center">Memuat draf...</p>`;
+            if(draftViewer) draftViewer.classList.add('hidden');
+            getEl('drafts-modal').classList.remove('hidden');
+
+            // Detach any existing listener before attaching a new one
+            if (draftsUnsubscribe) {
+                draftsUnsubscribe();
+            }
+
+            // Listen for real-time updates on drafts
+            draftsUnsubscribe = onSnapshot(query(getDraftsCollectionRef()), (snapshot) => {
+                draftsList.innerHTML = '';
+                if (snapshot.empty) {
+                    draftsList.innerHTML = `<p class="text-slate-500 text-center">Belum ada draf yang tersimpan.</p>`;
+                    return;
+                }
+
+                snapshot.docs.forEach(doc => {
+                    const draft = { id: doc.id, ...doc.data() };
+                    const li = document.createElement('li');
+                    li.className = 'p-3 rounded-lg hover:bg-slate-100 cursor-pointer border border-slate-200';
+                    li.innerHTML = `
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="font-semibold text-sm sm:text-base text-slate-800">${draft.inputs.businessName || 'Draf Produk'}</p>
+                                <p class="text-xs text-slate-500">Disimpan pada ${new Date(draft.savedAt.toDate()).toLocaleString('id-ID')}</p>
+                            </div>
+                            <button data-draft-id="${draft.id}" class="delete-draft-btn text-red-400 hover:text-red-600 px-2 py-1"><i class="fas fa-trash"></i></button>
+                        </div>
+                    `;
+                    li.addEventListener('click', (e) => {
+                        if (e.target.closest('.delete-draft-btn')) return;
+                        viewDraft(draft);
+                    });
+                    li.querySelector('.delete-draft-btn').addEventListener('click', async (e) => {
+                        e.stopPropagation();
+                        try {
+                            await deleteDoc(doc.ref);
+                            console.log(`Draft ${draft.id} deleted.`);
+                            if (currentDraftObject && currentDraftObject.id === draft.id) {
+                                getEl('draft-viewer').classList.add('hidden');
+                            }
+                        } catch (error) {
+                            console.error("Error deleting draft:", error);
+                            showErrorModal("Gagal menghapus draf.");
+                        }
+                    });
+                    draftsList.appendChild(li);
+                });
+            }, (error) => {
+                console.error("Error listening to drafts:", error);
+                draftsList.innerHTML = `<p class="text-red-500 text-center">Gagal memuat draf.</p>`;
+            });
+        };
+
+        const viewDraft = (draft) => {
+            currentDraftObject = draft; 
+            currentInputs = draft.inputs; // Set context for regeneration
+            getEl('draft-viewer-title').textContent = `Detail Draf: ${draft.inputs.businessName || 'Draf Produk'}`;
+            renderResults(draft.planData, getEl('draft-viewer-content'), draft);
+            getEl('draft-viewer').classList.remove('hidden');
+            
+            getEl('export-draft-pdf-btn').onclick = () => {
+                handleExportPDF(draft.planData, `Draf - ${draft.inputs.businessName}`, `Disimpan pada ${new Date(draft.savedAt.toDate()).toLocaleString('id-ID')}`);
+            };
+
+            getEl('export-draft-csv-btn').onclick = () => {
+                handleExportCSV(draft.planData, `Draf - ${draft.inputs.businessName}`);
+            };
+        };
+        
+        const saveCurrentPlanAsDraft = async () => {
+            if (!auth.currentUser) {
+                showErrorModal("Terjadi kesalahan, silakan muat ulang halaman.");
+                return;
+            }
+            if (!db || !userId || generatedData.length === 0) {
+                showErrorModal("Tidak ada rencana untuk disimpan. Buat rencana terlebih dahulu.");
+                return;
+            }
+            const saveDraftBtn = getEl('save-draft-btn');
+            saveDraftBtn.disabled = true;
+            saveDraftBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
+
+            const draftData = {
+                inputs: currentInputs,
+                planData: generatedData,
+                savedAt: new Date()
+            };
+
+            try {
+                const docRef = await addDoc(getDraftsCollectionRef(), draftData);
+                console.log("Draft saved with ID: ", docRef.id);
+                saveDraftBtn.innerHTML = '<i class="fas fa-check"></i>';
+                saveDraftBtn.title = "Berhasil Disimpan!";
+                saveDraftBtn.classList.add('cursor-not-allowed', 'opacity-60');
+            } catch (error) {
+                console.error("Error saving draft: ", error);
+                showErrorModal("Gagal menyimpan draf. Silakan coba lagi.");
+                saveDraftBtn.disabled = false;
+                saveDraftBtn.innerHTML = '<i class="fas fa-save"></i>';
+            }
+        };
+
+        // --- UI LOGIC ---
+        const updateButtons = () => {
+            getEl('prev-btn').disabled = currentStep === 1;
+            if (currentStep === totalSteps) {
+                getEl('next-btn').classList.add('hidden');
+                getEl('generate-btn').classList.remove('hidden');
+            } else {
+                getEl('next-btn').classList.remove('hidden');
+                getEl('generate-btn').classList.add('hidden');
+            }
+        };
+
+        const updateStepIndicators = () => {
+            for (let i = 1; i <= totalSteps; i++) {
+                const indicator = getEl(`step-indicator-${i}`);
+                indicator.classList.remove('active', 'completed');
+                if (i < currentStep) {
+                    indicator.classList.add('completed');
+                } else if (i === currentStep) {
+                    indicator.classList.add('active');
+                }
+            }
+        };
+
+        const showStep = (step) => {
+            document.querySelectorAll('.form-step').forEach(el => el.classList.remove('active'));
+            getEl(`step-${step}`).classList.add('active');
+            updateButtons();
+            updateStepIndicators();
+            getEl('main-content').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        };
+        
+        const showLoading = () => {
+            getEl('form-wizard').classList.add('hidden');
+            getEl('loading').classList.remove('hidden');
+            getEl('results').classList.add('hidden');
+        };
+
+        const hideLoading = () => {
+            getEl('loading').classList.add('hidden');
+        };
+        
+        // --- Core Application Logic ---
+        const generatePlan = async () => {
+            if (!auth.currentUser) {
+                showErrorModal("Terjadi kesalahan, silakan muat ulang halaman untuk membuat rencana.");
+                return;
+            }
+            showLoading();
+            try {
+                const saveDraftBtn = getEl('save-draft-btn');
+                if(saveDraftBtn) {
+                    saveDraftBtn.disabled = false;
+                    saveDraftBtn.innerHTML = '<i class="fas fa-save"></i>';
+                    saveDraftBtn.title = "Simpan ke Draf";
+                    saveDraftBtn.classList.remove('cursor-not-allowed', 'opacity-60');
+                }
+
+                currentInputs = getFormInputs();
+                const prompt = buildPlannerPrompt(currentInputs);
+                const result = await callGemini(prompt, true, plannerSchema);
+                generatedData = result.plan || [];
+                
+                const businessName = getEl('business-name').value;
+                getEl('results-title').textContent = currentInputs.isProductFocus ? `Ide Fokus untuk "${currentInputs.productName}"` : `Rencana Konten untuk "${businessName}"`;
+                getEl('results-subtitle').textContent = currentInputs.isProductFocus ? "Berikut adalah 5 ide yang dihasilkan khusus untuk produk ini." : "Berikut adalah ide-ide yang dihasilkan khusus untuk Anda.";
+                
+                renderResults(generatedData, getEl('results-grid'));
+                getEl('results').classList.remove('hidden');
+                if(saveDraftBtn) saveDraftBtn.classList.remove('hidden');
+                getEl('form-wizard').classList.add('hidden');
+            } catch (error) {
+                console.error('Gagal membuat konten:', error);
+                showErrorModal(error.message);
+                resetToFormView();
+            } finally {
+                hideLoading();
+            }
+        };
+
+        const resetForm = () => {
+            const form = getEl('form-wizard');
+            const fieldsToClear = [
+                'business-name', 'industry', 'description', 
+                'audience-age-from', 'audience-age-to',
+                'product-focus-input', 'product-description',
+                'promotion-details', 'promotion-start-date', 'promotion-end-date'
+            ];
+
+            fieldsToClear.forEach(id => {
+                const el = getEl(id);
+                if (el) el.value = '';
+            });
+
+            interestTags = [];
+            renderTags();
+            // Reset suggestions to default after clearing
+            getEl('suggested-interests').innerHTML = ``;
+
+            form.querySelectorAll('select').forEach(select => select.selectedIndex = 0);
+
+            form.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                 if (checkbox.classList.contains('platform-checkbox')) {
+                    checkbox.checked = (checkbox.id === 'platform-instagram');
+                 } else {
+                    checkbox.checked = false;
+                 }
+            });
+            getEl('product-focus-toggle').checked = false;
+            getEl('product-focus-fields').classList.add('hidden');
+            getEl('plan-details-container').classList.remove('hidden');
+            form.querySelectorAll('input[type="radio"]').forEach(radio => {
+                radio.checked = (radio.id === 'stage-awareness' || radio.id === 'mood-informative');
+            });
+
+            if (auth.currentUser) {
+                saveFormStateToFirestore(); // Save the cleared state
+            }
+            
+            setDefaultDate();
+            currentStep = 1;
+            showStep(currentStep);
+        };
+        
+        const plannerSchema = { type: "OBJECT", properties: { plan: { type: "ARRAY", items: { type: "OBJECT", properties: { day: { type: "STRING" }, platform: { type: "STRING" }, pillar: { type: "STRING" }, idea: { type: "STRING" }, caption_brief: { type: "STRING" }, visual_idea: { type: "STRING" }, hashtags: { type: "STRING" } }, required: ["day", "platform", "pillar", "idea", "caption_brief", "visual_idea", "hashtags"] } } } };
+        const singleIdeaSchema = { type: "OBJECT", properties: { day: { type: "STRING" }, platform: { type: "STRING" }, pillar: { type: "STRING" }, idea: { type: "STRING" }, caption_brief: { type: "STRING" }, visual_idea: { type: "STRING" }, hashtags: { type: "STRING" } }, required: ["day", "platform", "pillar", "idea", "caption_brief", "visual_idea", "hashtags"] };
+        const interestSuggestionSchema = { type: "OBJECT", properties: { interests: { type: "ARRAY", items: { type: "STRING" } } }, required: ["interests"] };
+
+        const callGemini = async (prompt, isJson = false, schema = null) => {
+    try {
+        const response = await fetch('/api/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt, schema, isJson }),
+        });
+
+        if (!response.ok) {
+            const errorBody = await response.json();
+            console.error("API Function Error:", errorBody);
+            throw new Error(errorBody.error || `Permintaan ke server gagal dengan status ${response.status}`);
+        }
+        
+        const result = await response.json();
+        return result;
+
+    } catch (error) {
+        console.error('Gagal memanggil API function:', error);
+        throw new Error(error.message || "Gagal menghubungi server AI.");
+    }
+};
+
+        const getFormInputs = (isForStateSave = false) => {
+            const isProductFocus = getEl('product-focus-toggle').checked;
+            
+            const platforms = Array.from(document.querySelectorAll('.platform-checkbox:checked')).map(el => el.value);
+            const contentMoodRadio = document.querySelector('input[name="content-mood"]:checked');
+            const businessStageRadio = document.querySelector('input[name="business-stage"]:checked');
+
+            const allInputs = {
+                // Step 1
+                'business-name': getEl('business-name').value,
+                'industry': getEl('industry').value,
+                'description': getEl('description').value,
+                'audience-age-from': getEl('audience-age-from').value,
+                'audience-age-to': getEl('audience-age-to').value,
+                'audience-gender': getEl('audience-gender').value,
+                'audience-interests': interestTags.join(', '),
+                // Step 2
+                'business-stage': businessStageRadio ? businessStageRadio.value : "Kesadaran",
+                'content-mood': contentMoodRadio ? contentMoodRadio.value : "Informatif dan Edukatif",
+                // Step 3
+                'platforms': platforms,
+                'start-date': getEl('start-date').value,
+                'duration': getEl('duration').value,
+                'product-focus-toggle': getEl('product-focus-toggle').checked,
+                'product-focus-input': getEl('product-focus-input').value,
+                'product-description': getEl('product-description').value,
+                'promotion-details': getEl('promotion-details').value,
+                'promotion-start-date': getEl('promotion-start-date').value,
+                'promotion-end-date': getEl('promotion-end-date').value,
+            };
+
+            if (isForStateSave) {
+                return allInputs;
+            }
+
+            // Constructing the object for the prompt
+            const promptInputs = {
+                isProductFocus: isProductFocus,
+                audience: {
+                    age_from: allInputs['audience-age-from'],
+                    age_to: allInputs['audience-age-to'],
+                    gender: allInputs['audience-gender'],
+                    interests: allInputs['audience-interests']
+                },
+                contentMood: allInputs['content-mood'],
+                businessStage: allInputs['business-stage'],
+                platforms: allInputs['platforms'],
+            };
+
+            if (isProductFocus) {
+                promptInputs.productName = allInputs['product-focus-input'];
+                promptInputs.productDescription = allInputs['product-description'];
+            } else {
+                promptInputs.businessName = allInputs['business-name'];
+                promptInputs.industry = allInputs['industry'];
+                promptInputs.description = allInputs['description'];
+                promptInputs.startDate = allInputs['start-date'];
+                promptInputs.duration = allInputs['duration'];
+                promptInputs.promoDetails = allInputs['promotion-details'];
+                promptInputs.promoStart = allInputs['promotion-start-date'];
+                promptInputs.promoEnd = allInputs['promotion-end-date'];
+            }
+
+            return promptInputs;
+        };
+        
+        const buildPlannerPrompt = (inputs) => {
+            const audienceDescription = `Usia dari ${inputs.audience.age_from || 'tidak spesifik'} sampai ${inputs.audience.age_to || 'tidak spesifik'}, Jenis Kelamin ${inputs.audience.gender || 'semua'}, dengan minat pada ${inputs.audience.interests || 'tidak spesifik'}.`;
+            const platformList = inputs.platforms.join(', ');
+
+            let stageInstruction = '';
+            switch (inputs.businessStage) {
+                case "Kesadaran":
+                    stageInstruction = "Fokus utama adalah menjangkau audiens baru dan membangun brand awareness. Buat konten yang memperkenalkan brand, menjelaskan masalah yang produk Anda selesaikan, dan konten edukatif atau hiburan yang ringan untuk menarik perhatian.";
+                    break;
+                case "Interaksi":
+                    stageInstruction = "Fokus utama adalah membangun interaksi dan kepercayaan dengan audiens yang sudah mengenal Anda. Buat konten yang menampilkan testimoni, studi kasus, perbandingan produk, dan ajak audiens berdiskusi (Q&A, polling).";
+                    break;
+                case "Loyalitas":
+                    stageInstruction = "Fokus utama adalah mengubah pelanggan menjadi penggemar setia dan membangun komunitas. Buat konten di balik layar (behind the scenes), tonjolkan user-generated content (UGC), dan umumkan program loyalitas.";
+                    break;
+            }
+            
+            const platformInstruction = `Setiap ide dalam rencana harus secara spesifik ditujukan untuk SALAH SATU platform dari daftar yang dipilih: ${platformList}. Alokasikan ide ke platform yang paling sesuai. Contoh: Ide video singkat untuk TikTok/Instagram Reels, ide gambar berkualitas tinggi atau carousel untuk Instagram, ide berbasis komunitas/teks untuk Facebook. Jangan membuat ide umum, tapi buatlah ide yang dioptimalkan untuk format setiap platform.`;
+            
+            const languageInstruction = "ATURAN MUTLAK: Seluruh teks dalam respons JSON yang Anda hasilkan HARUS dalam Bahasa Indonesia.";
+
+
+            if (inputs.isProductFocus) {
+                return `Buat 5 ide konten yang berbeda dan kreatif untuk mempromosikan satu produk spesifik: "${inputs.productName}".
+                Deskripsi produk: "${inputs.productDescription}".
+                Target audiens: "${audienceDescription}".
+                Pembawaan suasana: "${inputs.contentMood}".
+                Tujuan Konten: "${inputs.businessStage}".
+                INSTRUKSI PLATFORM: ${platformInstruction}
+                INSTRUKSI TUJUAN KONTEN: ${stageInstruction}
+                Berikan ide dari berbagai sudut pandang (edukasi, testimoni, promosi, interaksi, dll) yang sesuai dengan tujuan konten tersebut. Hasilkan dalam format JSON dengan skema 'plan', gunakan "Ide 1", "Ide 2", dst. untuk field 'day'.
+                ${languageInstruction}`;
+            }
+
+            let focusInstruction = "Berikan kombinasi pilar konten yang seimbang (Edukasi, Promosi, Hiburan, Interaksi) yang sesuai dengan tujuan konten.";
+            if (inputs.promoDetails && inputs.promoStart && inputs.promoEnd) {
+                focusInstruction = `Ada promosi khusus yang sedang berjalan: "${inputs.promoDetails}" dari tanggal ${inputs.promoStart} hingga ${inputs.promoEnd}. Prioritaskan beberapa ide konten untuk promosi ini, sambil tetap menjaga keseimbangan pilar konten.`;
+            }
+            
+            const moodInstruction = `Gunakan pembawaan suasana yang ${inputs.contentMood} dalam semua ide dan draf caption.`;
+            const startDateInstruction = inputs.startDate ? `Mulai rencana pada tanggal ${inputs.startDate}.` : '';
+
+            return `Anda adalah ahli strategi sosial media. Buat rencana konten untuk ${inputs.duration} hari untuk bisnis: Nama: "${inputs.businessName}", Industri: "${inputs.industry}", Deskripsi: "${inputs.description}", Audiens: "${audienceDescription}".
+            INSTRUKSI UTAMA: Rencana harus disesuaikan untuk mencapai tujuan **${inputs.businessStage}**.
+            INSTRUKSI PLATFORM: ${platformInstruction}
+            INSTRUKSI TUJUAN KONTEN: ${stageInstruction}
+            INSTRUKSI TANGGAL: ${startDateInstruction} Gunakan tanggal kalender aktual (misalnya, '10 Juli 2025') untuk field 'day' dalam JSON, bukan 'Hari 1'.
+            INSTRUKSI FOKUS: ${focusInstruction}
+            INSTRUKSI SUASANA: ${moodInstruction}
+            Hasilkan dalam format JSON sesuai skema.
+            ${languageInstruction}`;
+        }
+
+
+        const getPillarTag = (pillar) => {
+            const p = (pillar || 'General').toLowerCase();
+            let classes = 'bg-slate-100 text-slate-700'; // Warna default
+            let text = pillar || 'General';
+
+            switch (p) {
+                case 'edukasi':
+                    classes = 'bg-blue-100 text-blue-800';
+                    break;
+                case 'promosi':
+                    classes = 'bg-green-100 text-green-800';
+                    break;
+                case 'hiburan':
+                    classes = 'bg-orange-100 text-orange-800';
+                    break;
+                case 'interaksi':
+                    classes = 'bg-purple-100 text-purple-800';
+                    break;
+            }
+            return `<span class="${classes} text-xs font-semibold mr-2 px-2.5 py-0.5 rounded-full">${text}</span>`;
+        };
+
+        const renderResults = (data, container, draft = null) => {
+            container.innerHTML = '';
+            if (!data || data.length === 0) {
+                container.innerHTML = `<p class="col-span-full text-center">Tidak ada data untuk ditampilkan.</p>`;
+                return;
+            }
+            data.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-xl p-5 flex flex-col h-full shadow-lg hover:shadow-xl transition-shadow duration-300 border border-slate-200 relative';
+                card.dataset.index = index; 
+                const platformIcon = getPlatformIcon(item.platform);
+                
+                card.innerHTML = `
+                    <div class="card-content-wrapper space-y-4 flex-grow">
+                        <div class="flex justify-between items-start">
+                            <span class="text-sm font-bold uppercase text-slate-500 tracking-wider">${item.day}</span>
+                            <span class="text-2xl">${platformIcon}</span>
+                        </div>
+                        <div>
+                            <p class="text-base font-bold text-slate-800 mb-2">${item.idea || 'N/A'}</p>
+                            ${getPillarTag(item.pillar)}
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-bold text-blue-600 mb-1 tracking-wide">CAPTION</h3>
+                            <p class="text-sm text-slate-600">${item.caption_brief || 'N/A'}</p>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-bold text-blue-600 mb-1 tracking-wide">VISUAL</h3>
+                            <p class="text-sm text-slate-600">${item.visual_idea || 'N/A'}</p>
+                        </div>
+                    </div>
+                    <div class="mt-auto pt-4 flex flex-wrap gap-2">
+                        <button class="get-ai-result-btn flex-grow bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors text-sm">
+                            <i class="fas fa-robot mr-2"></i>Hasil AI
+                        </button>
+                        <button class="add-to-calendar-btn flex-grow bg-slate-100 text-slate-800 font-semibold py-2 px-4 rounded-lg hover:bg-slate-200 transition-colors text-sm">
+                            <i class="fas fa-calendar-plus mr-2"></i>Jadwalkan
+                        </button>
+                        <button class="regenerate-idea-btn w-full mt-2 bg-slate-100 text-slate-800 font-semibold py-2 px-4 rounded-lg hover:bg-slate-200 transition-colors text-sm">
+                            <i class="fas fa-sync-alt mr-2"></i>Buat Ulang Ide
+                        </button>
+                    </div>
+                `;
+                card.querySelector('.get-ai-result-btn').addEventListener('click', (e) => handleDevelopCaption(item, draft, e.currentTarget.closest('.bg-white')));
+                card.querySelector('.add-to-calendar-btn').addEventListener('click', () => showCalendarModal(item));
+                card.querySelector('.regenerate-idea-btn').addEventListener('click', (e) => handleRegenerateIdea(index, e.currentTarget.closest('.bg-white'), container, draft));
+                container.appendChild(card);
+            });
+        };
+        
+        const getPlatformIcon = (platform) => {
+            const p = (platform || "").toLowerCase();
+            if (p.includes('instagram')) return '<i class="fab fa-instagram text-pink-500"></i>';
+            if (p.includes('tiktok')) return '<i class="fab fa-tiktok"></i>';
+            if (p.includes('facebook')) return '<i class="fab fa-facebook text-blue-600"></i>';
+            return '<i class="fas fa-bullhorn"></i>';
+        };
+
+        const buildRegeneratePrompt = (itemToReplace) => {
+            const contextInputs = currentInputs; 
+            const audienceDescription = `Usia dari ${contextInputs.audience.age_from || 'tidak spesifik'} sampai ${contextInputs.audience.age_to || 'tidak spesifik'}, Jenis Kelamin ${contextInputs.audience.gender || 'semua'}, dengan minat pada ${contextInputs.audience.interests || 'tidak spesifik'}.`;
+            const baseInfo = contextInputs.isProductFocus 
+                ? `untuk produk "${contextInputs.productName}" (${contextInputs.productDescription})` 
+                : `untuk bisnis "${contextInputs.businessName}" di industri "${contextInputs.industry}"`;
+            
+            const languageInstruction = "ATURAN MUTLAK: Seluruh teks dalam respons JSON yang Anda hasilkan HARUS dalam Bahasa Indonesia.";
+
+
+            return `Anda adalah ahli strategi sosial media. Saya butuh satu ide konten BARU untuk menggantikan ide yang sudah ada.
+            
+            Konteks Bisnis: ${baseInfo}
+            Target Audiens: ${audienceDescription}
+            Tujuan Konten: ${contextInputs.businessStage}
+            Suasana Konten: ${contextInputs.contentMood}
+            Platform: ${itemToReplace.platform}
+
+            Ide yang akan diganti adalah: "${itemToReplace.idea}" (Pilar: ${itemToReplace.pillar}).
+
+            Tugas Anda:
+            1. Buat satu ide konten yang SANGAT BERBEDA dari ide yang akan diganti.
+            2. Ide baru harus tetap sesuai dengan semua konteks (audiens, tujuan, suasana, platform).
+            3. Jaga agar tanggal/hari ('day') tetap sama: "${itemToReplace.day}".
+            4. Hasilkan dalam format JSON tunggal (bukan dalam array 'plan'), sesuai dengan skema yang diberikan.
+            ${languageInstruction}`;
+        }
+
+        const handleRegenerateIdea = async (index, cardElement, container, draft) => {
+            let dataArray = draft ? draft.planData : generatedData;
+            const itemToReplace = dataArray[index];
+            
+            const loadingOverlay = document.createElement('div');
+            loadingOverlay.className = 'card-loading-overlay';
+            loadingOverlay.innerHTML = `<i class="fas fa-spinner fa-spin text-3xl text-purple-500"></i>`;
+            cardElement.appendChild(loadingOverlay);
+
+            try {
+                const prompt = buildRegeneratePrompt(itemToReplace);
+                const newIdea = await callGemini(prompt, true, singleIdeaSchema);
+                
+                dataArray[index] = newIdea;
+                
+                if (draft) {
+                    const draftRef = doc(db, `artifacts/${appId}/users/${userId}/drafts/${draft.id}`);
+                    await setDoc(draftRef, { planData: dataArray }, { merge: true });
+                    console.log("Draft updated in Firestore after regeneration.");
+                }
+
+                renderResults(dataArray, container, draft);
+
+            } catch (error) {
+                console.error('Error regenerating idea:', error);
+                showErrorModal(error.message || "Gagal membuat ulang ide. Silakan coba lagi.");
+            } finally {
+                if (cardElement.contains(loadingOverlay)) {
+                    cardElement.removeChild(loadingOverlay);
+                }
+            }
+        };
+        
+        const handleDevelopCaption = async (item, draft = null, cardElement) => {
+            const isDraftContext = draft !== null;
+            const modalToShow = isDraftContext ? getEl('draft-ai-result-modal') : getEl('caption-modal');
+            const loadingToShow = isDraftContext ? getEl('draft-caption-loading') : getEl('caption-loading');
+            const contentToShow = isDraftContext ? getEl('draft-caption-content') : getEl('caption-content');
+
+            const loadingOverlay = document.createElement('div');
+            if (cardElement) {
+                loadingOverlay.className = 'card-loading-overlay';
+                loadingOverlay.innerHTML = `<i class="fas fa-spinner fa-spin text-3xl text-blue-500"></i>`;
+                cardElement.appendChild(loadingOverlay);
+            }
+            
+            try {
+                if (item.aiResultJson) {
+                    contentToShow.innerHTML = renderAiResultFromJSON(item.aiResultJson);
+                } else {
+                    modalToShow.classList.remove('hidden');
+                    contentToShow.innerHTML = '';
+                    contentToShow.classList.add('hidden');
+                    loadingToShow.classList.remove('hidden');
+
+                    const prompt = buildCaptionPrompt(item);
+                    const resultJson = await callGemini(prompt, true, captionSchema);
+                    const htmlResult = renderAiResultFromJSON(resultJson);
+                    contentToShow.innerHTML = htmlResult;
+                    item.aiResultJson = resultJson;
+
+                    if (draft) {
+                       const draftRef = doc(db, `artifacts/${appId}/users/${userId}/drafts/${draft.id}`);
+                       const itemIndex = draft.planData.findIndex(p => p.idea === item.idea && p.day === item.day);
+                       if (itemIndex > -1) {
+                           draft.planData[itemIndex] = item;
+                           await setDoc(draftRef, { planData: draft.planData }, { merge: true });
+                           console.log("Draft updated with AI result.");
+                       }
+                    }
+                }
+                loadingToShow.classList.add('hidden');
+                contentToShow.classList.remove('hidden');
+                modalToShow.classList.remove('hidden');
+
+            } catch (error) {
+                contentToShow.innerHTML = `<p class="text-red-500">${error.message}</p>`;
+                loadingToShow.classList.add('hidden');
+                contentToShow.classList.remove('hidden');
+                modalToShow.classList.remove('hidden');
+            } finally {
+                if (cardElement && cardElement.contains(loadingOverlay)) {
+                    cardElement.removeChild(loadingOverlay);
+                }
+            }
+        };
+        
+        const renderAiResultFromJSON = (data) => {
+            let html = '';
+            if (data.fullCaption) { html += `<h4>Caption Lengkap</h4><p>${data.fullCaption.replace(/\n/g, '<br>')}</p>`; }
+            if (data.visualSuggestion) { html += `<h4 class="mt-4">Saran Visual</h4><p>${data.visualSuggestion}</p>`; }
+            if (data.videoScript && data.videoScript.length > 0) {
+                html += `<h4 class="mt-4 text-md sm:text-lg">Detail Skrip Video</h4><div class="space-y-3 border-l-2 border-slate-200 pl-4">`;
+                data.videoScript.forEach(scene => {
+                    html += `<div class="text-sm sm:text-base">
+                                 <p class="font-semibold text-slate-800">${scene.scene || ''}</p>
+                                 <p class="text-slate-600"><strong class="font-medium">Visual:</strong> ${scene.visual || 'N/A'}</p>
+                                 ${scene.onScreenText ? `<p class="text-slate-600"><strong class="font-medium">Teks Layar:</strong> ${scene.onScreenText}</p>` : ''}
+                                 ${scene.narration ? `<p class="text-slate-600"><strong class="font-medium">Narasi:</strong> ${scene.narration}</p>` : ''}
+                               </div>`;
+                });
+                html += `</div>`;
+            }
+            if (data.hashtags && data.hashtags.length > 0) { html += `<h4 class="mt-4">Saran Hashtag</h4><p class="text-sm text-blue-600">${data.hashtags.join(' ')}</p>`; }
+            return html;
+        };
+
+        const captionSchema = {
+            type: "OBJECT",
+            properties: {
+                fullCaption: { type: "STRING" },
+                visualSuggestion: { type: "STRING" },
+                videoScript: {
+                    type: "ARRAY",
+                    items: {
+                        type: "OBJECT",
+                        properties: {
+                            scene: { type: "STRING" },
+                            visual: { type: "STRING" },
+                            onScreenText: { type: "STRING" },
+                            narration: { type: "STRING" }
+                        },
+                        required: ["scene", "visual"]
+                    }
+                },
+                hashtags: { type: "ARRAY", items: { type: "STRING" } }
+            },
+            required: ["fullCaption", "visualSuggestion", "videoScript", "hashtags"]
+        };
+
+        const buildCaptionPrompt = (item) => {
+            const audienceDescription = `Usia ${currentInputs.audience.age_from || 'tidak spesifik'} - ${currentInputs.audience.age_to || 'tidak spesifik'} tahun, Jenis Kelamin: ${currentInputs.audience.gender}, Minat: ${currentInputs.audience.interests || 'tidak spesifik'}`;
+            let promoInfo = "Tidak ada promosi khusus saat ini.";
+            if (currentInputs.promoDetails) {
+                promoInfo = `Saat ini ada promosi: "${currentInputs.promoDetails}".`;
+            }
+            
+            const languageInstruction = "ATURAN MUTLAK: Seluruh teks dalam respons JSON yang Anda hasilkan HARUS dalam Bahasa Indonesia.";
+
+
+            return `Anda adalah seorang copywriter dan ahli strategi media sosial. Tugas Anda adalah mengembangkan brief konten berikut menjadi caption yang lengkap, menarik, dan siap untuk dipublikasikan.
+
+**Konteks Bisnis & Tujuan Utama:**
+- **Nama Bisnis:** ${currentInputs.businessName || 'Bisnis ini'}
+- **Deskripsi Bisnis:** ${currentInputs.description || 'Tidak ada deskripsi.'}
+- **Target Audiens:** ${audienceDescription}
+- **Tujuan Utama Konten:** ${currentInputs.businessStage}. Ini berarti fokusnya adalah pada ${currentInputs.businessStage === 'Kesadaran' ? 'memperkenalkan merek dan menjangkau audiens baru.' : currentInputs.businessStage === 'Interaksi' ? 'membangun hubungan dan kepercayaan.' : 'mempertahankan pelanggan dan membangun komunitas.'}
+- **Suasana Konten (Tone of Voice):** ${currentInputs.contentMood}
+
+**Informasi Promosi (Jika Ada):**
+- ${promoInfo}
+
+**Brief Konten Spesifik yang Harus Dikembangkan:**
+- **Platform:** ${item.platform}
+- **Ide Inti:** ${item.idea}
+- **Draf Awal Caption:** ${item.caption_brief}
+- **Ide Visual:** ${item.visual_idea}
+
+**Tugas Anda:**
+1.  **fullCaption:** Tulis caption lengkap dan menarik berdasarkan brief di atas. Gunakan suasana ${currentInputs.contentMood}. Akhiri dengan Call-To-Action (CTA) yang jelas dan sesuai dengan tujuan konten (${currentInputs.businessStage}). Jika ada promosi, sebutkan dengan jelas.
+2.  **visualSuggestion:** Berikan deskripsi yang lebih detail untuk ide visual. Jelaskan elemen-elemen kunci yang harus ada, komposisi, atau nuansa visualnya.
+3.  **videoScript:** Jika ide visual adalah video (misal: Reels, TikTok), buatlah skrip yang detail. Hasilkan sebagai array objek, di mana setiap objek mewakili satu adegan dan memiliki properti: 'scene' (misalnya, "Scene 1: Opening"), 'visual' (deskripsi visual adegan secara detail), 'onScreenText' (teks yang muncul di layar, jika ada. Kosongkan jika tidak ada), dan 'narration' (narasi atau dialog, jika ada. Kosongkan jika tidak ada). Jika bukan video, kembalikan array kosong.
+4.  **hashtags:** Berikan daftar hashtag yang relevan, campurkan antara hashtag populer dan niche. Sertakan juga hashtag merek jika memungkinkan.
+
+${languageInstruction}
+Balas HANYA dengan objek JSON yang valid sesuai skema yang diberikan.`;
+        };
+
+        
+        const copyTextFromModal = (contentElement, buttonElement, originalText) => {
+            const textToCopy = contentElement.innerText;
+            const textArea = document.createElement("textarea");
+            textArea.value = textToCopy;
+            textArea.style.position = "fixed"; textArea.style.top = "-9999px";
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                buttonElement.innerHTML = '<i class="fas fa-check mr-2"></i>Tersalin!';
+            } catch (err) {
+                console.error('Gagal menyalin teks', err);
+                buttonElement.innerHTML = '<i class="fas fa-times mr-2"></i>Gagal!';
+            }
+            document.body.removeChild(textArea);
+            setTimeout(() => { 
+                buttonElement.innerHTML = `<i class="fas fa-copy mr-2"></i>${originalText}`;
+            }, 2000);
+        };
+
+
+        const showErrorModal = (message) => {
+            getEl('error-message').textContent = message || `Maaf, terjadi masalah. Silakan periksa koneksi Anda dan coba lagi.`;
+            getEl('error-modal').classList.remove('hidden');
+        };
+
+        // NEW: Function to show the friendly info modal
+        const showInfoModal = (title, message) => {
+            getEl('info-title').textContent = title;
+            getEl('info-message').textContent = message;
+            getEl('info-modal').classList.remove('hidden');
+        };
+
+        const resetToFormView = () => {
+            getEl('loading').classList.add('hidden');
+            getEl('results').classList.add('hidden');
+            const saveDraftBtn = getEl('save-draft-btn');
+            if(saveDraftBtn) saveDraftBtn.classList.add('hidden');
+            getEl('form-wizard').classList.remove('hidden');
+        };
+
+        const startOver = () => {
+            resetToFormView();
+            resetForm();
+        };
+        
+        // --- PDF & CSV EXPORT ---
+        const handleExportPDF = (dataToExport, title, subtitle) => {
+            if (!dataToExport || dataToExport.length === 0) {
+                showErrorModal("Tidak ada data untuk diekspor.");
+                return;
+            }
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+            const pageHeight = doc.internal.pageSize.height;
+            const pageWidth = doc.internal.pageSize.width;
+            const margin = 15;
+            let yPos = margin + 5;
+
+            // Fungsi untuk pindah ke halaman baru jika perlu
+            const checkPageBreak = (spaceNeeded) => {
+                if (yPos + spaceNeeded > pageHeight - margin) {
+                    doc.addPage();
+                    yPos = margin + 10;
+                }
+            };
+
+            // --- Header Dokumen ---
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(20);
+            doc.setTextColor(31, 41, 55);
+            doc.text(title, margin, yPos);
+            yPos += 8;
+
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(11);
+            doc.setTextColor(107, 114, 128);
+            doc.text(subtitle, margin, yPos);
+            yPos += 12;
+
+            // --- Loop untuk Setiap Konten ---
+            dataToExport.forEach((item, index) => {
+                checkPageBreak(70); 
+
+                const cardStartY = yPos;
+                const cardContentWidth = pageWidth - (margin * 2);
+
+                // --- Header Kartu (Tanggal, Tag Platform, dan Tag Pilar) ---
+                yPos += 10;
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(12);
+                doc.setTextColor(17, 24, 39);
+                doc.text(item.day || 'Ide', margin, yPos + 1);
+                
+                // --- Tag "Pilar" (dibuat dulu untuk menentukan posisinya) ---
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(9);
+                const pillarText = `Pilar: ${item.pillar || 'General'}`;
+                const pillarWidth = doc.getTextWidth(pillarText);
+                const pillarTagX = pageWidth - margin - pillarWidth - 8;
+                const pillarTagY = yPos - 3;
+                doc.setFillColor(243, 244, 246); // Latar abu-abu terang
+                doc.setTextColor(55, 65, 81);
+                doc.roundedRect(pillarTagX, pillarTagY, pillarWidth + 6, 7, 3.5, 3.5, 'F');
+                doc.text(pillarText, pillarTagX + 3, yPos + 1);
+
+                // --- Tag "Platform" (diletakkan di sebelah kiri Pilar) ---
+                const platformText = item.platform || 'General';
+                const platformWidth = doc.getTextWidth(platformText);
+                const platformTagX = pillarTagX - platformWidth - 14; // Posisi di sebelah kiri tag pilar
+                doc.setFillColor(224, 231, 255); // Latar biru-indigo terang
+                doc.setTextColor(67, 56, 202);   // Warna teks indigo
+                doc.roundedRect(platformTagX, pillarTagY, platformWidth + 6, 7, 3.5, 3.5, 'F');
+                doc.text(platformText, platformTagX + 3, yPos + 1);
+                // --- Akhir Penambahan Tag Platform ---
+
+                yPos += 8;
+
+                // Garis pemisah
+                doc.setDrawColor(229, 231, 235);
+                doc.line(margin, yPos, pageWidth - margin, yPos);
+                yPos += 10;
+                
+                const printSection = (label, content) => {
+                    checkPageBreak(15 + (doc.splitTextToSize(content, cardContentWidth).length * 5));
+                    doc.setFontSize(9);
+                    doc.setFont('helvetica', 'bold');
+                    doc.setTextColor(55, 65, 81); 
+                    doc.text(label, margin, yPos);
+                    yPos += 5;
+                    
+                    doc.setFont('helvetica', 'normal');
+                    doc.setFontSize(10);
+                    doc.setTextColor(75, 85, 99);
+                    const splitText = doc.splitTextToSize(content || 'N/A', cardContentWidth);
+                    doc.text(splitText, margin, yPos);
+                    yPos += (splitText.length * 5) + 6;
+                };
+
+                printSection('Ide Pokok:', item.idea);
+                printSection('Draf Caption:', item.caption_brief);
+                printSection('Saran Visual:', item.visual_idea);
+                
+                yPos += 5; 
+            });
+
+            const sanitizedTitle = title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+            doc.save(`Rencana_Konten_${sanitizedTitle}.pdf`);
+        };
+
+        const handleExportCSV = (dataToExport, title) => {
+            if (!dataToExport || dataToExport.length === 0) {
+                showErrorModal("Tidak ada data untuk diekspor.");
+                return;
+            }
+            const headerMapping = { day: "Hari/Tanggal", platform: "Platform", pillar: "Pilar Konten", idea: "Ide Pokok", caption_brief: "Draf Caption", visual_idea: "Saran Visual", hashtags: "Saran Hashtag" };
+            const headerKeys = Object.keys(headerMapping);
+            const headerTitles = Object.values(headerMapping);
+            const csvRows = [headerTitles.join(',')];
+            dataToExport.forEach(row => {
+                const values = headerKeys.map(key => `"${(row[key] || '').replace(/"/g, '""')}"`);
+                csvRows.push(values.join(','));
+            });
+            const csvString = "\uFEFF" + csvRows.join('\n');
+            const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            const sanitizedTitle = title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+            a.download = `Rencana_Konten_${sanitizedTitle}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        };
+        
+        // --- CALENDAR INTEGRATION LOGIC ---
+        const parseDateString = (dateStr) => {
+            if (!dateStr || dateStr.toLowerCase().startsWith('ide')) return null;
+            const monthMap = { "januari": 0, "februari": 1, "maret": 2, "april": 3, "mei": 4, "juni": 5, "juli": 6, "agustus": 7, "september": 8, "oktober": 9, "november": 10, "desember": 11 };
+            const parts = dateStr.toLowerCase().split(" ");
+            if (parts.length < 2) return null;
+
+            const day = parseInt(parts[0], 10);
+            const monthName = parts.find(p => monthMap[p] !== undefined);
+            
+            let year;
+            const yearPart = parts.find(p => !isNaN(parseInt(p,10)) && p.length === 4);
+            if(yearPart) {
+                year = parseInt(yearPart, 10);
+            } else {
+                year = new Date().getFullYear();
+            }
+
+            const month = monthMap[monthName];
+            if (isNaN(day) || month === undefined || isNaN(year)) return null;
+            return new Date(year, month, day, 9, 0, 0);
+        };
+        const formatToUTC = (date) => date ? date.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '') : '';
+        const showCalendarModal = (item) => { currentCalendarItem = item; getEl('calendar-modal').classList.remove('hidden'); };
+        const generateGoogleCalendarLink = () => {
+             if (!currentCalendarItem) return;
+             const item = currentCalendarItem;
+             const startDate = parseDateString(item.day);
+             if (!startDate) { showErrorModal("Tanggal tidak valid untuk acara kalender."); return; }
+             const endDate = new Date(startDate.getTime() + 3600000); // 1 hour
+             const title = encodeURIComponent(`Konten: ${item.platform} - ${item.idea}`);
+             const details = encodeURIComponent(`Rencana Konten:\n\nIde: ${item.idea}\nPlatform: ${item.platform}\nPilar: ${item.pillar}\n\nBrief Caption:\n${item.caption_brief}\n\nSaran Visual:\n${item.visual_idea}\n\nHashtags:\n${item.hashtags}`);
+             const dates = `${formatToUTC(startDate)}/${formatToUTC(endDate)}`;
+             const url = `https://www.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dates}&details=${details}&location=${item.platform}`;
+             window.open(url, '_blank');
+             getEl('calendar-modal').classList.add('hidden');
+        };
+        const generateIcsFile = () => {
+            if (!currentCalendarItem) return;
+            const item = currentCalendarItem;
+            const startDate = parseDateString(item.day);
+            if (!startDate) { showErrorModal("Tanggal tidak valid untuk acara kalender."); return; }
+            const endDate = new Date(startDate.getTime() + 3600000);
+            
+            const icsContent = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//gemini-planner//NONSGML v1.0//EN
+BEGIN:VEVENT
+UID:${crypto.randomUUID()}@gemini.planner
+DTSTAMP:${formatToUTC(new Date())}
+DTSTART:${formatToUTC(startDate)}
+DTEND:${formatToUTC(endDate)}
+SUMMARY:Konten: ${item.platform} - ${item.idea}
+DESCRIPTION:Rencana Konten:\\n\\nIde: ${item.idea}\\nPlatform: ${item.platform}\\nPilar: ${item.pillar}\\n\\nBrief Caption:\\n${item.caption_brief}\\n\\nSaran Visual:\\n${item.visual_idea}\\n\\nHashtags:\\n${item.hashtags}
+LOCATION:${item.platform}
+END:VEVENT
+END:VCALENDAR`;
+            
+            const blob = new Blob([icsContent], { type: 'text/calendar' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Konten_${item.platform}_${item.day.replace(/\s/g, '_')}.ics`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            getEl('calendar-modal').classList.add('hidden');
+        };
+        
+        // --- NEW FEATURES & INITIALIZATION ---
+        const setDefaultDate = () => {
+            const startDateInput = getEl('start-date');
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            if(startDateInput && !startDateInput.value){ startDateInput.value = `${year}-${month}-${day}`; }
+            if(startDateInput) startDateInput.min = `${year}-${month}-${day}`;
+            const promoStart = getEl('promotion-start-date');
+            const promoEnd = getEl('promotion-end-date');
+            if(promoStart) promoStart.value = '';
+            if(promoEnd) promoEnd.value = '';
+        };
+
+        // --- Tag Input Logic ---
+        const renderTags = () => {
+            const interestsContainer = getEl('interests-container');
+            const interestsInput = getEl('interests-input');
+            if (!interestsContainer || !interestsInput) return;
+            // Clear existing tags except for the input itself
+            interestsContainer.querySelectorAll('.interest-tag').forEach(tagEl => tagEl.remove());
+            // Re-add tags from the state array
+            interestTags.forEach(tagText => {
+                const tagEl = document.createElement('span');
+                tagEl.className = 'interest-tag';
+                tagEl.innerHTML = `
+                    ${tagText}
+                    <button data-tag="${tagText}" class="remove-tag-btn">&times;</button>
+                `;
+                interestsContainer.insertBefore(tagEl, interestsInput);
+            });
+        };
+
+        const addTag = (text) => {
+            const trimmedText = text.trim();
+            if (trimmedText && !interestTags.includes(trimmedText)) {
+                interestTags.push(trimmedText);
+                renderTags();
+                debouncedSave();
+                debouncedUpdateSuggestions(); 
+            }
+        };
+
+        const removeTag = (text) => {
+            interestTags = interestTags.filter(tag => tag !== text);
+            renderTags();
+            debouncedSave();
+		debouncedUpdateSuggestions();
+        };
+        
+        // --- (Tempel 3 fungsi baru ini sebagai pengganti) ---
+
+const displaySuggestionTags = (suggestions) => {
+    const suggestedInterestsContainer = getEl('suggested-interests');
+    if (!suggestedInterestsContainer) return;
+
+    suggestedInterestsContainer.innerHTML = '';
+    const suggestionsToShow = suggestions.filter(interest => !interestTags.includes(interest)).slice(0, 5);
+
+    suggestionsToShow.forEach(interest => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'suggestion-tag';
+        button.textContent = interest;
+        suggestedInterestsContainer.appendChild(button);
+    });
+};
+
+// --- GANTI FUNGSI 'updateSuggestedTags' LAMA DENGAN YANG INI ---
+const updateSuggestedTags = async () => {
+    // 1. Ambil konteks HANYA dari tag minat yang sudah ada dan bidang usaha
+    const industry = getEl('industry').value.trim();
+    const context = (industry + ' ' + interestTags.join(' ')).trim();
+    const suggestedInterestsContainer = getEl('suggested-interests');
+    const suggestionLoader = getEl('suggestion-loader');
+
+    // Jika tidak ada konteks sama sekali, kosongkan saran dan berhenti
+    if (!context) {
+        if(suggestedInterestsContainer) suggestedInterestsContainer.innerHTML = '';
+        return;
+    }
+
+    // Tampilkan loader dan kosongkan saran lama
+    if(suggestionLoader) suggestionLoader.classList.remove('hidden');
+    if(suggestedInterestsContainer) suggestedInterestsContainer.innerHTML = '';
+
+    try {
+        // 2. Buat prompt AI yang jelas berdasarkan konteks saat ini
+        const prompt = `Berdasarkan industri "${industry}" dan kumpulan minat ini: "${interestTags.join(', ')}", berikan 5 saran minat atau perilaku pelanggan baru yang relevan dan spesifik.`;
+        const finalPrompt = `${prompt} Balas HANYA dengan objek JSON yang valid, mengikuti skema. Seluruh teks dalam respons HARUS dalam Bahasa Indonesia.`;
+        
+        // 3. Panggil AI
+        const result = await callGemini(finalPrompt, true, interestSuggestionSchema);
+        
+        // 4. Tampilkan hasil BARU, ganti total yang lama
+        if (result && result.interests) {
+            displaySuggestionTags(result.interests); // Gunakan fungsi yang sudah ada untuk menampilkan
+        }
+    } catch (error) {
+        console.error("Gagal mendapatkan saran minat:", error);
+    } finally {
+        if(suggestionLoader) suggestionLoader.classList.add('hidden');
+    }
+};
+
+        const debouncedUpdateSuggestions = debounce(updateSuggestedTags, 1200);
+        
+        // --- DARK MODE LOGIC ---
+        const setupDarkMode = () => {
+            const darkModeToggle = getEl('dark-mode-toggle');
+            const applyTheme = (theme) => {
+                if (theme === 'dark') {
+                    document.body.classList.add('dark');
+                } else {
+                    document.body.classList.remove('dark');
+                }
+            };
+            
+            darkModeToggle.addEventListener('click', () => {
+                const isDark = document.body.classList.toggle('dark');
+                const newTheme = isDark ? 'dark' : 'light';
+                localStorage.setItem('theme', newTheme);
+                applyTheme(newTheme);
+            });
+
+            // Apply saved theme or system preference on load
+            const savedTheme = localStorage.getItem('theme');
+            const systemPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+            if (savedTheme) {
+                applyTheme(savedTheme);
+            } else if (systemPrefersDark) {
+                applyTheme('dark');
+            } else {
+                applyTheme('light');
+            }
+        };
+
+
+        // --- FIREBASE AUTHENTICATION ---
+        const signInWithGoogle = async () => {
+            const provider = new GoogleAuthProvider();
+            try {
+                await signInWithPopup(auth, provider);
+            } catch (error) {
+                console.error("Google Sign-In Error:", error);
+                showErrorModal(`Gagal masuk dengan Google: ${error.message}`);
+            }
+        };
+
+        const signOutUser = async () => {
+            try {
+                await signOut(auth);
+            } catch (error) {
+                console.error("Sign Out Error:", error);
+                showErrorModal("Gagal keluar.");
+            }
+        };
+
+        const updateUiForAuthState = async (user) => {
+            const loginBtn = getEl('login-btn');
+            const userInfo = getEl('user-info');
+            
+            if (user && !user.isAnonymous) {
+                // User is signed in with Google
+                userId = user.uid;
+                getEl('user-name').textContent = user.displayName;
+                getEl('user-photo').src = user.photoURL;
+                
+                loginBtn.classList.add('hidden');
+                userInfo.classList.remove('hidden');
+                userInfo.classList.add('flex');
+
+                // =================================================================
+                // ▼▼▼ TAMBAHKAN BLOK KODE BARU DI SINI ▼▼▼
+                // =================================================================
+                // FIX: Mengaktifkan kembali tombol simpan jika pengguna login setelah membuat rencana.
+                if (generatedData.length > 0) {
+                    const saveDraftBtn = getEl('save-draft-btn');
+                    if (saveDraftBtn) {
+                        saveDraftBtn.disabled = false;
+                        saveDraftBtn.innerHTML = '<i class="fas fa-save"></i>';
+                        saveDraftBtn.title = "Simpan ke Draf";
+                        saveDraftBtn.classList.remove('cursor-not-allowed', 'opacity-60');
+                        showInfoModal("Login Berhasil", "Silakan simpan kembali rencana Anda ke akun Google Anda agar tidak hilang.");
+                    }
+                }
+                // =================================================================
+                // ▲▲▲ BATAS AKHIR KODE BARU ▲▲▲
+                // =================================================================
+
+                await loadFormStateFromFirestore();
+            } else {
+                // User is anonymous or logged out
+                userId = user ? user.uid : null;
+                
+                loginBtn.classList.remove('hidden');
+                userInfo.classList.add('hidden');
+                userInfo.classList.remove('flex');
+                
+                if (user) { // Is anonymous
+                    await loadFormStateFromFirestore();
+                } else { // Is fully logged out (after clicking logout)
+                    resetForm();
+                    resetToFormView();
+                    await signInAnonymously(auth).catch(err => {
+                        console.error("Anonymous sign in failed:", err);
+                        showErrorModal("Gagal memulai sesi tamu. Silakan muat ulang halaman.");
+                    });
+                }
+            }
+        };
+
+        // --- FIREBASE INITIALIZATION ---
+        const initFirebase = async () => {
+            appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+            let firebaseConfig; // Deklarasikan variabel di sini
+
+try {
+    // Mengambil konfigurasi dari endpoint API
+    const response = await fetch('/api/config');
+    if (!response.ok) {
+        throw new Error(`Gagal mengambil konfigurasi server. Status: ${response.status}`);
+    }
+
+    // --- PERBAIKAN: Cek tipe konten sebelum parsing JSON ---
+    const contentType = response.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+        throw new Error("Respons dari server API tidak valid. Pastikan routing Functions sudah benar di pengaturan Cloudflare.");
+    }
+    // --- AKHIR PERBAIKAN ---
+
+    firebaseConfig = await response.json();
+
+    // Memeriksa apakah kunci-kunci penting ada
+    if (!firebaseConfig.apiKey) {
+        throw new Error('Konfigurasi Firebase tidak lengkap dari server.');
+    }
+
+} catch (error) {
+    // Menangani error jika pengambilan konfigurasi gagal
+    console.error("Firebase initialization failed:", error);
+    showErrorModal(error.message || "Gagal memuat konfigurasi aplikasi. Silakan muat ulang halaman.");
+    return; // Hentikan eksekusi jika gagal
+}
+
+            try {
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        console.log(`User state changed. UID: ${user.uid}, Is Anonymous: ${user.isAnonymous}`);
+                        await updateUiForAuthState(user);
+                    } else {
+                        console.log("No user found, signing in anonymously.");
+                        try {
+                            await signInAnonymously(auth);
+                        } catch(error) {
+                             console.error("Anonymous sign in failed on initial load:", error);
+                             showErrorModal("Gagal memulai sesi tamu. Silakan muat ulang halaman.");
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error("Firebase initialization failed:", error);
+                showErrorModal("Gagal terhubung ke layanan penyimpanan. Perubahan tidak akan disimpan.");
+            }
+        };
+
+        function initializeAppLogic() {
+            // --- UI Elements Initialization ---
+            const prevBtn = getEl('prev-btn');
+            const nextBtn = getEl('next-btn');
+            const generateBtn = getEl('generate-btn');
+            const resetBtn = getEl('reset-btn');
+            const restartBtn = getEl('restart-btn');
+            const exportPdfBtn = getEl('export-pdf-btn');
+            const exportCsvBtn = getEl('export-csv-btn');
+            const closeErrorModalBtn = getEl('close-error-modal');
+            const closeInfoModalBtn = getEl('close-info-modal'); // NEW
+            const closeCaptionModalBtn = getEl('close-caption-modal');
+            const copyCaptionBtn = getEl('copy-caption-btn');
+            const closeDraftsModalBtn = getEl('close-drafts-modal');
+            const closeDraftAiResultModalBtn = getEl('close-draft-ai-result-modal');
+            const copyDraftCaptionBtn = getEl('copy-draft-caption-btn');
+            const viewDraftsBtn = getEl('view-drafts-btn');
+            const saveDraftBtn = getEl('save-draft-btn');
+            const productFocusToggle = getEl('product-focus-toggle');
+            const industryInput = getEl('industry');
+            const interestsInput = getEl('interests-input');
+            const interestsContainer = getEl('interests-container');
+            const suggestedInterestsContainer = getEl('suggested-interests');
+            const closeCalendarModalBtn = getEl('close-calendar-modal');
+            const googleCalendarBtn = getEl('google-calendar-btn');
+            const icsDownloadBtn = getEl('ics-download-btn');
+            const loginBtn = getEl('login-btn');
+            const logoutBtn = getEl('logout-btn');
+
+            // --- Event Listeners ---
+            if(loginBtn) loginBtn.addEventListener('click', signInWithGoogle);
+            if(logoutBtn) logoutBtn.addEventListener('click', signOutUser);
+
+            if(prevBtn) prevBtn.addEventListener('click', () => { if (currentStep > 1) { currentStep--; showStep(currentStep); } });
+            if(nextBtn) nextBtn.addEventListener('click', () => { if (currentStep < totalSteps) { currentStep++; showStep(currentStep); } });
+            if(generateBtn) generateBtn.addEventListener('click', generatePlan);
+            if(resetBtn) resetBtn.addEventListener('click', resetForm);
+            if(restartBtn) restartBtn.addEventListener('click', startOver);
+            
+            if(exportPdfBtn) exportPdfBtn.addEventListener('click', () => handleExportPDF(generatedData, getEl('results-title').textContent, getEl('results-subtitle').textContent));
+            if(exportCsvBtn) exportCsvBtn.addEventListener('click', () => handleExportCSV(generatedData, getEl('results-title').textContent));
+            
+            if(closeErrorModalBtn) closeErrorModalBtn.addEventListener('click', () => getEl('error-modal').classList.add('hidden'));
+            if(closeInfoModalBtn) closeInfoModalBtn.addEventListener('click', () => getEl('info-modal').classList.add('hidden')); // NEW
+            if(closeCaptionModalBtn) closeCaptionModalBtn.addEventListener('click', () => getEl('caption-modal').classList.add('hidden'));
+            if(copyCaptionBtn) copyCaptionBtn.addEventListener('click', () => { copyTextFromModal(getEl('caption-content'), copyCaptionBtn, "Salin Teks"); });
+            
+            if(viewDraftsBtn) {
+                viewDraftsBtn.addEventListener('click', () => {
+                    const user = auth.currentUser;
+                    if (user && !user.isAnonymous) {
+                        showDraftsModal();
+                    } else {
+                         // UPDATE: Use the new friendly modal
+                        showInfoModal("Fitur Khusus Pengguna", "Silakan masuk dengan Google untuk melihat dan menyimpan draf Anda secara permanen.");
+                    }
+                });
+            }
+            if(saveDraftBtn) saveDraftBtn.addEventListener('click', saveCurrentPlanAsDraft);
+            if(closeDraftsModalBtn) closeDraftsModalBtn.addEventListener('click', () => {
+                getEl('drafts-modal').classList.add('hidden');
+                currentDraftObject = null;
+                if (draftsUnsubscribe) { // Detach listener when modal is closed
+                    draftsUnsubscribe();
+                    draftsUnsubscribe = null;
+                }
+            });
+            if(closeDraftAiResultModalBtn) closeDraftAiResultModalBtn.addEventListener('click', () => getEl('draft-ai-result-modal').classList.add('hidden'));
+            if (copyDraftCaptionBtn) { copyDraftCaptionBtn.addEventListener('click', () => { copyTextFromModal(getEl('draft-caption-content'), copyDraftCaptionBtn, "Salin Teks"); }); }
+
+            if(productFocusToggle) productFocusToggle.addEventListener('change', () => {
+                const isChecked = productFocusToggle.checked;
+                getEl('product-focus-fields').classList.toggle('hidden', !isChecked);
+                getEl('plan-details-container').classList.toggle('hidden', isChecked);
+            });
+            
+            if(industryInput) {
+    // Panggil pembaruan saran HANYA ketika pengguna selesai mengetik
+    industryInput.addEventListener('change', () => {
+        debouncedUpdateSuggestions();
+        debouncedSave();
+    });
+}
+
+            if(interestsInput) interestsInput.addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addTag(e.target.value);
+                    e.target.value = '';
+                }
+            });
+
+            if(interestsContainer) interestsContainer.addEventListener('click', (e) => {
+                if (e.target.classList.contains('remove-tag-btn')) {
+                    removeTag(e.target.dataset.tag);
+                }
+            });
+
+            if(suggestedInterestsContainer) suggestedInterestsContainer.addEventListener('click', (e) => {
+                if (e.target.classList.contains('suggestion-tag')) {
+                    addTag(e.target.textContent);
+                }
+            });
+
+            if(closeCalendarModalBtn) closeCalendarModalBtn.addEventListener('click', () => getEl('calendar-modal').classList.add('hidden'));
+            if(googleCalendarBtn) googleCalendarBtn.addEventListener('click', generateGoogleCalendarLink);
+            if(icsDownloadBtn) icsDownloadBtn.addEventListener('click', generateIcsFile);
+            
+            document.querySelectorAll('.form-input').forEach(el => {
+                if (el.id !== 'interests-input' && el.id !== 'industry') {
+                    el.addEventListener('keyup', debouncedSave);
+                    el.addEventListener('change', debouncedSave);
+                }
+            });
+
+            document.querySelectorAll('.platform-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('click', (e) => {
+                    const checkedBoxes = document.querySelectorAll('.platform-checkbox:checked');
+                    if (checkedBoxes.length === 0) {
+                        e.target.checked = true;
+                    }
+                });
+            });
+
+            // --- Initial Setup ---
+            setupDarkMode(); // Panggil fungsi setup dark mode
+            initFirebase().then(() => {
+                // The onAuthStateChanged listener will handle the rest of the UI setup
+                console.log("Firebase initialized, waiting for auth state...");
+            });
+        }
+
+        // Run the main app logic after the DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', initializeAppLogic);
+
+    </script>
+</body>
+</html>
