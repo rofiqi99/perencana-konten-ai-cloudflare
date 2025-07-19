@@ -292,6 +292,58 @@ body.dark #draft-viewer-content .bg-slate-100:hover {
     background-color: var(--bg-button-hover);
 }
 
+/* --- CSS untuk Animasi Checklist Hijau --- */
+.checkmark-container {
+    width: 64px; /* Sesuaikan ukuran dengan w-16 h-16 */
+    height: 64px;
+    display: block;
+    stroke-width: 2;
+    stroke: #ffffff;
+    stroke-miterlimit: 10;
+    margin: 0 auto;
+    box-shadow: inset 0px 0px 0px #4caf50;
+    animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
+}
+
+.checkmark__circle {
+    stroke-dasharray: 166;
+    stroke-dashoffset: 166;
+    stroke-width: 2;
+    stroke-miterlimit: 10;
+    stroke: #4caf50;
+    fill: none;
+    animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+.checkmark__check {
+    transform-origin: 50% 50%;
+    stroke-dasharray: 48;
+    stroke-dashoffset: 48;
+    animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+}
+
+@keyframes stroke {
+    100% {
+        stroke-dashoffset: 0;
+    }
+}
+
+@keyframes scale {
+    0%, 100% {
+        transform: none;
+    }
+    50% {
+        transform: scale3d(1.1, 1.1, 1);
+    }
+}
+
+@keyframes fill {
+    100% {
+        box-shadow: inset 0px 0px 0px 32px #4caf50; /* Setengah dari tinggi/lebar */
+    }
+}
+/* --- Akhir CSS Animasi --- */
+
 </style>
 </head>
 <body>
@@ -591,15 +643,25 @@ body.dark #draft-viewer-content .bg-slate-100:hover {
         </div>
         
         <div id="info-modal" class="fixed inset-0 bg-black flex items-center justify-center p-4 hidden z-50">
-            <div class="bg-white rounded-lg shadow-xl p-8 max-w-sm w-full text-center modal-content-bg">
-                <div class="text-blue-500 mx-auto w-16 h-16 flex items-center justify-center bg-blue-100 rounded-full">
-                    <i class="fas fa-info-circle fa-3x"></i>
-                </div>
-                <h3 id="info-title" class="text-xl font-semibold text-slate-900 mt-6">Informasi</h3>
-                <p id="info-message" class="text-slate-600 mt-2">Pesan informasi akan muncul di sini.</p>
-                <button id="close-info-modal" class="mt-6 bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors w-full">Mengerti</button>
+    <div class="bg-white rounded-lg shadow-xl p-8 max-w-sm w-full text-center modal-content-bg">
+        
+        <div id="info-modal-icon-container" class="w-16 h-16 mx-auto">
+            <div id="info-modal-default-icon" class="text-blue-500 w-full h-full flex items-center justify-center bg-blue-100 rounded-full">
+                <i class="fas fa-info-circle fa-3x"></i>
+            </div>
+            <div id="info-modal-success-icon" class="hidden">
+                 <svg class="checkmark-container rounded-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                    <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
+                    <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                </svg>
             </div>
         </div>
+
+        <h3 id="info-title" class="text-xl font-semibold text-slate-900 mt-6">Informasi</h3>
+        <p id="info-message" class="text-slate-600 mt-2">Pesan informasi akan muncul di sini.</p>
+        <button id="close-info-modal" class="mt-6 bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors w-full">Mengerti</button>
+    </div>
+</div>
 
         <div id="caption-modal" class="fixed inset-0 bg-black flex items-center justify-center p-4 hidden z-40">
             <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col modal-content-bg">
@@ -1441,10 +1503,25 @@ Balas HANYA dengan objek JSON yang valid sesuai skema yang diberikan.`;
 
         // NEW: Function to show the friendly info modal
         const showInfoModal = (title, message) => {
-            getEl('info-title').textContent = title;
-            getEl('info-message').textContent = message;
-            getEl('info-modal').classList.remove('hidden');
-        };
+    // Pastikan ikon default terlihat dan ikon sukses tersembunyi
+    getEl('info-modal-default-icon').classList.remove('hidden');
+    getEl('info-modal-success-icon').classList.add('hidden');
+
+    getEl('info-title').textContent = title;
+    getEl('info-message').textContent = message;
+    getEl('info-modal').classList.remove('hidden');
+};
+
+// NEW: Function to show the info modal with success animation
+const showSuccessModal = (title, message) => {
+    // Sembunyikan ikon default dan tampilkan ikon sukses
+    getEl('info-modal-default-icon').classList.add('hidden');
+    getEl('info-modal-success-icon').classList.remove('hidden');
+
+    getEl('info-title').textContent = title;
+    getEl('info-message').textContent = message;
+    getEl('info-modal').classList.remove('hidden');
+};
 
         const resetToFormView = () => {
             getEl('loading').classList.add('hidden');
@@ -1842,7 +1919,7 @@ const updateSuggestedTags = async () => {
                         saveDraftBtn.innerHTML = '<i class="fas fa-save"></i>';
                         saveDraftBtn.title = "Simpan ke Draf";
                         saveDraftBtn.classList.remove('cursor-not-allowed', 'opacity-60');
-                        showInfoModal("Login Berhasil", "Silakan simpan kembali rencana Anda ke akun Google Anda agar tidak hilang.");
+                        showSuccessModal("Login Berhasil", "Silakan simpan kembali rencana Anda ke akun Google Anda agar tidak hilang.");
                     }
                 }
                 // =================================================================
