@@ -1057,7 +1057,7 @@ body.dark #draft-viewer-content .bg-slate-100:hover {
 
         const callGemini = async (prompt, isJson = false, schema = null) => {
     try {
-        const response = await fetch('/api/generate', {
+        const response = await fetch('https://gemini-proxy-cerdas.ikhsanrofiqi60.workers.dev', { // <-- BARIS INI DIUBAH
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ prompt, schema, isJson }),
