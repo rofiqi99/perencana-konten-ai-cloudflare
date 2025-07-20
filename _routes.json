@@ -1,5 +1,6 @@
 {
   "version": 1,
-  "include": ["/*"],
-  "exclude": ["/api/*"]
+  "description": "File ini mengarahkan semua permintaan ke /api/* untuk ditangani oleh Functions, sementara sisanya akan dilayani sebagai aset statis.",
+  "include": ["/api/*"],
+  "exclude": []
 }
