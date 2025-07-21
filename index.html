@@ -1912,6 +1912,7 @@ const updateSuggestedTags = async () => {
         const updateUiForAuthState = async (user) => {
             const loginBtn = getEl('login-btn');
             const userInfo = getEl('user-info');
+            const viewDraftsBtn = getEl('view-drafts-btn'); // Tambahkan ini
             
             if (user && !user.isAnonymous) {
                 // User is signed in with Google
@@ -1923,9 +1924,12 @@ const updateSuggestedTags = async () => {
                 userInfo.classList.remove('hidden');
                 userInfo.classList.add('flex');
 
-                // =================================================================
-                // ▼▼▼ TAMBAHKAN BLOK KODE BARU DI SINI ▼▼▼
-                // =================================================================
+                // Aktifkan tombol Draf
+                viewDraftsBtn.disabled = false;
+                viewDraftsBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                viewDraftsBtn.title = "Lihat Draf";
+
+
                 // FIX: Mengaktifkan kembali tombol simpan jika pengguna login setelah membuat rencana.
                 if (generatedData.length > 0) {
                     const saveDraftBtn = getEl('save-draft-btn');
@@ -1937,10 +1941,7 @@ const updateSuggestedTags = async () => {
                         showSuccessModal("Login Berhasil", "Silakan simpan kembali rencana Anda ke akun Google Anda agar tidak hilang.");
                     }
                 }
-                // =================================================================
-                // ▲▲▲ BATAS AKHIR KODE BARU ▲▲▲
-                // =================================================================
-
+                
                 await loadFormStateFromFirestore();
             } else {
                 // User is anonymous or logged out
@@ -1949,6 +1950,11 @@ const updateSuggestedTags = async () => {
                 loginBtn.classList.remove('hidden');
                 userInfo.classList.add('hidden');
                 userInfo.classList.remove('flex');
+
+                // Nonaktifkan tombol Draf
+                viewDraftsBtn.disabled = true;
+                viewDraftsBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                viewDraftsBtn.title = "Masuk untuk melihat draf";
                 
                 if (user) { // Is anonymous
                     await loadFormStateFromFirestore();
