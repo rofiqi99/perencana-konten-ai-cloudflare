@@ -344,6 +344,16 @@ body.dark #draft-viewer-content .bg-slate-100:hover {
 }
 /* --- Akhir CSS Animasi --- */
 
+/* ▼▼▼ KODE BARU UNTUK LOADING ICON PUTAR ▼▼▼ */
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+.icon-spinning {
+    animation: spin 1s linear infinite;
+}
+/* ▲▲▲ AKHIR KODE BARU ▲▲▲ */
+
 </style>
 </head>
 <body>
@@ -1258,14 +1268,14 @@ body.dark #draft-viewer-content .bg-slate-100:hover {
                         <button class="add-to-calendar-btn flex-grow bg-slate-100 text-slate-800 font-semibold py-2 px-4 rounded-lg hover:bg-slate-200 transition-colors text-sm">
                             <i class="fas fa-calendar-plus mr-2"></i>Jadwalkan
                         </button>
-                        <button class="regenerate-idea-btn w-full mt-2 bg-slate-100 text-slate-800 font-semibold py-2 px-4 rounded-lg hover:bg-slate-200 transition-colors text-sm">
-                            <i class="fas fa-sync-alt mr-2"></i>Buat Ulang Ide
+                        <button class="regenerate-idea-btn w-full mt-2 bg-slate-100 text-slate-800 font-semibold py-2 px-4 rounded-lg hover:bg-slate-200 transition-colors text-sm flex items-center justify-center">
+                            <i class="fas fa-sync-alt mr-2"></i><span>Buat Ulang Ide</span>
                         </button>
                     </div>
                 `;
                 card.querySelector('.get-ai-result-btn').addEventListener('click', (e) => handleDevelopCaption(item, draft, e.currentTarget.closest('.bg-white')));
                 card.querySelector('.add-to-calendar-btn').addEventListener('click', () => showCalendarModal(item));
-                card.querySelector('.regenerate-idea-btn').addEventListener('click', (e) => handleRegenerateIdea(index, e.currentTarget.closest('.bg-white'), container, draft));
+                card.querySelector('.regenerate-idea-btn').addEventListener('click', (e) => handleRegenerateIdea(index, e.currentTarget, container, draft));
                 container.appendChild(card);
             });
         };
@@ -1306,14 +1316,18 @@ body.dark #draft-viewer-content .bg-slate-100:hover {
             ${languageInstruction}`;
         }
 
-        const handleRegenerateIdea = async (index, cardElement, container, draft) => {
+        const handleRegenerateIdea = async (index, buttonElement, container, draft) => {
             let dataArray = draft ? draft.planData : generatedData;
             const itemToReplace = dataArray[index];
             
-            const loadingOverlay = document.createElement('div');
-            loadingOverlay.className = 'card-loading-overlay';
-            loadingOverlay.innerHTML = `<i class="fas fa-spinner fa-spin text-3xl text-purple-500"></i>`;
-            cardElement.appendChild(loadingOverlay);
+            const icon = buttonElement.querySelector('i');
+            const textSpan = buttonElement.querySelector('span');
+            const originalText = textSpan.textContent;
+
+            // Start loading state
+            buttonElement.disabled = true;
+            icon.classList.add('icon-spinning');
+            textSpan.textContent = 'Membuat Ulang...';
 
             try {
                 const prompt = buildRegeneratePrompt(itemToReplace);
@@ -1332,11 +1346,12 @@ body.dark #draft-viewer-content .bg-slate-100:hover {
             } catch (error) {
                 console.error('Error regenerating idea:', error);
                 showErrorModal(error.message || "Gagal membuat ulang ide. Silakan coba lagi.");
-            } finally {
-                if (cardElement.contains(loadingOverlay)) {
-                    cardElement.removeChild(loadingOverlay);
-                }
-            }
+                
+                // Restore button on error since renderResults isn't called
+                buttonElement.disabled = false;
+                icon.classList.remove('icon-spinning');
+                textSpan.textContent = originalText;
+            } 
         };
         
         const handleDevelopCaption = async (item, draft = null, cardElement) => {
