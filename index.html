@@ -1912,7 +1912,6 @@ const updateSuggestedTags = async () => {
         const updateUiForAuthState = async (user) => {
             const loginBtn = getEl('login-btn');
             const userInfo = getEl('user-info');
-            const viewDraftsBtn = getEl('view-drafts-btn'); // Tambahkan ini
             
             if (user && !user.isAnonymous) {
                 // User is signed in with Google
@@ -1923,12 +1922,6 @@ const updateSuggestedTags = async () => {
                 loginBtn.classList.add('hidden');
                 userInfo.classList.remove('hidden');
                 userInfo.classList.add('flex');
-
-                // Aktifkan tombol Draf
-                viewDraftsBtn.disabled = false;
-                viewDraftsBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                viewDraftsBtn.title = "Lihat Draf";
-
 
                 // FIX: Mengaktifkan kembali tombol simpan jika pengguna login setelah membuat rencana.
                 if (generatedData.length > 0) {
@@ -1950,11 +1943,6 @@ const updateSuggestedTags = async () => {
                 loginBtn.classList.remove('hidden');
                 userInfo.classList.add('hidden');
                 userInfo.classList.remove('flex');
-
-                // Nonaktifkan tombol Draf
-                viewDraftsBtn.disabled = true;
-                viewDraftsBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                viewDraftsBtn.title = "Masuk untuk melihat draf";
                 
                 if (user) { // Is anonymous
                     await loadFormStateFromFirestore();
@@ -2085,7 +2073,16 @@ try {
                     }
                 });
             }
-            if(saveDraftBtn) saveDraftBtn.addEventListener('click', saveCurrentPlanAsDraft);
+            if(saveDraftBtn) {
+                saveDraftBtn.addEventListener('click', () => {
+                    const user = auth.currentUser;
+                    if (user && !user.isAnonymous) {
+                        saveCurrentPlanAsDraft();
+                    } else {
+                        showInfoModal("Fitur Khusus Pengguna", "Silakan masuk dengan Google untuk menyimpan draf Anda.");
+                    }
+                });
+            }
             if(closeDraftsModalBtn) closeDraftsModalBtn.addEventListener('click', () => {
                 getEl('drafts-modal').classList.add('hidden');
                 currentDraftObject = null;
