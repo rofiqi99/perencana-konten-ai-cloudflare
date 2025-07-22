@@ -1490,41 +1490,27 @@ ${"ATURAN MUTLAK: Balas HANYA dengan objek JSON yang valid, mengikuti skema yang
         };
 
         const buildCaptionPrompt = (item) => {
-            const audienceDescription = `Usia ${currentInputs.audience.age_from || 'tidak spesifik'} - ${currentInputs.audience.age_to || 'tidak spesifik'} tahun, Jenis Kelamin: ${currentInputs.audience.gender}, Minat: ${currentInputs.audience.interests || 'tidak spesifik'}`;
-            let promoInfo = "Tidak ada promosi khusus saat ini.";
-            if (currentInputs.promoDetails) {
-                promoInfo = `Saat ini ada promosi: "${currentInputs.promoDetails}".`;
-            }
+            const context = {
+                businessName: currentInputs.businessName || 'Bisnis ini',
+                description: currentInputs.description || 'Tidak ada deskripsi.',
+                audience: `Usia ${currentInputs.audience.age_from || 'tidak spesifik'} - ${currentInputs.audience.age_to || 'tidak spesifik'} tahun`,
+                goal: currentInputs.businessStage,
+                mood: currentInputs.contentMood,
+                item: item
+            };
             
-            const languageInstruction = "ATURAN MUTLAK: Seluruh teks dalam respons JSON yang Anda hasilkan HARUS dalam Bahasa Indonesia.";
+            const languageInstruction = "ATURAN MUTLAK: Seluruh teks dalam respons JSON HARUS dalam Bahasa Indonesia.";
 
-
-            return `Anda adalah seorang copywriter dan ahli strategi media sosial. Tugas Anda adalah mengembangkan brief konten berikut menjadi caption yang lengkap, menarik, dan siap untuk dipublikasikan.
-
-**Konteks Bisnis & Tujuan Utama:**
-- **Nama Bisnis:** ${currentInputs.businessName || 'Bisnis ini'}
-- **Deskripsi Bisnis:** ${currentInputs.description || 'Tidak ada deskripsi.'}
-- **Target Audiens:** ${audienceDescription}
-- **Tujuan Utama Konten:** ${currentInputs.businessStage}. Ini berarti fokusnya adalah pada ${currentInputs.businessStage === 'Kesadaran' ? 'memperkenalkan merek dan menjangkau audiens baru.' : currentInputs.businessStage === 'Interaksi' ? 'membangun hubungan dan kepercayaan.' : 'mempertahankan pelanggan dan membangun komunitas.'}
-- **Suasana Konten (Tone of Voice):** ${currentInputs.contentMood}
-
-**Informasi Promosi (Jika Ada):**
-- ${promoInfo}
-
-**Brief Konten Spesifik yang Harus Dikembangkan:**
-- **Platform:** ${item.platform}
-- **Ide Inti:** ${item.idea}
-- **Draf Awal Caption:** ${item.caption_brief}
-- **Ide Visual:** ${item.visual_idea}
-
-**Tugas Anda:**
-1.  **fullCaption:** Tulis caption lengkap dan menarik berdasarkan brief di atas. Gunakan suasana ${currentInputs.contentMood}. Akhiri dengan Call-To-Action (CTA) yang jelas dan sesuai dengan tujuan konten (${currentInputs.businessStage}). Jika ada promosi, sebutkan dengan jelas.
-2.  **visualSuggestion:** Berikan deskripsi yang lebih detail untuk ide visual. Jelaskan elemen-elemen kunci yang harus ada, komposisi, atau nuansa visualnya.
-3.  **videoScript:** Jika ide visual adalah video (misal: Reels, TikTok), buatlah skrip yang detail. Hasilkan sebagai array objek, di mana setiap objek mewakili satu adegan dan memiliki properti: 'scene' (misalnya, "Scene 1: Opening"), 'visual' (deskripsi visual adegan secara detail), 'onScreenText' (teks yang muncul di layar, jika ada. Kosongkan jika tidak ada), dan 'narration' (narasi atau dialog, jika ada. Kosongkan jika tidak ada). Jika bukan video, kembalikan array kosong.
-4.  **hashtags:** Berikan daftar hashtag yang relevan, campurkan antara hashtag populer dan niche. Sertakan juga hashtag merek jika memungkinkan.
-
+            return `Kembangkan brief konten ini menjadi JSON lengkap.
+Konteks: ${JSON.stringify(context)}
+Tugas:
+1.  Buat "fullCaption" menarik dengan CTA sesuai tujuan.
+2.  Buat "visualSuggestion" yang detail.
+3.  Jika visualnya video, buat "videoScript" (array of scenes). Jika bukan, array kosong.
+4.  Buat "hashtags" relevan.
+5.  PENTING: Gunakan 1-3 emoji yang relevan saja per kalimat atau paragraf. Hindari penggunaan emoji secara berlebihan.
 ${languageInstruction}
-Balas HANYA dengan objek JSON yang valid sesuai skema yang diberikan.`;
+Balas HANYA dengan objek JSON valid sesuai skema.`;
         };
 
         
