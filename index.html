@@ -996,6 +996,19 @@ body.dark #draft-viewer-content .bg-slate-100:hover {
                 }
 
                 currentInputs = getFormInputs();
+
+                // --- LANGKAH CERDAS DIMULAI DI SINI ---
+                // Ekstrak kata kunci dari deskripsi yang panjang
+                const businessKeywords = await extractKeywords(currentInputs.description);
+                const productKeywords = await extractKeywords(currentInputs.productDescription);
+                const promoKeywords = await extractKeywords(currentInputs.promoDetails);
+
+                // Ganti deskripsi panjang dengan kata kunci yang sudah disaring
+                currentInputs.description = businessKeywords.join(', ');
+                currentInputs.productDescription = productKeywords.join(', ');
+                currentInputs.promoDetails = promoKeywords.join(', ');
+                // --- AKHIR LANGKAH CERDAS ---
+
                 const prompt = buildPlannerPrompt(currentInputs);
                 const result = await callGemini(prompt, true, plannerSchema);
                 generatedData = result.plan || [];
@@ -1064,6 +1077,31 @@ body.dark #draft-viewer-content .bg-slate-100:hover {
         const plannerSchema = { type: "OBJECT", properties: { plan: { type: "ARRAY", items: { type: "OBJECT", properties: { day: { type: "STRING" }, platform: { type: "STRING" }, pillar: { type: "STRING" }, idea: { type: "STRING" }, caption_brief: { type: "STRING" }, visual_idea: { type: "STRING" }, hashtags: { type: "STRING" } }, required: ["day", "platform", "pillar", "idea", "caption_brief", "visual_idea", "hashtags"] } } } };
         const singleIdeaSchema = { type: "OBJECT", properties: { day: { type: "STRING" }, platform: { type: "STRING" }, pillar: { type: "STRING" }, idea: { type: "STRING" }, caption_brief: { type: "STRING" }, visual_idea: { type: "STRING" }, hashtags: { type: "STRING" } }, required: ["day", "platform", "pillar", "idea", "caption_brief", "visual_idea", "hashtags"] };
         const interestSuggestionSchema = { type: "OBJECT", properties: { interests: { type: "ARRAY", items: { type: "STRING" } } }, required: ["interests"] };
+	
+	const keywordExtractionSchema = { type: "OBJECT", properties: { keywords: { type: "ARRAY", items: { type: "STRING" } } }, required: ["keywords"] };
+
+	// ▼▼▼ LETAKKAN FUNGSI ANDA DI SINI ▼▼▼
+        const extractKeywords = async (text) => {
+            if (!text || text.trim().length === 0) {
+                return []; // Kembalikan array kosong jika tidak ada teks
+            }
+
+            // Prompt ini dirancang khusus untuk ekstraksi kata kunci
+            const prompt = `Anda adalah seorang ahli strategi branding. Dari teks berikut, ekstrak 5-7 kata kunci atau frasa pendek paling penting yang mewakili esensi dari bisnis, produk, atau promosi ini. Fokus pada keunggulan, target, dan penawaran utama.
+
+Teks: "${text}"
+
+${"ATURAN MUTLAK: Balas HANYA dengan objek JSON yang valid, mengikuti skema yang diberikan."}`;
+            
+            try {
+                const result = await callGemini(prompt, true, keywordExtractionSchema);
+                return result.keywords || []; // Kembalikan array keywords
+            } catch (error) {
+                console.error("Gagal mengekstrak kata kunci:", error);
+                // Jika gagal, kembalikan 15 kata pertama dari teks asli sebagai fallback
+                return text.split(' ').slice(0, 15).join(' '); 
+            }
+        };
 
         const callGemini = async (prompt, isJson = false, schema = null) => {
     try {
