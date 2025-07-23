@@ -1104,27 +1104,29 @@ ${"ATURAN MUTLAK: Balas HANYA dengan objek JSON yang valid, mengikuti skema yang
         };
 
         const callGemini = async (prompt, isJson = false, schema = null) => {
-    try {
-        const response = await fetch('https://gemini-proxy-cerdas.ikhsanrofiqi60.workers.dev', { // <-- BARIS INI DIUBAH
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ prompt, schema, isJson }),
-        });
+            try {
+                // Panggil backend lokal Anda di /api/generate
+                const response = await fetch('/api/generate', { 
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt, schema, isJson }),
+                });
 
-        if (!response.ok) {
-            const errorBody = await response.json();
-            console.error("API Function Error:", errorBody);
-            throw new Error(errorBody.error || `Permintaan ke server gagal dengan status ${response.status}`);
-        }
-        
-        const result = await response.json();
-        return result;
+                const result = await response.json();
 
-    } catch (error) {
-        console.error('Gagal memanggil API function:', error);
-        throw new Error(error.message || "Gagal menghubungi server AI.");
-    }
-};
+                // Jika backend mengembalikan error, tampilkan
+                if (!response.ok) {
+                    throw new Error(result.error || `Terjadi kesalahan dengan status: ${response.status}`);
+                }
+                
+                return result;
+
+            } catch (error) {
+                console.error('Gagal memanggil API function:', error);
+                // Teruskan pesan error agar bisa ditangani di tempat lain
+                throw error; 
+            }
+        };
 
         const getFormInputs = (isForStateSave = false) => {
             const isProductFocus = getEl('product-focus-toggle').checked;
@@ -1852,40 +1854,49 @@ const displaySuggestionTags = (suggestions) => {
 
 // --- GANTI FUNGSI 'updateSuggestedTags' LAMA DENGAN YANG INI ---
 const updateSuggestedTags = async () => {
-    // 1. Ambil konteks HANYA dari tag minat yang sudah ada dan bidang usaha
-    const industry = getEl('industry').value.trim();
-    const context = (industry + ' ' + interestTags.join(' ')).trim();
-    const suggestedInterestsContainer = getEl('suggested-interests');
-    const suggestionLoader = getEl('suggestion-loader');
+            const industry = getEl('industry').value.trim().toLowerCase();
+            const suggestedInterestsContainer = getEl('suggested-interests');
+            const suggestionLoader = getEl('suggestion-loader');
 
-    // Jika tidak ada konteks sama sekali, kosongkan saran dan berhenti
-    if (!context) {
-        if(suggestedInterestsContainer) suggestedInterestsContainer.innerHTML = '';
-        return;
-    }
+            if (!suggestedInterestsContainer || !suggestionLoader) return;
 
-    // Tampilkan loader dan kosongkan saran lama
-    if(suggestionLoader) suggestionLoader.classList.remove('hidden');
-    if(suggestedInterestsContainer) suggestedInterestsContainer.innerHTML = '';
+            // Jika industri kosong, jangan lakukan apa-apa
+            if (!industry) {
+                suggestedInterestsContainer.innerHTML = '';
+                return;
+            }
 
-    try {
-        // 2. Buat prompt AI yang jelas berdasarkan konteks saat ini
-        const prompt = `Berdasarkan industri "${industry}" dan kumpulan minat ini: "${interestTags.join(', ')}", berikan 5 saran minat atau perilaku pelanggan baru yang relevan dan spesifik.`;
-        const finalPrompt = `${prompt} Balas HANYA dengan objek JSON yang valid, mengikuti skema. Seluruh teks dalam respons HARUS dalam Bahasa Indonesia.`;
-        
-        // 3. Panggil AI
-        const result = await callGemini(finalPrompt, true, interestSuggestionSchema);
-        
-        // 4. Tampilkan hasil BARU, ganti total yang lama
-        if (result && result.interests) {
-            displaySuggestionTags(result.interests); // Gunakan fungsi yang sudah ada untuk menampilkan
-        }
-    } catch (error) {
-        console.error("Gagal mendapatkan saran minat:", error);
-    } finally {
-        if(suggestionLoader) suggestionLoader.classList.add('hidden');
-    }
-};
+            // Cek apakah ada saran default untuk industri ini
+            const matchingDefaultKey = Object.keys(defaultInterestSuggestions).find(key => industry.includes(key));
+
+            suggestionLoader.classList.remove('hidden');
+            suggestedInterestsContainer.innerHTML = '';
+
+            // Jika ada saran default, langsung gunakan, JANGAN panggil AI
+            if (matchingDefaultKey) {
+                setTimeout(() => { // Beri sedikit jeda untuk simulasi loading
+                    displaySuggestionTags(defaultInterestSuggestions[matchingDefaultKey]);
+                    suggestionLoader.classList.add('hidden');
+                }, 500);
+                return; // Hentikan eksekusi di sini
+            }
+
+            // HANYA jika tidak ada saran default, baru panggil AI
+            try {
+                const prompt = `Berdasarkan industri "${industry}", berikan 5 saran minat atau hobi pelanggan yang relevan.`;
+                const finalPrompt = `${prompt} Balas HANYA dengan objek JSON yang valid, mengikuti skema. Seluruh teks dalam respons HARUS dalam Bahasa Indonesia.`;
+                
+                const result = await callGemini(finalPrompt, true, interestSuggestionSchema);
+                
+                if (result && result.interests) {
+                    displaySuggestionTags(result.interests);
+                }
+            } catch (error) {
+                console.error("Gagal mendapatkan saran minat dari AI:", error);
+            } finally {
+                suggestionLoader.classList.add('hidden');
+            }
+        };
 
         const debouncedUpdateSuggestions = debounce(updateSuggestedTags, 1200);
         
