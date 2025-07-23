@@ -1311,7 +1311,7 @@ ${"ATURAN MUTLAK: Balas HANYA dengan objek JSON yang valid, mengikuti skema yang
                         </button>
                     </div>
                 `;
-                card.querySelector('.get-ai-result-btn').addEventListener('click', (e) => handleDevelopCaption(item, draft, e.currentTarget.closest('.bg-white')));
+                card.querySelector('.get-ai-result-btn').addEventListener('click', (e) => handleDevelopCaption(item, draft, e.currentTarget));
                 card.querySelector('.add-to-calendar-btn').addEventListener('click', () => showCalendarModal(item));
                 card.querySelector('.regenerate-idea-btn').addEventListener('click', (e) => handleRegenerateIdea(index, e.currentTarget, container, draft));
                 container.appendChild(card);
@@ -1362,7 +1362,6 @@ ${"ATURAN MUTLAK: Balas HANYA dengan objek JSON yang valid, mengikuti skema yang
             const textSpan = buttonElement.querySelector('span');
             const originalText = textSpan.textContent;
 
-            // Start loading state
             buttonElement.disabled = true;
             icon.classList.add('icon-spinning');
             textSpan.textContent = 'Membuat Ulang...';
@@ -1376,35 +1375,37 @@ ${"ATURAN MUTLAK: Balas HANYA dengan objek JSON yang valid, mengikuti skema yang
                 if (draft) {
                     const draftRef = doc(db, `artifacts/${appId}/users/${userId}/drafts/${draft.id}`);
                     await setDoc(draftRef, { planData: dataArray }, { merge: true });
-                    console.log("Draft updated in Firestore after regeneration.");
                 }
 
                 renderResults(dataArray, container, draft);
 
             } catch (error) {
                 console.error('Error regenerating idea:', error);
-                showErrorModal(error.message || "Gagal membuat ulang ide. Silakan coba lagi.");
+
+                // --- PERBAIKAN UX: Tampilkan pesan yang ramah ---
+                let userFriendlyMessage = "Gagal membuat ulang ide. Silakan coba lagi.";
+                if (error.message && error.message.includes("429")) {
+                    userFriendlyMessage = "Terlalu banyak permintaan! Mohon tunggu beberapa detik sebelum mencoba lagi.";
+                }
+                showErrorModal(userFriendlyMessage);
                 
-                // Restore button on error since renderResults isn't called
                 buttonElement.disabled = false;
                 icon.classList.remove('icon-spinning');
                 textSpan.textContent = originalText;
             } 
         };
         
-        const handleDevelopCaption = async (item, draft = null, cardElement) => {
+        const handleDevelopCaption = async (item, draft = null, buttonElement) => {
             const isDraftContext = draft !== null;
             const modalToShow = isDraftContext ? getEl('draft-ai-result-modal') : getEl('caption-modal');
             const loadingToShow = isDraftContext ? getEl('draft-caption-loading') : getEl('caption-loading');
             const contentToShow = isDraftContext ? getEl('draft-caption-content') : getEl('caption-content');
 
-            const loadingOverlay = document.createElement('div');
-            if (cardElement) {
-                loadingOverlay.className = 'card-loading-overlay';
-                loadingOverlay.innerHTML = `<i class="fas fa-spinner fa-spin text-3xl text-blue-500"></i>`;
-                cardElement.appendChild(loadingOverlay);
-            }
-            
+            // --- PERBAIKAN UX: Nonaktifkan tombol dan tampilkan status memuat ---
+            const originalButtonHTML = buttonElement.innerHTML;
+            buttonElement.disabled = true;
+            buttonElement.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>Memuat...`;
+
             try {
                 if (item.aiResultJson) {
                     contentToShow.innerHTML = renderAiResultFromJSON(item.aiResultJson);
@@ -1426,7 +1427,6 @@ ${"ATURAN MUTLAK: Balas HANYA dengan objek JSON yang valid, mengikuti skema yang
                        if (itemIndex > -1) {
                            draft.planData[itemIndex] = item;
                            await setDoc(draftRef, { planData: draft.planData }, { merge: true });
-                           console.log("Draft updated with AI result.");
                        }
                     }
                 }
@@ -1435,14 +1435,22 @@ ${"ATURAN MUTLAK: Balas HANYA dengan objek JSON yang valid, mengikuti skema yang
                 modalToShow.classList.remove('hidden');
 
             } catch (error) {
-                contentToShow.innerHTML = `<p class="text-red-500">${error.message}</p>`;
+                console.error('Gagal membuat caption:', error);
+                
+                // --- PERBAIKAN UX: Tampilkan pesan yang ramah untuk setiap jenis error ---
+                let userFriendlyMessage = "Oops! AI sepertinya sedang sibuk. Coba lagi beberapa saat.";
+                if (error.message && error.message.includes("429")) {
+                    userFriendlyMessage = "Terlalu banyak permintaan! AI butuh waktu untuk berpikir. Silakan tunggu beberapa detik sebelum mencoba lagi.";
+                }
+
+                contentToShow.innerHTML = `<p class="text-red-500 text-center p-4">${userFriendlyMessage}</p>`;
                 loadingToShow.classList.add('hidden');
                 contentToShow.classList.remove('hidden');
                 modalToShow.classList.remove('hidden');
             } finally {
-                if (cardElement && cardElement.contains(loadingOverlay)) {
-                    cardElement.removeChild(loadingOverlay);
-                }
+                // --- PERBAIKAN UX: Kembalikan tombol ke keadaan semula ---
+                buttonElement.disabled = false;
+                buttonElement.innerHTML = originalButtonHTML;
             }
         };
         
