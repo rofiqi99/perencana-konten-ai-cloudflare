@@ -1098,8 +1098,8 @@ ${"ATURAN MUTLAK: Balas HANYA dengan objek JSON yang valid, mengikuti skema yang
                 return result.keywords || []; // Kembalikan array keywords
             } catch (error) {
                 console.error("Gagal mengekstrak kata kunci:", error);
-                // Jika gagal, kembalikan 15 kata pertama dari teks asli sebagai fallback
-                return text.split(' ').slice(0, 15).join(' '); 
+                // Jika gagal, kembalikan array yang berisi satu string panjang sebagai fallback
+                return [text.split(' ').slice(0, 20).join(' ')]; 
             }
         };
 
