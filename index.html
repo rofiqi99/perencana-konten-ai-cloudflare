@@ -1106,25 +1106,26 @@ ${"ATURAN MUTLAK: Balas HANYA dengan objek JSON yang valid, mengikuti skema yang
         const callGemini = async (prompt, isJson = false, schema = null) => {
             try {
                 // Panggil backend lokal Anda di /api/generate
-                const response = await fetch('/api/generate', { 
+                const response = await fetch('/api/generate', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ prompt, schema, isJson }),
                 });
 
-                const result = await response.json();
-
-                // Jika backend mengembalikan error, tampilkan
+                // PERBAIKAN: Periksa apakah respons OK SEBELUM parsing JSON
                 if (!response.ok) {
-                    throw new Error(result.error || `Terjadi kesalahan dengan status: ${response.status}`);
+                    // Coba baca teks error jika ada, jika tidak, gunakan status teks
+                    const errorText = await response.text();
+                    throw new Error(errorText || `Terjadi kesalahan dengan status: ${response.status}`);
                 }
                 
+                const result = await response.json();
                 return result;
 
             } catch (error) {
                 console.error('Gagal memanggil API function:', error);
                 // Teruskan pesan error agar bisa ditangani di tempat lain
-                throw error; 
+                throw error;
             }
         };
 
