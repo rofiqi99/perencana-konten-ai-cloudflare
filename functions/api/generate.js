@@ -8,9 +8,9 @@ export async function onRequestPost(context) {
     const { request, env } = context;
 
     const apiKeys = [
-        env.VITE_GEMINI_API_KEY,
-        env.VITE_GEMINI_API_KEY_2,
-        env.VITE_GEMINI_API_KEY_3,
+        GEMINI_API_KEY,
+        GEMINI_API_KEY_2,
+        GEMINI_API_KEY_3,
     ].filter(key => key);
 
     if (apiKeys.length === 0) {
