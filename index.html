@@ -1846,12 +1846,14 @@ const removeTag = (text) => {
         
         // --- (Tempel 3 fungsi baru ini sebagai pengganti) ---
 
-const displaySuggestionTags = (suggestions) => {
+const displaySuggestionTags = () => {
     const suggestedInterestsContainer = getEl('suggested-interests');
     if (!suggestedInterestsContainer) return;
 
     suggestedInterestsContainer.innerHTML = '';
-    const suggestionsToShow = suggestions.filter(interest => !interestTags.includes(interest)).slice(0, 5);
+    
+    // Fungsi ini sekarang membaca langsung dari variabel global 'suggestionCache'
+    const suggestionsToShow = suggestionCache.filter(interest => !interestTags.includes(interest)).slice(0, 5);
 
     suggestionsToShow.forEach(interest => {
         const button = document.createElement('button');
@@ -1877,28 +1879,26 @@ const updateSuggestedTags = async (manualTag = null) => {
     suggestionLoader.classList.remove('hidden');
 
     const formatInstruction = "Setiap saran HARUS berupa kata kunci singkat atau frasa pendek (maksimal 3 kata). Jangan berikan penjelasan.";
-
     let prompt;
     if (manualTag) {
-        const baseContext = description
-            ? `di industri "${industry}" dengan deskripsi "${description}"`
-            : `di industri "${industry}"`;
+        const baseContext = description ? `di industri "${industry}" dengan deskripsi "${description}"` : `di industri "${industry}"`;
         prompt = `Untuk bisnis ${baseContext}, berikan 7 minat atau hobi yang sangat relevan untuk target audiens yang juga memiliki minat pada "${manualTag}". Temukan keterkaitan unik. ${formatInstruction}`;
     } else if (description) {
         prompt = `Berdasarkan bisnis di industri "${industry}" dengan deskripsi "${description}", berikan 7 saran minat atau hobi yang paling relevan untuk target audiens mereka. ${formatInstruction}`;
     } else {
         prompt = `Berdasarkan industri "${industry}", berikan 7 saran minat atau hobi pelanggan yang paling relevan. ${formatInstruction}`;
     }
-
     const finalPrompt = `${prompt} Balas HANYA dengan objek JSON yang valid, mengikuti skema. Seluruh teks dalam respons HARUS dalam Bahasa Indonesia.`;
 
     try {
         const result = await callGemini(finalPrompt, true, interestSuggestionSchema);
+        console.log('Hasil dari AI Gemini:', result); // <-- TAMBAHKAN INI
         suggestionCache = result?.interests || [];
     } catch (error) {
-        console.error("Gagal mendapatkan saran minat dari AI:", error);
+        console.error("Gagal mendapatkan saran minat dari AI:", error); // <-- LOG INI PENTING
         suggestionCache = [];
     } finally {
+        console.log('Menjalankan finally block. suggestionCache akan diatur dan ditampilkan.'); // <-- TAMBAHKAN INI
         displaySuggestionTags();
         suggestionLoader.classList.add('hidden');
     }
