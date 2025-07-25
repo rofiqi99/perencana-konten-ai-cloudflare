@@ -354,6 +354,25 @@ body.dark #draft-viewer-content .bg-slate-100:hover {
 }
 /* ▲▲▲ AKHIR KODE BARU ▲▲▲ */
 
+/* ===== KODE BARU UNTUK INDIKATOR LANGKAH DI MODE GELAP ===== */
+
+/* Memberi warna BIRU untuk langkah yang sedang AKTIF di mode gelap */
+body.dark .step-indicator.active {
+    background-color: #3b82f6; /* Warna biru */
+    color: #ffffff; /* Teks menjadi putih agar terbaca */
+}
+
+/* Memberi warna HIJAU untuk langkah yang sudah SELESAI di mode gelap */
+body.dark .step-indicator.completed {
+    background-color: #22c55e; /* Warna hijau */
+    color: #ffffff; /* Teks menjadi putih */
+}
+
+/* Memberi warna pada garis penghubung yang sudah dilewati */
+body.dark .step-indicator.completed + .border-t-2 {
+    border-color: #22c55e; /* Garis menjadi hijau */
+}
+
 </style>
 </head>
 <body>
