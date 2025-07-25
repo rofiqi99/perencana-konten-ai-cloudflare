@@ -1805,9 +1805,9 @@ END:VCALENDAR`;
             const interestsContainer = getEl('interests-container');
             const interestsInput = getEl('interests-input');
             if (!interestsContainer || !interestsInput) return;
-            // Clear existing tags except for the input itself
+            // Hapus tag yang ada kecuali input itu sendiri
             interestsContainer.querySelectorAll('.interest-tag').forEach(tagEl => tagEl.remove());
-            // Re-add tags from the state array
+            // Tambahkan kembali tag dari array state
             interestTags.forEach(tagText => {
                 const tagEl = document.createElement('span');
                 tagEl.className = 'interest-tag';
@@ -1819,7 +1819,80 @@ END:VCALENDAR`;
             });
         };
 
-        const updateSuggestedTags = async
+        const addTag = (tagText, triggerUpdate = false) => {
+            const cleanTag = tagText.trim();
+            if (cleanTag && !interestTags.includes(cleanTag)) {
+                interestTags.push(cleanTag);
+                renderTags();
+                debouncedSave(); // Simpan perubahan form
+                if(triggerUpdate) {
+                   debouncedUpdateSuggestions(); // Perbarui saran
+                }
+            }
+        };
+
+        const removeTag = (tagText) => {
+            interestTags = interestTags.filter(t => t !== tagText);
+            renderTags();
+            debouncedSave(); // Simpan perubahan form
+            debouncedUpdateSuggestions(); // Perbarui saran setelah menghapus
+        };
+
+        const updateSuggestedTags = async () => {
+            const industry = getEl('industry').value.toLowerCase().trim();
+            const description = getEl('description').value.trim();
+            const suggestionContainer = getEl('suggested-interests');
+            const loader = getEl('suggestion-loader');
+
+            if (!suggestionContainer || !loader) return;
+            
+            // Tampilkan loader
+            loader.classList.remove('hidden');
+            suggestionContainer.innerHTML = '';
+
+            // 1. Dapatkan saran default dari kata kunci industri
+            let suggestions = new Set();
+            for (const key in defaultInterestSuggestions) {
+                if (industry.includes(key)) {
+                    defaultInterestSuggestions[key].forEach(s => suggestions.add(s));
+                }
+            }
+
+            // 2. Jika tidak ada input industri atau deskripsi, tampilkan saran default jika ada
+            if (!industry && !description) {
+                 suggestionCache.forEach(s => suggestions.add(s)); // Gunakan cache jika ada
+            } else {
+                 // 3. Jika ada input, panggil AI untuk saran cerdas
+                try {
+                    const combinedText = `Industri: ${industry}. Deskripsi: ${description}. Minat saat ini: ${interestTags.join(', ')}`;
+                    const prompt = `Berdasarkan informasi bisnis ini: "${combinedText}", berikan 5-7 saran minat (interests) yang paling relevan untuk target audiens mereka. Balas HANYA dengan objek JSON valid sesuai skema.`;
+                    const result = await callGemini(prompt, true, interestSuggestionSchema);
+                    
+                    if (result.interests && result.interests.length > 0) {
+                        suggestionCache = result.interests; // Simpan hasil ke cache
+                        suggestionCache.forEach(s => suggestions.add(s));
+                    }
+                } catch (error) {
+                    console.error("Gagal mendapatkan saran minat dari AI:", error);
+                    // Fallback: Jika AI gagal, gunakan cache terakhir
+                    suggestionCache.forEach(s => suggestions.add(s));
+                }
+            }
+
+            // Sembunyikan loader
+            loader.classList.add('hidden');
+
+            // 4. Render semua saran (filter yang sudah ditambahkan)
+            const existingTagsLower = interestTags.map(t => t.toLowerCase());
+            suggestions.forEach(suggestion => {
+                if (!existingTagsLower.includes(suggestion.toLowerCase())) {
+                    const tagEl = document.createElement('button');
+                    tagEl.className = 'suggestion-tag';
+                    tagEl.textContent = suggestion;
+                    suggestionContainer.appendChild(tagEl);
+                }
+            });
+        };
 
         const debouncedUpdateSuggestions = debounce(updateSuggestedTags, 1200);
         
