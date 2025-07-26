@@ -373,6 +373,34 @@ body.dark .step-indicator.completed + .border-t-2 {
     border-color: #22c55e; /* Garis menjadi hijau */
 }
 
+/* ===== PERBAIKAN: Kontras Opsi di Mode Gelap ===== */
+
+/* 1. Memberi latar belakang & border yang lebih kontras untuk semua kartu opsi */
+body.dark .option-radio + label,
+body.dark .platform-checkbox + label {
+    background-color: var(--bg-card); /* Menggunakan warna kartu yang sudah ada */
+    border-color: var(--border-primary); /* Memberi border yang juga sedikit lebih terang */
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+/* 2. Memperjelas warna teks deskripsi di dalam kartu opsi */
+body.dark .option-radio + label .text-slate-500,
+body.dark .platform-checkbox + label .text-slate-500 {
+    color: var(--text-secondary); /* Menggunakan warna teks sekunder yang lebih cerah */
+}
+
+/* 3. Menambahkan efek hover agar lebih interaktif */
+body.dark .option-radio:not(:checked) + label:hover,
+body.dark .platform-checkbox:not(:checked) + label:hover {
+    background-color: var(--bg-button);
+    border-color: var(--text-secondary);
+}
+
+/* 4. Memastikan teks judul tetap jelas saat di-hover */
+body.dark .option-radio:not(:checked) + label:hover .font-semibold {
+    color: var(--text-primary);
+}
+
 </style>
 </head>
 <body>
