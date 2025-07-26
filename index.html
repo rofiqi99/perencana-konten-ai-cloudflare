@@ -410,7 +410,7 @@ body.dark .step-indicator.completed + .border-t-2 {
 }
 
 
-/* ===== PERBAIKAN FINAL v7: Warna Uniform untuk Platform ===== */
+/* ===== PERBAIKAN DEFINITIF v8: Menyeragamkan Warna Ikon Platform ===== */
 
 /* --- 1. Gaya Dasar (Tidak Dipilih) di Mode Gelap --- */
 body.dark .option-radio + label,
@@ -420,23 +420,16 @@ body.dark .platform-checkbox + label {
     transition: all 0.2s ease-in-out;
 }
 /* Atur warna ikon dan teks untuk grup "Tujuan" & "Suasana" */
-body.dark .option-radio + label {
-    color: var(--text-secondary);
-}
-body.dark .option-radio + label .font-semibold {
-    color: var(--text-primary);
-}
-body.dark .option-radio + label .text-slate-500 {
-    color: var(--text-secondary);
-}
+body.dark .option-radio + label { color: var(--text-secondary); }
+body.dark .option-radio + label .font-semibold { color: var(--text-primary); }
+body.dark .option-radio + label .text-slate-500 { color: var(--text-secondary); }
 
-/* KOREKSI: Atur warna ikon & teks untuk grup "Platform" agar seragam */
-body.dark .platform-checkbox + label {
-    color: var(--text-secondary); /* Warna dasar abu-abu redup untuk semua elemen di dalamnya */
-}
-body.dark .platform-checkbox + label i,
-body.dark .platform-checkbox + label .font-semibold {
-    color: var(--text-secondary); /* Memaksa ikon & font menggunakan warna yang sama */
+
+/* KOREKSI FINAL: Paksa SEMUA ikon & teks platform untuk berwarna seragam */
+body.dark .platform-checkbox + label,
+body.dark .platform-checkbox + label .font-semibold,
+body.dark .platform-checkbox + label i {
+    color: var(--text-secondary) !important;
 }
 
 
