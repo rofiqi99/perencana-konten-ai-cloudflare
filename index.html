@@ -410,13 +410,13 @@ body.dark .step-indicator.completed + .border-t-2 {
 }
 
 
-/* ===== PERBAIKAN DEFINITIF v8: Menyeragamkan Warna Ikon Platform ===== */
+/* ===== PERBAIKAN FINAL v9: Background Navy Gelap ===== */
 
 /* --- 1. Gaya Dasar (Tidak Dipilih) di Mode Gelap --- */
 body.dark .option-radio + label,
 body.dark .platform-checkbox + label {
-    background-color: var(--bg-button);
-    border: 2px solid var(--bg-button);
+    background-color: var(--bg-card);      /* KOREKSI: Latar menjadi navy gelap, menyatu dengan background */
+    border: 2px solid var(--border-primary); /* KOREKSI: Border dengan warna kontras yang lembut */
     transition: all 0.2s ease-in-out;
 }
 /* Atur warna ikon dan teks untuk grup "Tujuan" & "Suasana" */
@@ -424,8 +424,7 @@ body.dark .option-radio + label { color: var(--text-secondary); }
 body.dark .option-radio + label .font-semibold { color: var(--text-primary); }
 body.dark .option-radio + label .text-slate-500 { color: var(--text-secondary); }
 
-
-/* KOREKSI FINAL: Paksa SEMUA ikon & teks platform untuk berwarna seragam */
+/* Atur warna ikon & teks untuk grup "Platform" agar seragam */
 body.dark .platform-checkbox + label,
 body.dark .platform-checkbox + label .font-semibold,
 body.dark .platform-checkbox + label i {
@@ -452,8 +451,8 @@ body.dark .platform-checkbox:checked + label i {
 /* --- 3. Gaya Hover (Saat Disentuh Mouse & Belum Dipilih) --- */
 body.dark .option-radio:not(:checked) + label:hover,
 body.dark .platform-checkbox:not(:checked) + label:hover {
-    background-color: var(--bg-button-hover);
-    border-color: var(--bg-button-hover);
+    background-color: var(--bg-button); /* Hover menjadi sedikit lebih terang */
+    border-color: var(--border-secondary);
 }
 
 </style>
