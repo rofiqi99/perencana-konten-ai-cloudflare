@@ -410,27 +410,29 @@ body.dark .step-indicator.completed + .border-t-2 {
 }
 
 
-/* ===== GAYA FINAL MODE GELAP ===== */
+/* ===== GAYA FINAL v11: Menyeragamkan Semua Teks & Ikon ===== */
 
-/* --- 1. Gaya Dasar (Tidak Aktif): Dibuat Transparan --- */
+/* --- 1. Gaya Dasar (Tidak Aktif): Transparan dengan Teks Seragam --- */
 body.dark .option-radio:not(:checked) + label,
 body.dark .platform-checkbox:not(:checked) + label {
-    background-color: transparent !important;      /* PAKSA latar menjadi transparan */
-    border: 2px solid var(--border-primary);      /* Garis tepi abu-abu terang */
+    background-color: transparent !important;
+    border: 2px solid var(--border-primary);
     transition: all 0.2s ease-in-out;
 }
-/* Atur warna teks & ikon saat tidak aktif */
+/* KOREKSI: Menyeragamkan warna semua judul menjadi abu-abu redup */
 body.dark .option-radio:not(:checked) + label .font-semibold,
 body.dark .platform-checkbox:not(:checked) + label .font-semibold {
-    color: var(--text-primary);
+    color: var(--text-secondary);
 }
+/* Mengatur warna teks deskripsi */
 body.dark .option-radio:not(:checked) + label .text-slate-500 {
     color: var(--text-secondary);
 }
+/* Mengatur warna ikon platform menjadi abu-abu redup */
 body.dark .platform-checkbox:not(:checked) + label i {
     color: var(--text-secondary) !important;
 }
-/* Biarkan ikon original berwarna (seperti kesadaran, loyalitas, dll) */
+/* Membiarkan ikon original (Tujuan & Suasana) tetap berwarna */
 body.dark .option-radio:not(:checked) + label i {
     color: inherit !important;
 }
@@ -455,7 +457,7 @@ body.dark .platform-checkbox:checked + label i {
 /* --- 3. Gaya Hover (Disentuh Mouse & Belum Aktif) --- */
 body.dark .option-radio:not(:checked) + label:hover,
 body.dark .platform-checkbox:not(:checked) + label:hover {
-    background-color: var(--bg-card) !important; /* Diisi warna navy gelap saat hover */
+    background-color: var(--bg-card) !important;
     border-color: var(--border-secondary) !important;
 }
 
