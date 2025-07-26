@@ -373,32 +373,56 @@ body.dark .step-indicator.completed + .border-t-2 {
     border-color: #22c55e; /* Garis menjadi hijau */
 }
 
-/* ===== PERBAIKAN FINAL: Kontras Opsi di Mode Gelap ===== */
+/* ===== PERBAIKAN FINAL v2: Blok Checklist Putih di Mode Gelap ===== */
 
-/* 1. Memberi latar belakang & border yang lebih kontras untuk semua kartu opsi */
+/* 1. Mengubah blok opsi menjadi PUTIH dan teks menjadi HITAM di mode gelap */
 body.dark .option-radio + label,
 body.dark .platform-checkbox + label {
-    background-color: var(--bg-button);      /* KOREKSI: Menggunakan warna yang lebih terang untuk kontras */
-    border-color: var(--border-secondary);   /* Border yang lebih jelas dari latar */
-    transition: background-color 0.2s ease, border-color 0.2s ease;
+    background-color: var(--bg-card);      /* Menggunakan warna kartu (putih di mode terang, jadi kita atur ulang) */
+    border-color: var(--border-primary);   /* Border abu-abu terang */
+    transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* 2. Mencerahkan teks deskripsi di dalam kartu (tetap sama dan sudah benar) */
+/* Mengatur warna teks di dalam blok menjadi gelap agar terbaca di atas latar putih */
+body.dark .option-radio + label .font-semibold,
+body.dark .platform-checkbox + label .font-semibold {
+    color: var(--text-heading); /* Warna teks judul (misal: "Informatif") */
+}
+
 body.dark .option-radio + label .text-slate-500,
 body.dark .platform-checkbox + label .text-slate-500 {
+    color: var(--text-secondary);   /* Warna teks deskripsi */
+}
+
+/* Mengatur warna ikon menjadi gelap */
+body.dark .option-radio + label i,
+body.dark .platform-checkbox + label i {
     color: var(--text-secondary);
 }
 
-/* 3. Efek hover yang lebih jelas dan serasi */
+
+/* 2. Efek hover: Memberi bayangan (shadow) dan border biru */
 body.dark .option-radio:not(:checked) + label:hover,
 body.dark .platform-checkbox:not(:checked) + label:hover {
-    background-color: var(--bg-button-hover); /* Warna hover yang lebih terang */
-    border-color: var(--border-active);       /* Border menjadi biru aktif saat disentuh mouse */
+    border-color: var(--border-active); /* Border menjadi biru aktif saat disentuh mouse */
+    box-shadow: 0 4px 14px 0 rgba(0, 118, 255, 0.39); /* Memberi efek bayangan biru */
 }
 
-/* 4. Memastikan teks judul tetap jelas saat di-hover (tetap sama) */
-body.dark .option-radio:not(:checked) + label:hover .font-semibold {
-    color: var(--text-primary);
+/* 3. Gaya saat DIPILIH: Latar biru dengan teks putih */
+body.dark .option-radio:checked + label,
+body.dark .platform-checkbox:checked + label {
+    background-color: var(--bg-checked); /* Latar menjadi biru */
+    border-color: var(--border-active);  /* Border biru */
+}
+
+/* Mengembalikan warna teks dan ikon menjadi PUTIH saat dipilih */
+body.dark .option-radio:checked + label .font-semibold,
+body.dark .option-radio:checked + label .text-slate-500,
+body.dark .option-radio:checked + label i,
+body.dark .platform-checkbox:checked + label .font-semibold,
+body.dark .platform-checkbox:checked + label .text-slate-500,
+body.dark .platform-checkbox:checked + label i {
+    color: var(--text-on-accent); /* Warna putih */
 }
 
 </style>
