@@ -409,92 +409,50 @@ body.dark .step-indicator.completed + .border-t-2 {
     border-color: #22c55e; /* Garis menjadi hijau */
 }
 
-/* ===== PERBAIKAN FINAL v3: Gaya Berbeda untuk Grup Opsi ===== */
 
-/* --- A. GAYA BLOK PUTIH (Untuk Tujuan & Suasana Konten) --- */
+/* ===== PERBAIKAN FINAL v7: Warna Uniform untuk Platform ===== */
 
-/* 1. Mengubah blok opsi ini menjadi PUTIH dan teks menjadi HITAM di mode gelap */
-body.dark .option-radio + label {
-    background-color: var(--bg-card);
-    border-color: var(--border-primary);
-    transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-/* Mengatur warna teks & ikon di dalamnya menjadi gelap */
-body.dark .option-radio + label .font-semibold,
-body.dark .option-radio + label .text-slate-500,
-body.dark .option-radio + label i {
-    color: var(--text-heading);
-}
-
-/* Efek hover: Memberi bayangan (shadow) dan border biru */
-body.dark .option-radio:not(:checked) + label:hover {
-    border-color: var(--border-active);
-    box-shadow: 0 4px 14px 0 rgba(0, 118, 255, 0.39);
-}
-
-/* Gaya saat DIPILIH: Latar biru dengan teks putih */
-body.dark .option-radio:checked + label,
-body.dark .option-radio:checked + label .font-semibold,
-body.dark .option-radio:checked + label .text-slate-500,
-body.dark .option-radio:checked + label i {
-    background-color: var(--bg-checked);
-    border-color: var(--border-active);
-    color: var(--text-on-accent);
-    box-shadow: none;
-}
-
-
-/* ===== PERBAIKAN FINAL v6: Mengembalikan Warna Asli Ikon ===== */
-
-/* --- 1. Gaya Dasar untuk SEMUA OPSI (Tidak Dipilih) di Mode Gelap --- */
+/* --- 1. Gaya Dasar (Tidak Dipilih) di Mode Gelap --- */
 body.dark .option-radio + label,
 body.dark .platform-checkbox + label {
     background-color: var(--bg-button);
     border: 2px solid var(--bg-button);
     transition: all 0.2s ease-in-out;
-    /* Properti 'color' umum dihapus dari sini agar tidak menimpa warna ikon */
 }
-
-/* Mengatur warna teks deskripsi menjadi abu-abu terang */
-body.dark .option-radio + label .text-slate-500 {
-    color: var(--text-tertiary);
+/* Atur warna ikon dan teks untuk grup "Tujuan" & "Suasana" */
+body.dark .option-radio + label {
+    color: var(--text-secondary);
 }
-
-/* Mengatur warna judul menjadi putih */
-body.dark .option-radio + label .font-semibold,
-body.dark .platform-checkbox + label .font-semibold {
+body.dark .option-radio + label .font-semibold {
     color: var(--text-primary);
 }
-
-/* Biarkan platform non-FontAwesome (seperti TikTok) mengikuti warna default */
-body.dark .platform-checkbox + label .fab {
-    color: inherit;
-}
-body.dark label[for="platform-tiktok"] i {
-    color: var(--text-primary) !important;
+body.dark .option-radio + label .text-slate-500 {
+    color: var(--text-secondary);
 }
 
+/* KOREKSI: Atur warna ikon & teks untuk grup "Platform" agar seragam */
+body.dark .platform-checkbox + label {
+    color: var(--text-secondary); /* Warna dasar abu-abu redup untuk semua elemen di dalamnya */
+}
+body.dark .platform-checkbox + label i,
+body.dark .platform-checkbox + label .font-semibold {
+    color: var(--text-secondary); /* Memaksa ikon & font menggunakan warna yang sama */
+}
 
-/* --- 2. Gaya Saat DIPILIH (Checked): Menjadi Outline Putih --- */
+
+/* --- 2. Gaya Saat DIPILIH (Checked) --- */
 body.dark .option-radio:checked + label,
 body.dark .platform-checkbox:checked + label {
-    background-color: transparent;
+    background-color: transparent !important;
     border-color: var(--text-primary);
 }
-
-/* Saat dipilih, SEMUA elemen di dalamnya (termasuk ikon) menjadi PUTIH */
-body.dark .option-radio:checked + label,
+/* Teks & Ikon menjadi PUTIH TERANG saat dipilih */
 body.dark .option-radio:checked + label .font-semibold,
 body.dark .option-radio:checked + label .text-slate-500,
 body.dark .option-radio:checked + label i,
-body.dark .platform-checkbox:checked + label,
 body.dark .platform-checkbox:checked + label .font-semibold,
 body.dark .platform-checkbox:checked + label i {
-    color: var(--text-primary);
-}
-body.dark label[for="platform-tiktok"]:has(:checked) i {
-     color: var(--text-primary) !important;
+    color: var(--text-primary) !important;
 }
 
 
