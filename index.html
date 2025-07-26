@@ -373,56 +373,77 @@ body.dark .step-indicator.completed + .border-t-2 {
     border-color: #22c55e; /* Garis menjadi hijau */
 }
 
-/* ===== PERBAIKAN FINAL v2: Blok Checklist Putih di Mode Gelap ===== */
+/* ===== PERBAIKAN FINAL v3: Gaya Berbeda untuk Grup Opsi ===== */
 
-/* 1. Mengubah blok opsi menjadi PUTIH dan teks menjadi HITAM di mode gelap */
-body.dark .option-radio + label,
-body.dark .platform-checkbox + label {
-    background-color: var(--bg-card);      /* Menggunakan warna kartu (putih di mode terang, jadi kita atur ulang) */
-    border-color: var(--border-primary);   /* Border abu-abu terang */
+/* --- A. GAYA BLOK PUTIH (Untuk Tujuan & Suasana Konten) --- */
+
+/* 1. Mengubah blok opsi ini menjadi PUTIH dan teks menjadi HITAM di mode gelap */
+body.dark .option-radio + label {
+    background-color: var(--bg-card);
+    border-color: var(--border-primary);
     transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* Mengatur warna teks di dalam blok menjadi gelap agar terbaca di atas latar putih */
+/* Mengatur warna teks & ikon di dalamnya menjadi gelap */
 body.dark .option-radio + label .font-semibold,
-body.dark .platform-checkbox + label .font-semibold {
-    color: var(--text-heading); /* Warna teks judul (misal: "Informatif") */
-}
-
 body.dark .option-radio + label .text-slate-500,
-body.dark .platform-checkbox + label .text-slate-500 {
-    color: var(--text-secondary);   /* Warna teks deskripsi */
+body.dark .option-radio + label i {
+    color: var(--text-heading);
 }
 
-/* Mengatur warna ikon menjadi gelap */
-body.dark .option-radio + label i,
-body.dark .platform-checkbox + label i {
-    color: var(--text-secondary);
+/* Efek hover: Memberi bayangan (shadow) dan border biru */
+body.dark .option-radio:not(:checked) + label:hover {
+    border-color: var(--border-active);
+    box-shadow: 0 4px 14px 0 rgba(0, 118, 255, 0.39);
 }
 
-
-/* 2. Efek hover: Memberi bayangan (shadow) dan border biru */
-body.dark .option-radio:not(:checked) + label:hover,
-body.dark .platform-checkbox:not(:checked) + label:hover {
-    border-color: var(--border-active); /* Border menjadi biru aktif saat disentuh mouse */
-    box-shadow: 0 4px 14px 0 rgba(0, 118, 255, 0.39); /* Memberi efek bayangan biru */
-}
-
-/* 3. Gaya saat DIPILIH: Latar biru dengan teks putih */
+/* Gaya saat DIPILIH: Latar biru dengan teks putih */
 body.dark .option-radio:checked + label,
-body.dark .platform-checkbox:checked + label {
-    background-color: var(--bg-checked); /* Latar menjadi biru */
-    border-color: var(--border-active);  /* Border biru */
-}
-
-/* Mengembalikan warna teks dan ikon menjadi PUTIH saat dipilih */
 body.dark .option-radio:checked + label .font-semibold,
 body.dark .option-radio:checked + label .text-slate-500,
-body.dark .option-radio:checked + label i,
-body.dark .platform-checkbox:checked + label .font-semibold,
-body.dark .platform-checkbox:checked + label .text-slate-500,
-body.dark .platform-checkbox:checked + label i {
-    color: var(--text-on-accent); /* Warna putih */
+body.dark .option-radio:checked + label i {
+    background-color: var(--bg-checked);
+    border-color: var(--border-active);
+    color: var(--text-on-accent);
+    box-shadow: none;
+}
+
+
+/* --- B. GAYA OUTLINE PUTIH (Untuk Pilihan Platform) --- */
+
+/* 1. Mengatur blok platform agar transparan dengan teks & ikon PUTIH */
+body.dark .platform-checkbox + label {
+    background-color: transparent;
+    border-color: var(--border-primary); /* Border putih/abu-abu terang */
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+/* Mengatur warna ikon & teks menjadi PUTIH */
+body.dark .platform-checkbox + label,
+body.dark .platform-checkbox + label .font-semibold,
+body.dark .platform-checkbox + label i {
+    color: var(--text-primary); /* Warna putih/abu-abu sangat terang */
+}
+
+/* Mengembalikan warna asli ikon Font Awesome (seperti TikTok) */
+body.dark .platform-checkbox + label .fab {
+    color: inherit;
+}
+body.dark label[for="platform-tiktok"] i {
+    color: var(--text-primary) !important;
+}
+
+
+/* Efek hover: Latar menjadi sedikit lebih terang */
+body.dark .platform-checkbox:not(:checked) + label:hover {
+    background-color: var(--bg-button);
+    border-color: var(--border-active);
+}
+
+/* Gaya saat DIPILIH: Latar biru solid (tetap sama) */
+body.dark .platform-checkbox:checked + label {
+    background-color: var(--bg-checked);
+    border-color: var(--border-active);
 }
 
 </style>
