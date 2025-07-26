@@ -2189,11 +2189,12 @@ if (interestsContainer) {
 
 // Pemicu saat mengklik tag saran
 if (suggestedInterestsContainer) {
-    suggestedInterestsContainer.addEventListener('click', (e) => {
-        if (e.target.classList.contains('suggestion-tag')) {
-            addTag(e.target.textContent);
-        }
-    });
+  suggestedInterestsContainer.addEventListener('click', (e) => {
+    if (e.target.classList.contains('suggestion-tag')) {
+      addTag(e.target.textContent);
+      e.target.remove(); // <-- TAMBAHKAN BARIS INI
+    }
+  });
 }
 
             if(closeCalendarModalBtn) closeCalendarModalBtn.addEventListener('click', () => getEl('calendar-modal').classList.add('hidden'));
