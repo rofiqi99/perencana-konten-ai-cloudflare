@@ -409,39 +409,42 @@ body.dark .option-radio:checked + label i {
 }
 
 
-/* ===== PERBAIKAN FINAL v4: Gaya Outline Konsisten ===== */
+/* ===== PERBAIKAN FINAL v5: Gaya Outline Saat Terpilih ===== */
 
-/* --- 1. Gaya Dasar untuk SEMUA OPSI (Tidak Dipilih) --- */
+/* --- 1. Gaya Dasar untuk SEMUA OPSI (Tidak Dipilih) di Mode Gelap --- */
+/* Mengembalikan tampilan default menjadi blok solid berwarna gelap. */
 body.dark .option-radio + label,
 body.dark .platform-checkbox + label {
-    background-color: transparent; /* Latar belakang transparan, menyatu dengan background utama */
-    border: 2px solid var(--border-primary); /* Garis tepi abu-abu terang */
-    color: var(--text-secondary); /* Warna default untuk teks & ikon menjadi abu-abu terang */
+    background-color: var(--bg-button);      /* Latar solid abu-abu gelap */
+    border: 2px solid var(--bg-button);      /* Border dengan warna yang sama (agar tidak terlihat) */
+    color: var(--text-secondary);            /* Teks & ikon berwarna abu-abu terang */
     transition: all 0.2s ease-in-out;
 }
 
-/* Mengatur warna spesifik untuk judul dan deskripsi agar seragam */
-body.dark .option-radio + label .font-semibold,
-body.dark .platform-checkbox + label .font-semibold,
+/* Mengatur warna teks deskripsi */
 body.dark .option-radio + label .text-slate-500 {
-    color: var(--text-secondary);
+    color: var(--text-tertiary);
 }
 
-/* Mengembalikan warna asli ikon Font Awesome (jika ada) */
-body.dark .platform-checkbox + label .fab {
-    color: inherit;
+/* Mengatur warna judul */
+body.dark .option-radio + label .font-semibold,
+body.dark .platform-checkbox + label .font-semibold {
+    color: var(--text-primary);
 }
+
+/* Mengembalikan warna ikon Font Awesome ke warna teks utama */
+body.dark .platform-checkbox + label .fab,
 body.dark label[for="platform-tiktok"] i {
-    color: var(--text-secondary) !important;
+    color: var(--text-primary) !important;
 }
 
 
-/* --- 2. Gaya Saat DIPILIH (Checked) --- */
+/* --- 2. Gaya Saat DIPILIH (Checked): Menjadi Outline Putih --- */
+/* Inilah bagian utama yang menerapkan permintaan Anda. */
 body.dark .option-radio:checked + label,
 body.dark .platform-checkbox:checked + label {
-    background-color: transparent;          /* Latar tetap gelap */
-    border-color: var(--text-primary);      /* KOREKSI: Garis tepi (stroke) menjadi PUTIH */
-    box-shadow: 0 0 12px -2px rgba(255, 255, 255, 0.25); /* Efek 'glow' putih lembut */
+    background-color: transparent;      /* Latar belakang dihilangkan */
+    border-color: var(--text-primary);  /* Garis tepi (stroke) menjadi PUTIH */
 }
 
 /* Teks & Ikon menjadi PUTIH TERANG saat dipilih */
@@ -452,23 +455,15 @@ body.dark .option-radio:checked + label i,
 body.dark .platform-checkbox:checked + label,
 body.dark .platform-checkbox:checked + label .font-semibold,
 body.dark .platform-checkbox:checked + label i {
-    color: var(--text-primary); /* Warna putih terang */
-}
-body.dark label[for="platform-tiktok"]:has(:checked) i {
-     color: var(--text-primary) !important;
+    color: var(--text-primary); /* Semua elemen di dalamnya menjadi putih */
 }
 
 
-/* --- 3. Gaya Hover (Saat Disentuh Mouse) --- */
+/* --- 3. Gaya Hover (Saat Disentuh Mouse & Belum Dipilih) --- */
 body.dark .option-radio:not(:checked) + label:hover,
 body.dark .platform-checkbox:not(:checked) + label:hover {
-    background-color: var(--bg-button);
-    border-color: var(--text-secondary);
-    color: var(--text-primary);
-}
-body.dark .option-radio:not(:checked) + label:hover .font-semibold,
-body.dark .option-radio:not(:checked) + label:hover .text-slate-500 {
-    color: var(--text-primary);
+    background-color: var(--bg-button-hover); /* Latar menjadi sedikit lebih terang */
+    border-color: var(--bg-button-hover);
 }
 
 </style>
