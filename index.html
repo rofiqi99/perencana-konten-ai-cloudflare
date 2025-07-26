@@ -410,34 +410,37 @@ body.dark .step-indicator.completed + .border-t-2 {
 }
 
 
-/* ===== PERBAIKAN FINAL v10: Gaya Outline Transparan ===== */
+/* ===== GAYA FINAL MODE GELAP ===== */
 
-/* --- 1. Gaya Dasar (Tidak Dipilih): Outline Transparan --- */
-body.dark .option-radio + label,
-body.dark .platform-checkbox + label {
-    background-color: transparent;         /* KOREKSI: Latar dibuat transparan */
-    border: 2px solid var(--border-primary); /* Border abu-abu terang sebagai outline */
+/* --- 1. Gaya Dasar (Tidak Aktif): Dibuat Transparan --- */
+body.dark .option-radio:not(:checked) + label,
+body.dark .platform-checkbox:not(:checked) + label {
+    background-color: transparent !important;      /* PAKSA latar menjadi transparan */
+    border: 2px solid var(--border-primary);      /* Garis tepi abu-abu terang */
     transition: all 0.2s ease-in-out;
 }
-
-/* Atur warna ikon dan teks untuk grup "Tujuan" & "Suasana" */
-body.dark .option-radio + label { color: var(--text-secondary); }
-body.dark .option-radio + label .font-semibold { color: var(--text-primary); }
-body.dark .option-radio + label .text-slate-500 { color: var(--text-secondary); }
-
-/* Atur warna ikon & teks untuk grup "Platform" agar seragam */
-body.dark .platform-checkbox + label,
-body.dark .platform-checkbox + label .font-semibold,
-body.dark .platform-checkbox + label i {
+/* Atur warna teks & ikon saat tidak aktif */
+body.dark .option-radio:not(:checked) + label .font-semibold,
+body.dark .platform-checkbox:not(:checked) + label .font-semibold {
+    color: var(--text-primary);
+}
+body.dark .option-radio:not(:checked) + label .text-slate-500 {
+    color: var(--text-secondary);
+}
+body.dark .platform-checkbox:not(:checked) + label i {
     color: var(--text-secondary) !important;
+}
+/* Biarkan ikon original berwarna (seperti kesadaran, loyalitas, dll) */
+body.dark .option-radio:not(:checked) + label i {
+    color: inherit !important;
 }
 
 
-/* --- 2. Gaya Saat DIPILIH (Checked): Outline Putih --- */
+/* --- 2. Gaya Saat DIPILIH (Aktif): Outline Putih --- */
 body.dark .option-radio:checked + label,
 body.dark .platform-checkbox:checked + label {
     background-color: transparent !important;
-    border-color: var(--text-primary);
+    border-color: var(--text-primary) !important;
 }
 /* Teks & Ikon menjadi PUTIH TERANG saat dipilih */
 body.dark .option-radio:checked + label .font-semibold,
@@ -449,11 +452,11 @@ body.dark .platform-checkbox:checked + label i {
 }
 
 
-/* --- 3. Gaya Hover (Saat Disentuh Mouse & Belum Dipilih) --- */
+/* --- 3. Gaya Hover (Disentuh Mouse & Belum Aktif) --- */
 body.dark .option-radio:not(:checked) + label:hover,
 body.dark .platform-checkbox:not(:checked) + label:hover {
-    background-color: var(--bg-card); /* KOREKSI: Diisi dengan warna navy gelap saat disentuh mouse */
-    border-color: var(--border-secondary);
+    background-color: var(--bg-card) !important; /* Diisi warna navy gelap saat hover */
+    border-color: var(--border-secondary) !important;
 }
 
 </style>
