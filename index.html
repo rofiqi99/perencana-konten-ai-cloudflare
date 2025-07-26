@@ -410,15 +410,16 @@ body.dark .step-indicator.completed + .border-t-2 {
 }
 
 
-/* ===== PERBAIKAN FINAL v9: Background Navy Gelap ===== */
+/* ===== PERBAIKAN FINAL v10: Gaya Outline Transparan ===== */
 
-/* --- 1. Gaya Dasar (Tidak Dipilih) di Mode Gelap --- */
+/* --- 1. Gaya Dasar (Tidak Dipilih): Outline Transparan --- */
 body.dark .option-radio + label,
 body.dark .platform-checkbox + label {
-    background-color: var(--bg-card);      /* KOREKSI: Latar menjadi navy gelap, menyatu dengan background */
-    border: 2px solid var(--border-primary); /* KOREKSI: Border dengan warna kontras yang lembut */
+    background-color: transparent;         /* KOREKSI: Latar dibuat transparan */
+    border: 2px solid var(--border-primary); /* Border abu-abu terang sebagai outline */
     transition: all 0.2s ease-in-out;
 }
+
 /* Atur warna ikon dan teks untuk grup "Tujuan" & "Suasana" */
 body.dark .option-radio + label { color: var(--text-secondary); }
 body.dark .option-radio + label .font-semibold { color: var(--text-primary); }
@@ -432,7 +433,7 @@ body.dark .platform-checkbox + label i {
 }
 
 
-/* --- 2. Gaya Saat DIPILIH (Checked) --- */
+/* --- 2. Gaya Saat DIPILIH (Checked): Outline Putih --- */
 body.dark .option-radio:checked + label,
 body.dark .platform-checkbox:checked + label {
     background-color: transparent !important;
@@ -451,7 +452,7 @@ body.dark .platform-checkbox:checked + label i {
 /* --- 3. Gaya Hover (Saat Disentuh Mouse & Belum Dipilih) --- */
 body.dark .option-radio:not(:checked) + label:hover,
 body.dark .platform-checkbox:not(:checked) + label:hover {
-    background-color: var(--bg-button); /* Hover menjadi sedikit lebih terang */
+    background-color: var(--bg-card); /* KOREKSI: Diisi dengan warna navy gelap saat disentuh mouse */
     border-color: var(--border-secondary);
 }
 
