@@ -409,41 +409,66 @@ body.dark .option-radio:checked + label i {
 }
 
 
-/* --- B. GAYA OUTLINE PUTIH (Untuk Pilihan Platform) --- */
+/* ===== PERBAIKAN FINAL v4: Gaya Outline Konsisten ===== */
 
-/* 1. Mengatur blok platform agar transparan dengan teks & ikon PUTIH */
+/* --- 1. Gaya Dasar untuk SEMUA OPSI (Tidak Dipilih) --- */
+body.dark .option-radio + label,
 body.dark .platform-checkbox + label {
-    background-color: transparent;
-    border-color: var(--border-primary); /* Border putih/abu-abu terang */
-    transition: background-color 0.2s ease, border-color 0.2s ease;
+    background-color: transparent; /* Latar belakang transparan, menyatu dengan background utama */
+    border: 2px solid var(--border-primary); /* Garis tepi abu-abu terang */
+    color: var(--text-secondary); /* Warna default untuk teks & ikon menjadi abu-abu terang */
+    transition: all 0.2s ease-in-out;
 }
 
-/* Mengatur warna ikon & teks menjadi PUTIH */
-body.dark .platform-checkbox + label,
+/* Mengatur warna spesifik untuk judul dan deskripsi agar seragam */
+body.dark .option-radio + label .font-semibold,
 body.dark .platform-checkbox + label .font-semibold,
-body.dark .platform-checkbox + label i {
-    color: var(--text-primary); /* Warna putih/abu-abu sangat terang */
+body.dark .option-radio + label .text-slate-500 {
+    color: var(--text-secondary);
 }
 
-/* Mengembalikan warna asli ikon Font Awesome (seperti TikTok) */
+/* Mengembalikan warna asli ikon Font Awesome (jika ada) */
 body.dark .platform-checkbox + label .fab {
     color: inherit;
 }
 body.dark label[for="platform-tiktok"] i {
-    color: var(--text-primary) !important;
+    color: var(--text-secondary) !important;
 }
 
 
-/* Efek hover: Latar menjadi sedikit lebih terang */
+/* --- 2. Gaya Saat DIPILIH (Checked) --- */
+body.dark .option-radio:checked + label,
+body.dark .platform-checkbox:checked + label {
+    background-color: transparent;          /* Latar tetap gelap */
+    border-color: var(--text-primary);      /* KOREKSI: Garis tepi (stroke) menjadi PUTIH */
+    box-shadow: 0 0 12px -2px rgba(255, 255, 255, 0.25); /* Efek 'glow' putih lembut */
+}
+
+/* Teks & Ikon menjadi PUTIH TERANG saat dipilih */
+body.dark .option-radio:checked + label,
+body.dark .option-radio:checked + label .font-semibold,
+body.dark .option-radio:checked + label .text-slate-500,
+body.dark .option-radio:checked + label i,
+body.dark .platform-checkbox:checked + label,
+body.dark .platform-checkbox:checked + label .font-semibold,
+body.dark .platform-checkbox:checked + label i {
+    color: var(--text-primary); /* Warna putih terang */
+}
+body.dark label[for="platform-tiktok"]:has(:checked) i {
+     color: var(--text-primary) !important;
+}
+
+
+/* --- 3. Gaya Hover (Saat Disentuh Mouse) --- */
+body.dark .option-radio:not(:checked) + label:hover,
 body.dark .platform-checkbox:not(:checked) + label:hover {
     background-color: var(--bg-button);
-    border-color: var(--border-active);
+    border-color: var(--text-secondary);
+    color: var(--text-primary);
 }
-
-/* Gaya saat DIPILIH: Latar biru solid (tetap sama) */
-body.dark .platform-checkbox:checked + label {
-    background-color: var(--bg-checked);
-    border-color: var(--border-active);
+body.dark .option-radio:not(:checked) + label:hover .font-semibold,
+body.dark .option-radio:not(:checked) + label:hover .text-slate-500 {
+    color: var(--text-primary);
 }
 
 </style>
