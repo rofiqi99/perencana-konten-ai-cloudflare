@@ -18,7 +18,6 @@ export async function onRequestPost(context) {
 	env.GEMINI_API_KEY_8,
 	env.GEMINI_API_KEY_9,
 	env.GEMINI_API_KEY_10,
-
     ].filter(key => key);
 
     if (apiKeys.length === 0) {
