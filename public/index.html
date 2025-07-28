@@ -176,17 +176,53 @@ body.dark #auth-container .bg-white:hover {
 }
 
 /* KHUSUS mode gelap, tambahkan efek tambahan agar lebih jelas */
-body.dark .option-radio:checked + label,
-body.dark .platform-checkbox:checked + label {
-    background-color: rgba(59, 130, 246, 0.1); /* Latar belakang lembut */
+/* ===== PERBAIKAN DEFINITIF: Gaya Pilihan Mode Gelap ===== */
+
+/* --- 1. Gaya Dasar (Tidak Dipilih) --- */
+/* Tampilan default: blok solid gelap dengan ikon berwarna-warni. */
+body.dark .option-radio + label,
+body.dark .platform-checkbox + label {
+    background-color: var(--bg-button);
+    border: 2px solid var(--bg-button);
+    transition: all 0.2s ease-in-out;
 }
-body.dark .option-radio:checked + label i,
-body.dark .platform-checkbox:checked + label i,
-body.dark .option-radio:checked + label .font-semibold,
-body.dark .platform-checkbox:checked + label .font-semibold {
-    color: var(--border-active); /* Warna ikon dan judul ikut berubah */
+body.dark .option-radio + label .font-semibold,
+body.dark .platform-checkbox + label .font-semibold {
+    color: var(--text-primary);
+}
+body.dark .option-radio + label .text-slate-500 {
+    color: var(--text-secondary);
+}
+body.dark .platform-checkbox + label .fab {
+    color: inherit;
+}
+body.dark label[for="platform-tiktok"] i {
+    color: var(--text-primary) !important;
 }
 
+/* --- 2. Gaya Saat DIPILIH (Checked) --- */
+/* Tampilan saat dipilih: outline putih dengan teks & ikon putih. */
+body.dark .option-radio:checked + label,
+body.dark .platform-checkbox:checked + label {
+    background-color: transparent !important; /* Latar dihilangkan */
+    border-color: var(--text-primary);         /* Garis tepi menjadi PUTIH */
+}
+/* Teks & Ikon menjadi PUTIH TERANG saat dipilih */
+body.dark .option-radio:checked + label .font-semibold,
+body.dark .option-radio:checked + label .text-slate-500,
+body.dark .option-radio:checked + label i,
+body.dark .platform-checkbox:checked + label .font-semibold,
+body.dark .platform-checkbox:checked + label i {
+    color: var(--text-primary) !important;
+}
+
+
+/* --- 3. Gaya Hover (Saat Disentuh Mouse & Belum Dipilih) --- */
+body.dark .option-radio:not(:checked) + label:hover,
+body.dark .platform-checkbox:not(:checked) + label:hover {
+    background-color: var(--bg-button-hover);
+    border-color: var(--bg-button-hover);
+}
     /* Wizard Steps */
     .step-indicator { transition: all 0.3s ease; background-color: #e2e8f0; color: #64748b; }
     body.dark .step-indicator { background-color: var(--bg-button); color: var(--text-secondary); }
@@ -354,6 +390,77 @@ body.dark #draft-viewer-content .bg-slate-100:hover {
 }
 /* ▲▲▲ AKHIR KODE BARU ▲▲▲ */
 
+/* ===== KODE BARU UNTUK INDIKATOR LANGKAH DI MODE GELAP ===== */
+
+/* Memberi warna BIRU untuk langkah yang sedang AKTIF di mode gelap */
+body.dark .step-indicator.active {
+    background-color: #3b82f6; /* Warna biru */
+    color: #ffffff; /* Teks menjadi putih agar terbaca */
+}
+
+/* Memberi warna HIJAU untuk langkah yang sudah SELESAI di mode gelap */
+body.dark .step-indicator.completed {
+    background-color: #22c55e; /* Warna hijau */
+    color: #ffffff; /* Teks menjadi putih */
+}
+
+/* Memberi warna pada garis penghubung yang sudah dilewati */
+body.dark .step-indicator.completed + .border-t-2 {
+    border-color: #22c55e; /* Garis menjadi hijau */
+}
+
+
+/* ===== GAYA FINAL v11: Menyeragamkan Semua Teks & Ikon ===== */
+
+/* --- 1. Gaya Dasar (Tidak Aktif): Transparan dengan Teks Seragam --- */
+body.dark .option-radio:not(:checked) + label,
+body.dark .platform-checkbox:not(:checked) + label {
+    background-color: transparent !important;
+    border: 2px solid var(--border-primary);
+    transition: all 0.2s ease-in-out;
+}
+/* KOREKSI: Menyeragamkan warna semua judul menjadi abu-abu redup */
+body.dark .option-radio:not(:checked) + label .font-semibold,
+body.dark .platform-checkbox:not(:checked) + label .font-semibold {
+    color: var(--text-secondary);
+}
+/* Mengatur warna teks deskripsi */
+body.dark .option-radio:not(:checked) + label .text-slate-500 {
+    color: var(--text-secondary);
+}
+/* Mengatur warna ikon platform menjadi abu-abu redup */
+body.dark .platform-checkbox:not(:checked) + label i {
+    color: var(--text-secondary) !important;
+}
+/* Membiarkan ikon original (Tujuan & Suasana) tetap berwarna */
+body.dark .option-radio:not(:checked) + label i {
+    color: inherit !important;
+}
+
+
+/* --- 2. Gaya Saat DIPILIH (Aktif): Outline Putih --- */
+body.dark .option-radio:checked + label,
+body.dark .platform-checkbox:checked + label {
+    background-color: transparent !important;
+    border-color: var(--text-primary) !important;
+}
+/* Teks & Ikon menjadi PUTIH TERANG saat dipilih */
+body.dark .option-radio:checked + label .font-semibold,
+body.dark .option-radio:checked + label .text-slate-500,
+body.dark .option-radio:checked + label i,
+body.dark .platform-checkbox:checked + label .font-semibold,
+body.dark .platform-checkbox:checked + label i {
+    color: var(--text-primary) !important;
+}
+
+
+/* --- 3. Gaya Hover (Disentuh Mouse & Belum Aktif) --- */
+body.dark .option-radio:not(:checked) + label:hover,
+body.dark .platform-checkbox:not(:checked) + label:hover {
+    background-color: var(--bg-card) !important;
+    border-color: var(--border-secondary) !important;
+}
+
 </style>
 </head>
 <body>
@@ -378,7 +485,7 @@ body.dark #draft-viewer-content .bg-slate-100:hover {
                     </button>
                 </div>
                 <button id="login-btn" title="Masuk dengan Google" class="bg-white text-slate-700 font-bold py-2 px-4 rounded-lg hover:bg-slate-100 transition-colors shadow-md flex items-center gap-2">
-    <img src="assets/google-logo.png" alt="Google logo" class="google-logo-icon">
+    <img src="public/assets/google-logo.png" alt="Google logo" class="google-logo-icon">
     <span>Masuk</span>
 </button>
                 <button id="dark-mode-toggle" title="Ubah Tema" class="w-10 h-10 flex items-center justify-center font-bold rounded-lg hover:bg-slate-100 transition-colors shadow-md">
@@ -732,6 +839,7 @@ body.dark #draft-viewer-content .bg-slate-100:hover {
         let currentCalendarItem = null;
         let currentDraftObject = null;
         let interestTags = [];
+	let suggestionCache = [];
 
 	// --- (Tambahkan kode ini) ---
 	const defaultInterestSuggestions = {
@@ -1804,9 +1912,9 @@ END:VCALENDAR`;
             const interestsContainer = getEl('interests-container');
             const interestsInput = getEl('interests-input');
             if (!interestsContainer || !interestsInput) return;
-            // Clear existing tags except for the input itself
+            // Hapus tag yang ada kecuali input itu sendiri
             interestsContainer.querySelectorAll('.interest-tag').forEach(tagEl => tagEl.remove());
-            // Re-add tags from the state array
+            // Tambahkan kembali tag dari array state
             interestTags.forEach(tagText => {
                 const tagEl = document.createElement('span');
                 tagEl.className = 'interest-tag';
@@ -1818,82 +1926,79 @@ END:VCALENDAR`;
             });
         };
 
-        const addTag = (text) => {
-            const trimmedText = text.trim();
-            if (trimmedText && !interestTags.includes(trimmedText)) {
-                interestTags.push(trimmedText);
+        const addTag = (tagText, triggerUpdate = false) => {
+            const cleanTag = tagText.trim();
+            if (cleanTag && !interestTags.includes(cleanTag)) {
+                interestTags.push(cleanTag);
                 renderTags();
-                debouncedSave();
-                debouncedUpdateSuggestions(); 
-            }
-        };
-
-        const removeTag = (text) => {
-            interestTags = interestTags.filter(tag => tag !== text);
-            renderTags();
-            debouncedSave();
-		debouncedUpdateSuggestions();
-        };
-        
-        // --- (Tempel 3 fungsi baru ini sebagai pengganti) ---
-
-const displaySuggestionTags = (suggestions) => {
-    const suggestedInterestsContainer = getEl('suggested-interests');
-    if (!suggestedInterestsContainer) return;
-
-    suggestedInterestsContainer.innerHTML = '';
-    const suggestionsToShow = suggestions.filter(interest => !interestTags.includes(interest)).slice(0, 5);
-
-    suggestionsToShow.forEach(interest => {
-        const button = document.createElement('button');
-        button.type = 'button';
-        button.className = 'suggestion-tag';
-        button.textContent = interest;
-        suggestedInterestsContainer.appendChild(button);
-    });
-};
-
-// --- GANTI FUNGSI 'updateSuggestedTags' LAMA DENGAN YANG INI ---
-const updateSuggestedTags = async () => {
-            const industry = getEl('industry').value.trim().toLowerCase();
-            const suggestedInterestsContainer = getEl('suggested-interests');
-            const suggestionLoader = getEl('suggestion-loader');
-
-            if (!suggestedInterestsContainer || !suggestionLoader) return;
-            if (!industry) {
-                suggestedInterestsContainer.innerHTML = '';
-                return;
-            }
-
-            const matchingDefaultKey = Object.keys(defaultInterestSuggestions).find(key => industry.includes(key));
-
-            suggestionLoader.classList.remove('hidden');
-            suggestedInterestsContainer.innerHTML = '';
-
-            // Jika ada saran default, langsung gunakan dan JANGAN panggil AI
-            if (matchingDefaultKey) {
-                setTimeout(() => { // Simulasi loading agar transisi lebih mulus
-                    displaySuggestionTags(defaultInterestSuggestions[matchingDefaultKey]);
-                    suggestionLoader.classList.add('hidden');
-                }, 500);
-                return; // <-- PERBAIKAN DITAMBAHKAN DI SINI
-            }
-
-            // HANYA jika tidak ada saran default, panggil AI
-            try {
-                const prompt = `Berdasarkan industri "${industry}", berikan 5 saran minat atau hobi pelanggan yang relevan.`;
-                const finalPrompt = `${prompt} Balas HANYA dengan objek JSON yang valid, mengikuti skema. Seluruh teks dalam respons HARUS dalam Bahasa Indonesia.`;
-                
-                const result = await callGemini(finalPrompt, true, interestSuggestionSchema);
-                
-                if (result && result.interests) {
-                    displaySuggestionTags(result.interests);
+                debouncedSave(); // Simpan perubahan form
+                if(triggerUpdate) {
+                   debouncedUpdateSuggestions(); // Perbarui saran
                 }
-            } catch (error) {
-                console.error("Gagal mendapatkan saran minat dari AI:", error);
-            } finally {
-                suggestionLoader.classList.add('hidden');
             }
+        };
+
+        const removeTag = (tagText) => {
+            interestTags = interestTags.filter(t => t !== tagText);
+            renderTags();
+            debouncedSave(); // Simpan perubahan form
+            debouncedUpdateSuggestions(); // Perbarui saran setelah menghapus
+        };
+
+        const updateSuggestedTags = async () => {
+            const industry = getEl('industry').value.toLowerCase().trim();
+            const description = getEl('description').value.trim();
+            const suggestionContainer = getEl('suggested-interests');
+            const loader = getEl('suggestion-loader');
+
+            if (!suggestionContainer || !loader) return;
+            
+            // Tampilkan loader
+            loader.classList.remove('hidden');
+            suggestionContainer.innerHTML = '';
+
+            // 1. Dapatkan saran default dari kata kunci industri
+            let suggestions = new Set();
+            for (const key in defaultInterestSuggestions) {
+                if (industry.includes(key)) {
+                    defaultInterestSuggestions[key].forEach(s => suggestions.add(s));
+                }
+            }
+
+            // 2. Jika tidak ada input industri atau deskripsi, tampilkan saran default jika ada
+            if (!industry && !description) {
+                 suggestionCache.forEach(s => suggestions.add(s)); // Gunakan cache jika ada
+            } else {
+                 // 3. Jika ada input, panggil AI untuk saran cerdas
+                try {
+                    const combinedText = `Industri: ${industry}. Deskripsi: ${description}. Minat saat ini: ${interestTags.join(', ')}`;
+                    const prompt = `Berdasarkan informasi bisnis ini: "${combinedText}", berikan 5-7 saran minat (interests) yang paling relevan untuk target audiens mereka. Balas HANYA dengan objek JSON valid sesuai skema.`;
+                    const result = await callGemini(prompt, true, interestSuggestionSchema);
+                    
+                    if (result.interests && result.interests.length > 0) {
+                        suggestionCache = result.interests; // Simpan hasil ke cache
+                        suggestionCache.forEach(s => suggestions.add(s));
+                    }
+                } catch (error) {
+                    console.error("Gagal mendapatkan saran minat dari AI:", error);
+                    // Fallback: Jika AI gagal, gunakan cache terakhir
+                    suggestionCache.forEach(s => suggestions.add(s));
+                }
+            }
+
+            // Sembunyikan loader
+            loader.classList.add('hidden');
+
+            // 4. Render semua saran (filter yang sudah ditambahkan)
+            const existingTagsLower = interestTags.map(t => t.toLowerCase());
+            suggestions.forEach(suggestion => {
+                if (!existingTagsLower.includes(suggestion.toLowerCase())) {
+                    const tagEl = document.createElement('button');
+                    tagEl.className = 'suggestion-tag';
+                    tagEl.textContent = suggestion;
+                    suggestionContainer.appendChild(tagEl);
+                }
+            });
         };
 
         const debouncedUpdateSuggestions = debounce(updateSuggestedTags, 1200);
@@ -2140,33 +2245,45 @@ const updateSuggestedTags = async () => {
                 getEl('plan-details-container').classList.toggle('hidden', isChecked);
             });
             
-            if(industryInput) {
-    // Panggil pembaruan saran HANYA ketika pengguna selesai mengetik
-    industryInput.addEventListener('change', () => {
-        debouncedUpdateSuggestions();
-        debouncedSave();
+            const descriptionInput = getEl('description');
+
+// Pemicu untuk kolom Industri dan Deskripsi (menggunakan keyup agar lebih responsif)
+if (industryInput) {
+    industryInput.addEventListener('keyup', debouncedUpdateSuggestions);
+}
+if (descriptionInput) {
+    descriptionInput.addEventListener('keyup', debouncedUpdateSuggestions);
+}
+
+// Pemicu untuk input minat manual (saat menekan Enter)
+if (interestsInput) {
+    interestsInput.addEventListener('keyup', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            addTag(e.target.value, true);
+            e.target.value = '';
+        }
     });
 }
 
-            if(interestsInput) interestsInput.addEventListener('keyup', (e) => {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    addTag(e.target.value);
-                    e.target.value = '';
-                }
-            });
+// Pemicu untuk menghapus tag
+if (interestsContainer) {
+    interestsContainer.addEventListener('click', (e) => {
+        if (e.target.classList.contains('remove-tag-btn')) {
+            removeTag(e.target.dataset.tag);
+        }
+    });
+}
 
-            if(interestsContainer) interestsContainer.addEventListener('click', (e) => {
-                if (e.target.classList.contains('remove-tag-btn')) {
-                    removeTag(e.target.dataset.tag);
-                }
-            });
-
-            if(suggestedInterestsContainer) suggestedInterestsContainer.addEventListener('click', (e) => {
-                if (e.target.classList.contains('suggestion-tag')) {
-                    addTag(e.target.textContent);
-                }
-            });
+// Pemicu saat mengklik tag saran
+if (suggestedInterestsContainer) {
+  suggestedInterestsContainer.addEventListener('click', (e) => {
+    if (e.target.classList.contains('suggestion-tag')) {
+      addTag(e.target.textContent);
+      e.target.remove(); // <-- TAMBAHKAN BARIS INI
+    }
+  });
+}
 
             if(closeCalendarModalBtn) closeCalendarModalBtn.addEventListener('click', () => getEl('calendar-modal').classList.add('hidden'));
             if(googleCalendarBtn) googleCalendarBtn.addEventListener('click', generateGoogleCalendarLink);
