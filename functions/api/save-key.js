@@ -1,42 +1,54 @@
-// Anda perlu cara untuk menginisialisasi Firebase Admin di Cloudflare Functions
-// Ini adalah contoh konseptual, penyiapan `admin` mungkin perlu disesuaikan
-// import { initializeApp, cert } from 'firebase-admin/app';
-// import { getFirestore } from 'firebase-admin/firestore';
+// functions/api/save-key.js
 
-// const serviceAccount = JSON.parse(env.FIREBASE_SERVICE_ACCOUNT_KEY);
-// if (!admin.apps.length) {
-//   initializeApp({ credential: cert(serviceAccount) });
-// }
-// const db = getFirestore();
+import { initializeApp, cert, getApps } from 'firebase-admin/app';
+import { getFirestore } from 'firebase-admin/firestore';
+import { getAuth } from 'firebase-admin/auth';
+
+// Helper function untuk inisialisasi Firebase Admin
+function initializeFirebaseAdmin(env) {
+  if (getApps().length > 0) {
+    return;
+  }
+  try {
+    const serviceAccount = JSON.parse(env.FIREBASE_SERVICE_ACCOUNT_KEY);
+    initializeApp({
+      credential: cert(serviceAccount),
+    });
+  } catch (e) {
+    console.error("Firebase Admin initialization error:", e.message);
+  }
+}
 
 export async function onRequestPost(context) {
-    // FUNGSI INI HANYA MENANGANI METODE POST
-    try {
-        // 1. Verifikasi Token Pengguna (Langkah Keamanan Krusial)
-        // const idToken = context.request.headers.get('Authorization')?.split('Bearer ')?.[1];
-        // if (!idToken) {
-        //     return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
-        // }
-        // const decodedToken = await admin.auth().verifyIdToken(idToken);
-        // const userId = decodedToken.uid;
-        const userId = "USER_ID_DARI_TOKEN_YANG_DIVERIFIKASI"; // Placeholder
+    const { request, env } = context;
+    initializeFirebaseAdmin(env);
 
-        const { apiKey } = await context.request.json();
-        if (!apiKey || typeof apiKey !== 'string') {
-            return new Response(JSON.stringify({ error: 'Invalid API Key' }), { status: 400 });
+    try {
+        // 1. Verifikasi Token Pengguna
+        const idToken = request.headers.get('Authorization')?.split('Bearer ')?.[1];
+        if (!idToken) {
+            return new Response(JSON.stringify({ error: 'Unauthorized: No token provided' }), { status: 401 });
+        }
+        
+        const decodedToken = await getAuth().verifyIdToken(idToken);
+        const userId = decodedToken.uid;
+
+        const { apiKey } = await request.json();
+        if (!apiKey || typeof apiKey !== 'string' || !apiKey.startsWith('AIza')) {
+            return new Response(JSON.stringify({ error: 'Invalid API Key format' }), { status: 400 });
         }
 
-        // 2. Simpan Kunci ke Firestore Terenkripsi
-        // Dokumen dinamai sesuai UID pengguna untuk kemudahan pengambilan
-        // await db.collection('user_api_keys').doc(userId).set({
-        //     geminiApiKey: apiKey, // Firestore mengenkripsi data saat disimpan
-        //     updatedAt: new Date()
-        // });
+        // 2. Simpan Kunci ke Firestore
+        const db = getFirestore();
+        await db.collection('user_api_keys').doc(userId).set({
+            geminiApiKey: apiKey,
+            updatedAt: new Date(),
+        });
 
         return new Response(JSON.stringify({ message: 'API Key saved successfully' }), { status: 200 });
 
     } catch (error) {
-        // Jika token tidak valid, akan error di sini
-        return new Response(JSON.stringify({ error: 'Authentication failed' }), { status: 401 });
+        console.error("Error in save-key:", error);
+        return new Response(JSON.stringify({ error: 'Authentication failed or server error' }), { status: 401 });
     }
 }
