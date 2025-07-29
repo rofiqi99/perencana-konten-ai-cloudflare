@@ -677,7 +677,7 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
     </svg>
     
     <p class="mt-6 text-md font-semibold text-slate-700">Mempersiapkan Rencana Konten Anda</p>
-    <p class="text-slate-500 text-sm mt-1">Harap tunggu sebentar...</p>
+    <p id="loading-subtitle" class="text-slate-500 text-sm mt-1">Harap tunggu sebentar...</p>
 </div>
 
             <div id="results" class="hidden">
@@ -845,6 +845,8 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
         let app, db, auth;
         let userId, appId;
         let draftsUnsubscribe = null; // To detach listener
+
+	let loadingInterval; // <-- TAMBAHKAN DI SINI
 
         let currentStep = 1;
         const totalSteps = 3; // UPDATE: Total steps is now 3
@@ -1099,8 +1101,32 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
 
         const hideLoading = () => {
             getEl('loading').classList.add('hidden');
+	clearInterval(loadingInterval); // <-- Jangan lupa tambahkan baris ini juga
         };
         
+	// ▼▼▼ LETAKKAN FUNGSI BARU ANDA DI SINI ▼▼▼
+const startLoadingAnimation = () => {
+    const messages = [
+        "Menganalisis profil bisnis Anda...",
+        "Mencari ide-ide brilian...",
+        "Menyesuaikan dengan target audiens...",
+        "Menyusun pilar konten...",
+        "Sedikit lagi, AI sedang meracik keajaiban...",
+        "Finalisasi jadwal posting..."
+    ];
+    let messageIndex = 0;
+    const subtitleElement = getEl('loading-subtitle');
+
+    if (subtitleElement) { // Pemeriksaan tambahan untuk memastikan elemen ada
+        subtitleElement.textContent = messages[messageIndex]; // Tampilkan pesan pertama
+    
+        loadingInterval = setInterval(() => {
+            messageIndex = (messageIndex + 1) % messages.length;
+            subtitleElement.textContent = messages[messageIndex];
+        }, 2500); // Ganti pesan setiap 2.5 detik
+    }
+};
+
         // --- Core Application Logic ---
         const generatePlan = async () => {
             if (!auth.currentUser) {
