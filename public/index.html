@@ -786,6 +786,7 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
                     <h3 class="text-lg font-semibold text-slate-800"><i class="fas fa-robot mr-2 text-blue-500"></i>Hasil AI</h3>
                     <button id="close-caption-modal" class="text-slate-500 hover:text-slate-800"><i class="fas fa-times fa-lg"></i></button>
                 </div>
+
                 <div class="p-6 overflow-y-auto">
                     <div id="caption-loading" class="text-center py-10"><i class="fas fa-spinner fa-spin text-3xl text-blue-500"></i><p class="mt-3 font-semibold text-slate-700">AI sedang bekerja...</p></div>
                     <div id="caption-content" class="text-slate-700 hidden space-y-6 modal-content"></div>
@@ -811,11 +812,24 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
                 <button id="close-calendar-modal" class="mt-6 text-sm text-slate-500 hover:text-slate-700">Batal</button>
             </div>
         </div>
-
-
     </div>
 
-    <script type="module">
+    <div id="user-api-key-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden z-50">
+  <div class="bg-white rounded-lg shadow-xl p-6 max-w-md w-full modal-content-bg">
+    <h3 class="text-lg font-semibold text-slate-800">Gunakan API Key Pribadi</h3>
+    <p class="text-sm text-slate-600 mt-2">
+        Tempel API Key Gemini Anda untuk mendapatkan akses prioritas tanpa batas. Kunci Anda akan kami simpan dengan aman.
+    </p>
+    <div class="mt-4">
+        <input type="password" id="user-gemini-key-input" class="form-input w-full" placeholder="Masukkan API Key Anda...">
+    </div>
+    <div class="mt-4 flex justify-end gap-3">
+        <button id="cancel-key-btn" class="bg-slate-200 text-slate-700 font-bold py-2 px-4 rounded-lg">Batal</button>
+        <button id="save-key-btn" class="bg-blue-500 text-white font-bold py-2 px-4 rounded-lg">Simpan</button>
+    </div>
+  </div>
+</div>
+</div> <script type="module">
         // --- Firebase Imports ---
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -1211,31 +1225,48 @@ ${"ATURAN MUTLAK: Balas HANYA dengan objek JSON yang valid, mengikuti skema yang
             }
         };
 
-        const callGemini = async (prompt, isJson = false, schema = null) => {
-            try {
-                // Panggil backend lokal Anda di /api/generate
-                const response = await fetch('/api/generate', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ prompt, schema, isJson }),
-                });
+        // Di dalam file index.html
 
-                // PERBAIKAN: Periksa apakah respons OK SEBELUM parsing JSON
-                if (!response.ok) {
-                    // Coba baca teks error jika ada, jika tidak, gunakan status teks
-                    const errorText = await response.text();
-                    throw new Error(errorText || `Terjadi kesalahan dengan status: ${response.status}`);
-                }
-                
-                const result = await response.json();
-                return result;
+const callGemini = async (prompt, isJson = false, schema = null) => {
+    try {
+        // ▼▼▼ AWAL PERUBAHAN ▼▼▼
+        const user = auth.currentUser;
+        if (!user) {
+            // Jika pengguna tidak login (misalnya sesi anonim),
+            // kita tidak perlu mengirim token. Backend akan tahu untuk menggunakan kunci bersama.
+            console.log("Pengguna anonim, token tidak dikirim.");
+        }
 
-            } catch (error) {
-                console.error('Gagal memanggil API function:', error);
-                // Teruskan pesan error agar bisa ditangani di tempat lain
-                throw error;
-            }
+        const headers = {
+            'Content-Type': 'application/json'
         };
+
+        // HANYA kirim token jika pengguna sudah login dengan Google
+        if (user && !user.isAnonymous) {
+            const idToken = await user.getIdToken(true); // 'true' untuk refresh token jika perlu
+            headers['Authorization'] = `Bearer ${idToken}`;
+        }
+        
+        const response = await fetch('/api/generate', {
+            method: 'POST',
+            headers: headers, // Gunakan header yang sudah disiapkan
+            body: JSON.stringify({ prompt, schema, isJson }),
+        });
+        // ▲▲▲ AKHIR PERUBAHAN ▲▲▲
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(errorText || `Terjadi kesalahan dengan status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        return result;
+
+    } catch (error) {
+        console.error('Gagal memanggil API function:', error);
+        throw error;
+    }
+};
 
         const getFormInputs = (isForStateSave = false) => {
             const isProductFocus = getEl('product-focus-toggle').checked;
@@ -2288,6 +2319,60 @@ if (suggestedInterestsContainer) {
             if(closeCalendarModalBtn) closeCalendarModalBtn.addEventListener('click', () => getEl('calendar-modal').classList.add('hidden'));
             if(googleCalendarBtn) googleCalendarBtn.addEventListener('click', generateGoogleCalendarLink);
             if(icsDownloadBtn) icsDownloadBtn.addEventListener('click', generateIcsFile);
+
+ // ▼▼▼ LETAKKAN KODE BARU ANDA DI SINI ▼▼▼
+
+        // --- Event Listeners untuk Modal API Key Pribadi ---
+        // Anda mungkin perlu menambahkan tombol di HTML untuk memicu modal ini,
+        // misalnya di dalam menu profil pengguna yang sudah login.
+        // Contoh:
+        // const showApiKeyModalBtn = getEl('show-api-key-modal-btn');
+        // if(showApiKeyModalBtn) {
+        //     showApiKeyModalBtn.addEventListener('click', () => {
+        //         getEl('user-api-key-modal').classList.remove('hidden');
+        //     });
+        // }
+        
+        getEl('cancel-key-btn').addEventListener('click', () => {
+            getEl('user-api-key-modal').classList.add('hidden');
+        });
+
+        getEl('save-key-btn').addEventListener('click', async () => {
+            const userKey = getEl('user-gemini-key-input').value;
+            if (!userKey.trim()) {
+                showErrorModal("API Key tidak boleh kosong.");
+                return;
+            }
+
+            const user = auth.currentUser;
+            if (!user) {
+                showErrorModal("Anda harus login untuk menyimpan kunci.");
+                return;
+            }
+
+            // Dapatkan token otentikasi untuk verifikasi di backend
+            const idToken = await user.getIdToken();
+
+            // Kirim kunci ke backend BARU yang aman
+            const response = await fetch('/api/save-key', { // Endpoint baru
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${idToken}` // Wajib untuk keamanan
+                },
+                body: JSON.stringify({ apiKey: userKey })
+            });
+
+            if (response.ok) {
+                getEl('user-api-key-modal').classList.add('hidden');
+                showSuccessModal("Berhasil!", "API Key Anda telah disimpan dan akan digunakan untuk permintaan selanjutnya.");
+            } else {
+                const error = await response.json();
+                showErrorModal(error.error || "Gagal menyimpan kunci.");
+            }
+        });
+
+        // ▲▲▲ AKHIR DARI KODE BARU ANDA ▲▲▲
             
             document.querySelectorAll('.form-input').forEach(el => {
                 if (el.id !== 'interests-input' && el.id !== 'industry') {
