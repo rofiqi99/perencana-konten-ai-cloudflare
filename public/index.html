@@ -1171,8 +1171,22 @@ const startLoadingAnimation = () => {
                 if(saveDraftBtn) saveDraftBtn.classList.remove('hidden');
                 getEl('form-wizard').classList.add('hidden');
             } catch (error) {
-                console.error('Gagal membuat konten:', error);
-                showErrorModal(error.message);
+    console.error('Gagal membuat konten:', error);
+
+    // --- AWAL PERBAIKAN ---
+    const isAuthError = error.message && (error.message.includes("sibuk") || error.message.includes("kuota") || error.message.includes("Akses Ditolak"));
+    const user = auth.currentUser;
+
+    if (isAuthError && user && !user.isAnonymous) {
+        // Jika error karena kuota/akses DAN pengguna sudah login,
+        // tampilkan modal untuk memasukkan kunci pribadi mereka.
+        showInfoModal("Kuota Bersama Habis", "Kuota publik untuk hari ini telah habis. Silakan gunakan API Key Gemini pribadi Anda untuk melanjutkan.");
+        getEl('user-api-key-modal').classList.remove('hidden');
+    } else {
+        // Jika tidak, tampilkan modal error generik seperti biasa.
+        showErrorModal(error.message);
+    }
+
                 resetToFormView();
             } finally {
                 hideLoading();
