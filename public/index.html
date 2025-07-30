@@ -1097,6 +1097,7 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
             getEl('form-wizard').classList.add('hidden');
             getEl('loading').classList.remove('hidden');
             getEl('results').classList.add('hidden');
+	    startLoadingAnimation(); // <-- TAMBAHKAN BARIS INI
         };
 
         const hideLoading = () => {
