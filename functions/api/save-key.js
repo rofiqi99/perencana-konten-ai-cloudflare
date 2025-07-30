@@ -1,42 +1,55 @@
-// Anda perlu cara untuk menginisialisasi Firebase Admin di Cloudflare Functions
-// Ini adalah contoh konseptual, penyiapan `admin` mungkin perlu disesuaikan
-// import { initializeApp, cert } from 'firebase-admin/app';
-// import { getFirestore } from 'firebase-admin/firestore';
+// functions/api/save-key.js
 
-// const serviceAccount = JSON.parse(env.FIREBASE_SERVICE_ACCOUNT_KEY);
-// if (!admin.apps.length) {
-//   initializeApp({ credential: cert(serviceAccount) });
-// }
-// const db = getFirestore();
+import { verifyFirebaseToken, getGoogleAuthToken } from './_auth-firebase.js';
 
 export async function onRequestPost(context) {
-    // FUNGSI INI HANYA MENANGANI METODE POST
-    try {
-        // 1. Verifikasi Token Pengguna (Langkah Keamanan Krusial)
-        // const idToken = context.request.headers.get('Authorization')?.split('Bearer ')?.[1];
-        // if (!idToken) {
-        //     return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
-        // }
-        // const decodedToken = await admin.auth().verifyIdToken(idToken);
-        // const userId = decodedToken.uid;
-        const userId = "USER_ID_DARI_TOKEN_YANG_DIVERIFIKASI"; // Placeholder
+    const { request, env } = context;
 
-        const { apiKey } = await context.request.json();
-        if (!apiKey || typeof apiKey !== 'string') {
-            return new Response(JSON.stringify({ error: 'Invalid API Key' }), { status: 400 });
+    try {
+        // 1. Verifikasi Token Pengguna menggunakan metode baru yang ramah Cloudflare
+        const idToken = request.headers.get('Authorization')?.split('Bearer ')?.[1];
+        const projectId = env.FIREBASE_PROJECT_ID;
+        const decodedToken = await verifyFirebaseToken(idToken, projectId);
+        const userId = decodedToken.uid;
+
+        const { apiKey } = await request.json();
+        if (!apiKey || typeof apiKey !== 'string' || !apiKey.startsWith('AIza')) {
+            return new Response(JSON.stringify({ error: 'Invalid API Key format' }), { status: 400 });
         }
 
-        // 2. Simpan Kunci ke Firestore Terenkripsi
-        // Dokumen dinamai sesuai UID pengguna untuk kemudahan pengambilan
-        // await db.collection('user_api_keys').doc(userId).set({
-        //     geminiApiKey: apiKey, // Firestore mengenkripsi data saat disimpan
-        //     updatedAt: new Date()
-        // });
+        // 2. Dapatkan token akses untuk "menelepon" Firestore
+        const serviceAccount = JSON.parse(env.FIREBASE_SERVICE_ACCOUNT_KEY);
+        const authToken = await getGoogleAuthToken(serviceAccount);
+
+        // 3. Simpan Kunci ke Firestore menggunakan REST API
+        const firestoreUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/user_api_keys/${userId}`;
+        
+        const firestorePayload = {
+            fields: {
+                geminiApiKey: { stringValue: apiKey },
+                updatedAt: { timestampValue: new Date().toISOString() }
+            }
+        };
+
+        const firestoreResponse = await fetch(firestoreUrl, {
+            method: 'PATCH', // Menggunakan PATCH untuk membuat atau menimpa dokumen
+            headers: {
+                'Authorization': `Bearer ${authToken}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(firestorePayload)
+        });
+
+        if (!firestoreResponse.ok) {
+            const errorData = await firestoreResponse.json();
+            console.error("Firestore error:", errorData);
+            throw new Error('Failed to save key to database.');
+        }
 
         return new Response(JSON.stringify({ message: 'API Key saved successfully' }), { status: 200 });
 
     } catch (error) {
-        // Jika token tidak valid, akan error di sini
-        return new Response(JSON.stringify({ error: 'Authentication failed' }), { status: 401 });
+        console.error("Error in save-key:", error.message);
+        return new Response(JSON.stringify({ error: error.message || 'Authentication failed or server error' }), { status: 401 });
     }
 }
