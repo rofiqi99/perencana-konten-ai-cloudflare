@@ -1099,68 +1099,6 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
         }
     };
 
-    // --- Core Application Logic ---
-    const generatePlan = async () => {
-        if (!auth.currentUser) {
-            showErrorModal("Terjadi kesalahan, silakan muat ulang halaman untuk membuat rencana.");
-            return;
-        }
-        showLoading();
-        try {
-            const saveDraftBtn = getEl('save-draft-btn');
-            if(saveDraftBtn) {
-                saveDraftBtn.disabled = false;
-                saveDraftBtn.innerHTML = '<i class="fas fa-save"></i>';
-                saveDraftBtn.title = "Simpan ke Draf";
-                saveDraftBtn.classList.remove('cursor-not-allowed', 'opacity-60');
-            }
-
-            currentInputs = getFormInputs();
-
-            // Gabungkan semua teks menjadi satu untuk dianalisis
-            const textToAnalyze = `
-                Deskripsi Bisnis: ${currentInputs.description}
-                Deskripsi Produk: ${currentInputs.productDescription}
-                Detail Promosi: ${currentInputs.promoDetails}
-            `.trim();
-
-            const keywords = await extractKeywords(textToAnalyze);
-            
-            // Masukkan kata kunci kembali ke input (opsional, tapi bagus untuk prompt)
-            currentInputs.description = keywords.join(', ');
-            currentInputs.productDescription = ''; // Kosongkan karena sudah digabung
-            currentInputs.promoDetails = ''; // Kosongkan karena sudah digabung
-
-            const prompt = buildPlannerPrompt(currentInputs);
-            const result = await callGemini(prompt, true, plannerSchema);
-            generatedData = result.plan || [];
-            
-            const businessName = getEl('business-name').value;
-            getEl('results-title').textContent = currentInputs.isProductFocus ? `Ide Fokus untuk "${currentInputs.productName}"` : `Rencana Konten untuk "${businessName}"`;
-            getEl('results-subtitle').textContent = currentInputs.isProductFocus ? "Berikut adalah 5 ide yang dihasilkan khusus untuk produk ini." : "Berikut adalah ide-ide yang dihasilkan khusus untuk Anda.";
-            
-            renderResults(generatedData, getEl('results-grid'));
-            getEl('results').classList.remove('hidden');
-            if(saveDraftBtn) saveDraftBtn.classList.remove('hidden');
-            getEl('form-wizard').classList.add('hidden');
-        } catch (error) {
-            console.error('Gagal membuat konten:', error);
-
-            const isAuthError = error.message && (error.message.includes("sibuk") || error.message.includes("kuota") || error.message.includes("Akses Ditolak"));
-            const user = auth.currentUser;
-
-            if (isAuthError && user && !user.isAnonymous) {
-                showInfoModal("Kuota Bersama Habis", "Kuota publik untuk hari ini telah habis. Silakan gunakan API Key Gemini pribadi Anda untuk melanjutkan.");
-                getEl('user-api-key-modal').classList.remove('hidden');
-            } else {
-                showErrorModal(error.message);
-            }
-
-            resetToFormView();
-        } finally {
-            hideLoading();
-        }
-    };
 
     const resetForm = () => {
         const form = getEl('form-wizard');
@@ -1208,24 +1146,6 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
     const singleIdeaSchema = { type: "OBJECT", properties: { day: { type: "STRING" }, platform: { type: "STRING" }, pillar: { type: "STRING" }, idea: { type: "STRING" }, caption_brief: { type: "STRING" }, visual_idea: { type: "STRING" }, hashtags: { type: "STRING" } }, required: ["day", "platform", "pillar", "idea", "caption_brief", "visual_idea", "hashtags"] };
     const keywordExtractionSchema = { type: "OBJECT", properties: { keywords: { type: "ARRAY", items: { type: "STRING" } } }, required: ["keywords"] };
 
-    const extractKeywords = async (text) => {
-        if (!text || text.trim().length < 10) { // Jangan panggil API jika teks terlalu pendek
-            return [];
-        }
-        const prompt = `Anda adalah seorang ahli strategi branding. Dari teks berikut, ekstrak 5-7 kata kunci atau frasa pendek paling penting yang mewakili esensi dari bisnis, produk, atau promosi ini. Fokus pada keunggulan, target, dan penawaran utama.
-
-Teks: "${text}"
-
-ATURAN MUTLAK: Balas HANYA dengan objek JSON yang valid, mengikuti skema yang diberikan.`;
-        
-        try {
-            const result = await callGemini(prompt, true, keywordExtractionSchema);
-            return result.keywords || [];
-        } catch (error) {
-            console.error("Gagal mengekstrak kata kunci:", error);
-            return [text.split(' ').slice(0, 20).join(' ')]; 
-        }
-    };
 
     const callGemini = async (prompt, isJson = false, schema = null) => {
         try {
