@@ -12,14 +12,15 @@ export async function onRequestPost(context) {
     let userKey = null;
 
     try {
-        // 1. Cek token otentikasi
         const idToken = request.headers.get('Authorization')?.split('Bearer ')?.[1];
+        
+        // ▼▼▼ PERUBAHAN 1: LOGIKA PENGECEKAN KUNCI MENJADI LEBIH EFISIEN ▼▼▼
         if (idToken) {
             const projectId = env.FIREBASE_PROJECT_ID;
             const decodedToken = await verifyFirebaseToken(idToken, projectId);
             userId = decodedToken.uid;
             
-            // 2. Jika pengguna terotentikasi, coba ambil kunci pribadinya dari Firestore via REST API
+            // Hanya jika pengguna terotentikasi, coba ambil kunci pribadinya
             const serviceAccount = JSON.parse(env.FIREBASE_SERVICE_ACCOUNT_KEY);
             const authToken = await getGoogleAuthToken(serviceAccount);
             const firestoreUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/user_api_keys/${userId}`;
@@ -33,12 +34,13 @@ export async function onRequestPost(context) {
                 userKey = docData.fields?.geminiApiKey?.stringValue;
             }
         }
+        // ▲▲▲ AKHIR PERUBAHAN 1 ▲▲▲
     } catch (e) {
         // Jika token tidak valid atau gagal mengambil data, lanjutkan sebagai anonim
         console.error(`Auth/Firestore query failed for token. Proceeding as anonymous. Error: ${e.message}`);
     }
 
-    // 3. Logika pemilihan kunci API (tetap sama)
+    // Logika pemilihan kunci API (tetap sama)
     if (userKey) {
         geminiApiKey = userKey;
         console.log(`Using private API key for user: ${userId}`);
@@ -57,7 +59,7 @@ export async function onRequestPost(context) {
         geminiApiKey = apiKeys[Math.floor(Math.random() * apiKeys.length)];
     }
 
-    // 4. Panggil Gemini API (tetap sama)
+    // Panggil Gemini API (tetap sama)
     try {
         const { prompt, isJson, schema } = await request.json();
         const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
@@ -69,7 +71,11 @@ export async function onRequestPost(context) {
         let geminiResponse;
         const maxRetries = 5;
         let attempt = 0;
-        let delay = 1500;
+        
+        // ▼▼▼ PERUBAHAN 2: MEMPERCEPAT WAKTU TUNDA RETRY ▼▼▼
+        let delay = 1000; // Mengurangi waktu tunggu awal dari 1500ms menjadi 1000ms
+        // ▲▲▲ AKHIR PERUBAHAN 2 ▲▲▲
+
         while (attempt < maxRetries) {
             attempt++;
             geminiResponse = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
