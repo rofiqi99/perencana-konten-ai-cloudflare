@@ -557,14 +557,11 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
                         </select>
                     </div>
                     <div class="md:col-span-2">
-                        <label for="interests-input" class="block text-sm font-medium text-slate-700">Minat & Hobi Target Audiens</label>
-                        <div id="interests-container" class="form-input bg-white mt-1 flex items-center flex-wrap gap-2 p-2 border border-slate-300 rounded-lg shadow-sm focus-within:border-slate-400">
-                            <input type="text" id="interests-input" autocomplete="off" class="flex-grow bg-transparent border-none focus:ring-0 p-0.5 text-xs sm:text-sm" placeholder="Contoh: Memasak, Kopi, Teknologi (lalu tekan Enter)">
-                        <div id="interests-container" class="form-input bg-white mt-1 flex items-center flex-wrap gap-2 p-2 border border-slate-300 rounded-lg shadow-sm focus-within:border-slate-400">
-                            <input type="text" id="interests-input" autocomplete="off" class="flex-grow bg-transparent border-none focus:ring-0 p-0.5 text-xs sm:text-sm" placeholder="Contoh: Memasak, Kopi, Teknologi (lalu tekan Enter)">
-                        </div>
-                         </div>
-                </div>
+    <label for="interests-input" class="block text-sm font-medium text-slate-700">Minat & Hobi Target Audiens</label>
+    <div id="interests-container" class="form-input bg-white mt-1 flex items-center flex-wrap gap-2 p-2 border border-slate-300 rounded-lg shadow-sm focus-within:border-slate-400">
+        <input type="text" id="interests-input" autocomplete="off" class="flex-grow bg-transparent border-none focus:ring-0 p-0.5 text-xs sm:text-sm" placeholder="Contoh: Memasak, Kopi, Teknologi (lalu tekan Enter)">
+    </div>
+</div>
             </div>
         </div>
     </div>
@@ -1144,7 +1141,6 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
     
     const plannerSchema = { type: "OBJECT", properties: { plan: { type: "ARRAY", items: { type: "OBJECT", properties: { day: { type: "STRING" }, platform: { type: "STRING" }, pillar: { type: "STRING" }, idea: { type: "STRING" }, caption_brief: { type: "STRING" }, visual_idea: { type: "STRING" }, hashtags: { type: "STRING" } }, required: ["day", "platform", "pillar", "idea", "caption_brief", "visual_idea", "hashtags"] } } } };
     const singleIdeaSchema = { type: "OBJECT", properties: { day: { type: "STRING" }, platform: { type: "STRING" }, pillar: { type: "STRING" }, idea: { type: "STRING" }, caption_brief: { type: "STRING" }, visual_idea: { type: "STRING" }, hashtags: { type: "STRING" } }, required: ["day", "platform", "pillar", "idea", "caption_brief", "visual_idea", "hashtags"] };
-    const keywordExtractionSchema = { type: "OBJECT", properties: { keywords: { type: "ARRAY", items: { type: "STRING" } } }, required: ["keywords"] };
 
 
     const callGemini = async (prompt, isJson = false, schema = null) => {
