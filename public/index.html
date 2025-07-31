@@ -2089,24 +2089,7 @@ END:VCALENDAR`;
             getEl('plan-details-container').classList.toggle('hidden', isChecked);
         });
         
-        if (interestsInput) {
-            interestsInput.addEventListener('keyup', (e) => {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    addTag(e.target.value);
-                    e.target.value = '';
-                }
-            });
-        }
-
-        if (interestsContainer) {
-            interestsContainer.addEventListener('click', (e) => {
-                if (e.target.classList.contains('remove-tag-btn')) {
-                    removeTag(e.target.dataset.tag);
-                }
-            });
-        }
-
+      
         if(closeCalendarModalBtn) closeCalendarModalBtn.addEventListener('click', () => getEl('calendar-modal').classList.add('hidden'));
         if(googleCalendarBtn) googleCalendarBtn.addEventListener('click', generateGoogleCalendarLink);
         if(icsDownloadBtn) icsDownloadBtn.addEventListener('click', generateIcsFile);
