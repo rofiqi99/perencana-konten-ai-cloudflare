@@ -561,15 +561,9 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
                         <div id="interests-container" class="form-input bg-white mt-1 flex items-center flex-wrap gap-2 p-2 border border-slate-300 rounded-lg shadow-sm focus-within:border-slate-400">
                             <input type="text" id="interests-input" autocomplete="off" class="flex-grow bg-transparent border-none focus:ring-0 p-0.5 text-xs sm:text-sm" placeholder="Contoh: Memasak, Kopi, Teknologi (lalu tekan Enter)">
                         </div>
-                        <div class="mt-2 flex items-center gap-2">
-                            <div id="suggested-interests" class="flex flex-wrap gap-2">
-                                </div>
-                            <div id="suggestion-loader" class="hidden">
-                                <i class="fas fa-spinner fa-spin text-slate-500"></i>
-                            </div>
+                         <div class="mt-2 flex items-center gap-2" style="display: none;">
+                             </div>
                         </div>
-                        <p class="text-xs text-slate-400 mt-1">Saran diperbarui secara otomatis berdasarkan bidang usaha & minat Anda.</p>
-                    </div>
                 </div>
             </div>
         </div>
@@ -853,20 +847,7 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
     let currentCalendarItem = null;
     let currentDraftObject = null;
     let interestTags = [];
-    let suggestionCache = [];
-
-    const defaultInterestSuggestions = {
-        'makanan': ['promo', 'menu baru', 'review pelanggan', 'resep', 'latte art', 'vegetarian', 'diskon'],
-        'minuman': ['promo', 'menu baru', 'review pelanggan', 'resep', 'latte art', 'kopi susu', 'non-kopi'],
-        'fashion': ['ootd', 'tren fashion', 'diskon', 'new arrival', 'styling tips', 'lookbook', 'sustainable fashion'],
-        'kecantikan': ['skincare routine', 'tutorial makeup', 'review produk', 'promo', 'tips & trik', 'before after', 'local brand'],
-        'kesehatan': ['tips sehat', 'olahraga', 'resep sehat', 'mitos vs fakta', 'konsultasi', 'mindfulness', 'kesehatan mental'],
-        'pendidikan': ['kursus online', 'beasiswa', 'tips belajar', 'webinar', 'info jurusan', 'skill baru', 'edutech'],
-        'teknologi': ['gadget review', 'tips teknologi', 'aplikasi rekomendasi', 'berita startup', 'AI', 'coding'],
-        'travel': ['destinasi wisata', 'tips packing', 'promo tiket', 'hidden gem', 'kuliner lokal', 'staycation'],
-        'hewan': ['perawatan hewan', 'fakta unik hewan', 'adopsi', 'produk hewan', 'tingkah lucu', 'komunitas pecinta hewan']
-    };
-
+    
     // --- DEBOUNCE FUNCTION ---
     const debounce = (func, delay) => {
         let timeout;
@@ -1136,13 +1117,19 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
 
             currentInputs = getFormInputs();
 
-            const businessKeywords = await extractKeywords(currentInputs.description);
-            const productKeywords = await extractKeywords(currentInputs.productDescription);
-            const promoKeywords = await extractKeywords(currentInputs.promoDetails);
+            // Gabungkan semua teks menjadi satu untuk dianalisis
+            const textToAnalyze = `
+                Deskripsi Bisnis: ${currentInputs.description}
+                Deskripsi Produk: ${currentInputs.productDescription}
+                Detail Promosi: ${currentInputs.promoDetails}
+            `.trim();
 
-            currentInputs.description = businessKeywords.join(', ');
-            currentInputs.productDescription = productKeywords.join(', ');
-            currentInputs.promoDetails = promoKeywords.join(', ');
+            const keywords = await extractKeywords(textToAnalyze);
+            
+            // Masukkan kata kunci kembali ke input (opsional, tapi bagus untuk prompt)
+            currentInputs.description = keywords.join(', ');
+            currentInputs.productDescription = ''; // Kosongkan karena sudah digabung
+            currentInputs.promoDetails = ''; // Kosongkan karena sudah digabung
 
             const prompt = buildPlannerPrompt(currentInputs);
             const result = await callGemini(prompt, true, plannerSchema);
@@ -1191,8 +1178,7 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
 
         interestTags = [];
         renderTags();
-        getEl('suggested-interests').innerHTML = ``;
-
+        
         form.querySelectorAll('select').forEach(select => select.selectedIndex = 0);
 
         form.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
@@ -1220,11 +1206,10 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
     
     const plannerSchema = { type: "OBJECT", properties: { plan: { type: "ARRAY", items: { type: "OBJECT", properties: { day: { type: "STRING" }, platform: { type: "STRING" }, pillar: { type: "STRING" }, idea: { type: "STRING" }, caption_brief: { type: "STRING" }, visual_idea: { type: "STRING" }, hashtags: { type: "STRING" } }, required: ["day", "platform", "pillar", "idea", "caption_brief", "visual_idea", "hashtags"] } } } };
     const singleIdeaSchema = { type: "OBJECT", properties: { day: { type: "STRING" }, platform: { type: "STRING" }, pillar: { type: "STRING" }, idea: { type: "STRING" }, caption_brief: { type: "STRING" }, visual_idea: { type: "STRING" }, hashtags: { type: "STRING" } }, required: ["day", "platform", "pillar", "idea", "caption_brief", "visual_idea", "hashtags"] };
-    const interestSuggestionSchema = { type: "OBJECT", properties: { interests: { type: "ARRAY", items: { type: "STRING" } } }, required: ["interests"] };
     const keywordExtractionSchema = { type: "OBJECT", properties: { keywords: { type: "ARRAY", items: { type: "STRING" } } }, required: ["keywords"] };
 
     const extractKeywords = async (text) => {
-        if (!text || text.trim().length === 0) {
+        if (!text || text.trim().length < 10) { // Jangan panggil API jika teks terlalu pendek
             return [];
         }
         const prompt = `Anda adalah seorang ahli strategi branding. Dari teks berikut, ekstrak 5-7 kata kunci atau frasa pendek paling penting yang mewakili esensi dari bisnis, produk, atau promosi ini. Fokus pada keunggulan, target, dan penawaran utama.
@@ -1945,15 +1930,12 @@ END:VCALENDAR`;
         });
     };
 
-    const addTag = (tagText, triggerUpdate = false) => {
+    const addTag = (tagText) => {
         const cleanTag = tagText.trim();
         if (cleanTag && !interestTags.includes(cleanTag)) {
             interestTags.push(cleanTag);
             renderTags();
             debouncedSave();
-            if(triggerUpdate) {
-               debouncedUpdateSuggestions();
-            }
         }
     };
 
@@ -1961,46 +1943,8 @@ END:VCALENDAR`;
         interestTags = interestTags.filter(t => t !== tagText);
         renderTags();
         debouncedSave();
-        debouncedUpdateSuggestions();
     };
 
-    const updateSuggestedTags = async () => {
-        const industry = getEl('industry').value.toLowerCase().trim();
-        const suggestionContainer = getEl('suggested-interests');
-        const loader = getEl('suggestion-loader');
-
-        if (!suggestionContainer || !loader) return;
-        
-        // Sembunyikan loader karena kita tidak memanggil AI
-        loader.classList.add('hidden');
-        suggestionContainer.innerHTML = '';
-
-        // Gunakan hanya daftar saran default yang sudah ada
-        let suggestions = new Set();
-        for (const key in defaultInterestSuggestions) {
-            if (industry.includes(key)) {
-                defaultInterestSuggestions[key].forEach(s => suggestions.add(s));
-            }
-        }
-        
-        // Jika tidak ada industri yang cocok, tampilkan beberapa saran umum
-        if (suggestions.size === 0) {
-            ['diskon', 'promo', 'tips & trik', 'new arrival', 'review produk'].forEach(s => suggestions.add(s));
-        }
-
-        const existingTagsLower = interestTags.map(t => t.toLowerCase());
-        suggestions.forEach(suggestion => {
-            if (!existingTagsLower.includes(suggestion.toLowerCase())) {
-                const tagEl = document.createElement('button');
-                tagEl.className = 'suggestion-tag';
-                tagEl.textContent = suggestion;
-                suggestionContainer.appendChild(tagEl);
-            }
-        });
-    };
-
-    const debouncedUpdateSuggestions = debounce(updateSuggestedTags, 1200);
-    
     // --- DARK MODE LOGIC ---
     const setupDarkMode = () => {
         const darkModeToggle = getEl('dark-mode-toggle');
@@ -2167,10 +2111,8 @@ END:VCALENDAR`;
         const viewDraftsBtn = getEl('view-drafts-btn');
         const saveDraftBtn = getEl('save-draft-btn');
         const productFocusToggle = getEl('product-focus-toggle');
-        const industryInput = getEl('industry');
         const interestsInput = getEl('interests-input');
         const interestsContainer = getEl('interests-container');
-        const suggestedInterestsContainer = getEl('suggested-interests');
         const closeCalendarModalBtn = getEl('close-calendar-modal');
         const googleCalendarBtn = getEl('google-calendar-btn');
         const icsDownloadBtn = getEl('ics-download-btn');
@@ -2231,20 +2173,11 @@ END:VCALENDAR`;
             getEl('plan-details-container').classList.toggle('hidden', isChecked);
         });
         
-        const descriptionInput = getEl('description');
-
-        if (industryInput) {
-            industryInput.addEventListener('keyup', debouncedUpdateSuggestions);
-        }
-        if (descriptionInput) {
-            descriptionInput.addEventListener('keyup', debouncedUpdateSuggestions);
-        }
-
         if (interestsInput) {
             interestsInput.addEventListener('keyup', (e) => {
                 if (e.key === 'Enter') {
                     e.preventDefault();
-                    addTag(e.target.value, true);
+                    addTag(e.target.value);
                     e.target.value = '';
                 }
             });
@@ -2256,15 +2189,6 @@ END:VCALENDAR`;
                     removeTag(e.target.dataset.tag);
                 }
             });
-        }
-
-        if (suggestedInterestsContainer) {
-          suggestedInterestsContainer.addEventListener('click', (e) => {
-            if (e.target.classList.contains('suggestion-tag')) {
-              addTag(e.target.textContent);
-              e.target.remove();
-            }
-          });
         }
 
         if(closeCalendarModalBtn) closeCalendarModalBtn.addEventListener('click', () => getEl('calendar-modal').classList.add('hidden'));
