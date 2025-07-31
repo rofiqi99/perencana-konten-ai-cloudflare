@@ -1966,41 +1966,27 @@ END:VCALENDAR`;
 
     const updateSuggestedTags = async () => {
         const industry = getEl('industry').value.toLowerCase().trim();
-        const description = getEl('description').value.trim();
         const suggestionContainer = getEl('suggested-interests');
         const loader = getEl('suggestion-loader');
 
         if (!suggestionContainer || !loader) return;
         
-        loader.classList.remove('hidden');
+        // Sembunyikan loader karena kita tidak memanggil AI
+        loader.classList.add('hidden');
         suggestionContainer.innerHTML = '';
 
+        // Gunakan hanya daftar saran default yang sudah ada
         let suggestions = new Set();
         for (const key in defaultInterestSuggestions) {
             if (industry.includes(key)) {
                 defaultInterestSuggestions[key].forEach(s => suggestions.add(s));
             }
         }
-
-        if (!industry && !description) {
-             suggestionCache.forEach(s => suggestions.add(s));
-        } else {
-            try {
-                const combinedText = `Industri: ${industry}. Deskripsi: ${description}. Minat saat ini: ${interestTags.join(', ')}`;
-                const prompt = `Berdasarkan informasi bisnis ini: "${combinedText}", berikan 5-7 saran minat (interests) yang paling relevan untuk target audiens mereka. Balas HANYA dengan objek JSON valid sesuai skema.`;
-                const result = await callGemini(prompt, true, interestSuggestionSchema);
-                
-                if (result.interests && result.interests.length > 0) {
-                    suggestionCache = result.interests;
-                    suggestionCache.forEach(s => suggestions.add(s));
-                }
-            } catch (error) {
-                console.error("Gagal mendapatkan saran minat dari AI:", error);
-                suggestionCache.forEach(s => suggestions.add(s));
-            }
+        
+        // Jika tidak ada industri yang cocok, tampilkan beberapa saran umum
+        if (suggestions.size === 0) {
+            ['diskon', 'promo', 'tips & trik', 'new arrival', 'review produk'].forEach(s => suggestions.add(s));
         }
-
-        loader.classList.add('hidden');
 
         const existingTagsLower = interestTags.map(t => t.toLowerCase());
         suggestions.forEach(suggestion => {
