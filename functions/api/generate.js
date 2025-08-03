@@ -1,5 +1,7 @@
 // functions/api/generate.js
 
+let lastUsedKeyIndex = 0; // TAMBAHKAN baris ini
+
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 // Gunakan onRequestPost untuk hanya menangani metode POST
@@ -27,7 +29,14 @@ export async function onRequestPost(context) {
         });
     }
 
-    const geminiApiKey = apiKeys[Math.floor(Math.random() * apiKeys.length)];
+    // --- AWAL PERUBAHAN LOGIKA ---
+    // Ganti baris di bawah ini
+    // const geminiApiKey = apiKeys[Math.floor(Math.random() * apiKeys.length)];
+
+    // Menjadi seperti ini
+    const geminiApiKey = apiKeys[lastUsedKeyIndex];
+    lastUsedKeyIndex = (lastUsedKeyIndex + 1) % apiKeys.length;
+    // --- AKHIR PERUBAHAN LOGIKA ---
 
     try {
         const { prompt, isJson, schema } = await request.json();
