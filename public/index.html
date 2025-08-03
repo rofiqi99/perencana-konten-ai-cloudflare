@@ -2229,12 +2229,14 @@ END:VCALENDAR`;
         
         const descriptionInput = getEl('description');
 
+        /* NONAKTIFKAN SEMENTARA UNTUK MENGHEMAT API
         if (industryInput) {
             industryInput.addEventListener('keyup', debouncedUpdateSuggestions);
         }
         if (descriptionInput) {
             descriptionInput.addEventListener('keyup', debouncedUpdateSuggestions);
         }
+        */
 
         if (interestsInput) {
             interestsInput.addEventListener('keyup', (e) => {
