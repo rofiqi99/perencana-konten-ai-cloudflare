@@ -171,42 +171,46 @@
 
     body.dark .option-radio + label,
 body.dark .platform-checkbox + label {
-    background-color: transparent; /* Latar belakang transparan */
-    border: 2px solid var(--border-primary); /* Garis tepi samar */
+    background-color: transparent;
+    border: 2px solid var(--border-primary); /* Garis tepi abu-abu samar */
     transition: all 0.2s ease-in-out;
 }
+/* Atur semua teks dan ikon menjadi sedikit redup saat tidak dipilih */
 body.dark .option-radio + label .font-semibold,
-body.dark .platform-checkbox + label .font-semibold {
-    color: var(--text-secondary); /* Teks sedikit redup */
-}
-body.dark .option-radio + label .text-slate-500 {
-    color: var(--text-secondary);
-}
-body.dark .platform-checkbox + label .fab {
-    color: var(--text-secondary); /* Ikon sedikit redup */
-}
+body.dark .platform-checkbox + label .font-semibold,
+body.dark .option-radio + label .text-slate-500,
+body.dark .platform-checkbox + label .fab,
 body.dark label[for="platform-tiktok"] i {
-    color: var(--text-secondary) !important; /* Ikon TikTok sedikit redup */
+    color: var(--text-secondary) !important;
+}
+/* Biarkan ikon original (Tujuan & Suasana) tetap berwarna */
+body.dark .option-radio + label > i {
+    color: inherit !important;
 }
 
-    body.dark .option-radio:checked + label,
-    body.dark .platform-checkbox:checked + label {
-        background-color: transparent !important;
-        border-color: var(--text-primary);
-    }
-    body.dark .option-radio:checked + label .font-semibold,
-    body.dark .option-radio:checked + label .text-slate-500,
-    body.dark .option-radio:checked + label i,
-    body.dark .platform-checkbox:checked + label .font-semibold,
-    body.dark .platform-checkbox:checked + label i {
-        color: var(--text-primary) !important;
-    }
 
-    body.dark .option-radio:not(:checked) + label:hover,
-    body.dark .platform-checkbox:not(:checked) + label:hover {
-        background-color: var(--bg-button-hover);
-        border-color: var(--bg-button-hover);
-    }
+/* --- 2. Gaya Saat DIPILIH: Garis Tepi Putih Terang --- */
+body.dark .option-radio:checked + label,
+body.dark .platform-checkbox:checked + label {
+    background-color: transparent !important;
+    border-color: var(--text-primary) !important; /* Garis tepi putih terang */
+}
+/* Atur semua teks & ikon menjadi putih terang saat dipilih */
+body.dark .option-radio:checked + label .font-semibold,
+body.dark .option-radio:checked + label .text-slate-500,
+body.dark .option-radio:checked + label i,
+body.dark .platform-checkbox:checked + label .font-semibold,
+body.dark .platform-checkbox:checked + label i {
+    color: var(--text-primary) !important;
+}
+
+
+/* --- 3. Gaya Hover (Saat Disentuh & Belum Dipilih) --- */
+body.dark .option-radio:not(:checked) + label:hover,
+body.dark .platform-checkbox:not(:checked) + label:hover {
+    background-color: var(--bg-card) !important;
+    border-color: var(--border-secondary) !important;
+}
     .step-indicator { transition: all 0.3s ease; background-color: #e2e8f0; color: #64748b; }
     body.dark .step-indicator { background-color: var(--bg-button); color: var(--text-secondary); }
     .step-indicator.active { background-color: var(--bg-checked); color: var(--text-on-accent); }
