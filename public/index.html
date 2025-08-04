@@ -1006,10 +1006,11 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
                 });
                 draftsList.appendChild(li);
             });
-        }, (error) => {
-            console.error("Error listening to drafts:", error);
-            draftsList.innerHTML = `<p class="text-red-500 text-center">Gagal memuat draf.</p>`;
-        });
+
+	} catch (error) { // TAMBAHKAN BLOK CATCH INI
+            console.error("Error fetching drafts:", error);
+            draftsList.innerHTML = `<p class="text-red-500 text-center">Gagal memuat draf. Coba lagi nanti.</p>`;
+        }
     };
 
     const viewDraft = (draft) => {
