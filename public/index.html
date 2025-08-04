@@ -369,6 +369,20 @@ body.dark .step-indicator.completed {
 body.dark .step-indicator.completed + .border-t-2 {
     border-color: #22c55e;
 }
+
+/* --- KODE BARU UNTUK EFEK BLUR --- */
+main.blurred {
+    filter: blur(5px);
+    transition: filter 0.2s ease-in-out;
+    pointer-events: none; /* Mencegah interaksi dengan background */
+    user-select: none; /* Mencegah teks di background terseleksi */
+}
+
+body.modal-open {
+    overflow: hidden; /* Mencegah body di-scroll */
+}
+/* --- AKHIR KODE BARU --- */
+
 </style>
 </head>
 <body>
@@ -1466,6 +1480,11 @@ ${languageInstruction}`;
         const loadingToShow = isDraftContext ? getEl('draft-caption-loading') : getEl('caption-loading');
         const contentToShow = isDraftContext ? getEl('draft-caption-content') : getEl('caption-content');
 
+	// --- TAMBAHKAN KODE INI ---
+        getEl('main-content').classList.add('blurred');
+        document.body.classList.add('modal-open');
+        // -------------------------
+
         const originalButtonHTML = buttonElement.innerHTML;
         buttonElement.disabled = true;
         buttonElement.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>Memuat...`;
@@ -2098,6 +2117,11 @@ END:VCALENDAR`;
         if(closeErrorModalBtn) closeErrorModalBtn.addEventListener('click', () => getEl('error-modal').classList.add('hidden'));
         if(closeInfoModalBtn) closeInfoModalBtn.addEventListener('click', () => getEl('info-modal').classList.add('hidden'));
         if(closeCaptionModalBtn) closeCaptionModalBtn.addEventListener('click', () => getEl('caption-modal').classList.add('hidden'));
+	// --- TAMBAHKAN KODE INI ---
+            getEl('main-content').classList.remove('blurred');
+            document.body.classList.remove('modal-open');
+            // -------------------------
+        });
         if(copyCaptionBtn) copyCaptionBtn.addEventListener('click', () => { copyTextFromModal(getEl('caption-content'), copyCaptionBtn, "Salin Teks"); });
         
         if(viewDraftsBtn) {
@@ -2129,6 +2153,11 @@ END:VCALENDAR`;
             }
         });
         if(closeDraftAiResultModalBtn) closeDraftAiResultModalBtn.addEventListener('click', () => getEl('draft-ai-result-modal').classList.add('hidden'));
+	// --- TAMBAHKAN KODE INI ---
+            getEl('main-content').classList.remove('blurred');
+            document.body.classList.remove('modal-open');
+            // -------------------------
+        });
         if (copyDraftCaptionBtn) { copyDraftCaptionBtn.addEventListener('click', () => { copyTextFromModal(getEl('draft-caption-content'), copyDraftCaptionBtn, "Salin Teks"); }); }
 
         if(productFocusToggle) productFocusToggle.addEventListener('change', () => {
