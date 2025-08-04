@@ -170,24 +170,24 @@
     }
 
     body.dark .option-radio + label,
-    body.dark .platform-checkbox + label {
-        background-color: var(--bg-button);
-        border: 2px solid var(--bg-button);
-        transition: all 0.2s ease-in-out;
-    }
-    body.dark .option-radio + label .font-semibold,
-    body.dark .platform-checkbox + label .font-semibold {
-        color: var(--text-primary);
-    }
-    body.dark .option-radio + label .text-slate-500 {
-        color: var(--text-secondary);
-    }
-    body.dark .platform-checkbox + label .fab {
-        color: inherit;
-    }
-    body.dark label[for="platform-tiktok"] i {
-        color: var(--text-primary) !important;
-    }
+body.dark .platform-checkbox + label {
+    background-color: transparent; /* Latar belakang transparan */
+    border: 2px solid var(--border-primary); /* Garis tepi samar */
+    transition: all 0.2s ease-in-out;
+}
+body.dark .option-radio + label .font-semibold,
+body.dark .platform-checkbox + label .font-semibold {
+    color: var(--text-secondary); /* Teks sedikit redup */
+}
+body.dark .option-radio + label .text-slate-500 {
+    color: var(--text-secondary);
+}
+body.dark .platform-checkbox + label .fab {
+    color: var(--text-secondary); /* Ikon sedikit redup */
+}
+body.dark label[for="platform-tiktok"] i {
+    color: var(--text-secondary) !important; /* Ikon TikTok sedikit redup */
+}
 
     body.dark .option-radio:checked + label,
     body.dark .platform-checkbox:checked + label {
