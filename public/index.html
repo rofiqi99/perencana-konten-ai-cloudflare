@@ -640,14 +640,20 @@ body.dark .step-indicator.completed + .border-t-2 {
             </div>
         </div>
 
-        <div id="draft-ai-result-modal" class="fixed inset-0 bg-black flex items-center justify-center p-4 hidden z-[60]">
+        <div id="draft-ai-result-modal" class="fixed inset-0 bg-slate-900/50 flex items-center justify-center p-4 hidden z-[60]">
             <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col modal-content-bg">
                 <div class="p-4 border-b border-slate-200 flex justify-between items-center">
                     <h3 class="text-lg font-semibold text-slate-800"><i class="fas fa-robot mr-2 text-blue-500"></i>Hasil AI dari Draf</h3>
                     <button id="close-draft-ai-result-modal" class="text-slate-500 hover:text-slate-800"><i class="fas fa-times fa-lg"></i></button>
                 </div>
                 <div class="p-6 overflow-y-auto">
-                    <div id="draft-caption-loading" class="text-center py-10"><i class="fas fa-spinner fa-spin text-3xl text-blue-500"></i><p class="mt-3 font-semibold text-slate-700">AI sedang bekerja...</p></div>
+                    <div id="draft-caption-loading" class="text-center py-10">
+    <svg class="animate-spin h-10 w-10 text-blue-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+    </svg>
+    <p class="mt-4 font-semibold text-slate-700">AI sedang bekerja...</p>
+</div>
                     <div id="draft-caption-content" class="text-slate-700 hidden space-y-6 modal-content"></div>
                 </div>
                  <div class="p-4 bg-slate-50 border-t border-slate-200">
@@ -688,7 +694,7 @@ body.dark .step-indicator.completed + .border-t-2 {
     </div>
 </div>
 
-        <div id="caption-modal" class="fixed inset-0 bg-black flex items-center justify-center p-4 hidden z-40">
+        <div id="caption-modal" class="fixed inset-0 bg-slate-900/50 flex items-center justify-center p-4 hidden z-40">
             <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col modal-content-bg">
                 <div class="p-4 border-b border-slate-200 flex justify-between items-center">
                     <h3 class="text-lg font-semibold text-slate-800"><i class="fas fa-robot mr-2 text-blue-500"></i>Hasil AI</h3>
@@ -696,7 +702,13 @@ body.dark .step-indicator.completed + .border-t-2 {
                 </div>
 
                 <div class="p-6 overflow-y-auto">
-                    <div id="caption-loading" class="text-center py-10"><i class="fas fa-spinner fa-spin text-3xl text-blue-500"></i><p class="mt-3 font-semibold text-slate-700">AI sedang bekerja...</p></div>
+                    <div id="caption-loading" class="text-center py-10">
+    <svg class="animate-spin h-10 w-10 text-blue-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+    </svg>
+    <p class="mt-4 font-semibold text-slate-700">AI sedang bekerja...</p>
+</div>
                     <div id="caption-content" class="text-slate-700 hidden space-y-6 modal-content"></div>
                 </div>
                  <div class="p-4 bg-slate-50 border-t border-slate-200">
