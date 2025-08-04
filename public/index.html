@@ -154,10 +154,6 @@ body.dark #auth-container .bg-white {
 body.dark #auth-container .bg-white:hover {
     background-color: var(--bg-button-hover);
 }
-/* HAPUS BARIS INI: */
-/* body.dark #auth-container .fa-folder {
-    color: inherit;
-} */
 
 #dark-mode-toggle { background-color: var(--bg-card); color: var(--text-primary); }
 
@@ -181,10 +177,6 @@ body.dark #auth-container .bg-white:hover {
 }
 
 /* KHUSUS mode gelap, tambahkan efek tambahan agar lebih jelas */
-/* ===== PERBAIKAN DEFINITIF: Gaya Pilihan Mode Gelap ===== */
-
-/* --- 1. Gaya Dasar (Tidak Dipilih) --- */
-/* Tampilan default: blok solid gelap dengan ikon berwarna-warni. */
 body.dark .option-radio + label,
 body.dark .platform-checkbox + label {
     background-color: var(--bg-button);
@@ -205,14 +197,11 @@ body.dark label[for="platform-tiktok"] i {
     color: var(--text-primary) !important;
 }
 
-/* --- 2. Gaya Saat DIPILIH (Checked) --- */
-/* Tampilan saat dipilih: outline putih dengan teks & ikon putih. */
 body.dark .option-radio:checked + label,
 body.dark .platform-checkbox:checked + label {
-    background-color: transparent !important; /* Latar dihilangkan */
-    border-color: var(--text-primary);         /* Garis tepi menjadi PUTIH */
+    background-color: transparent !important;
+    border-color: var(--text-primary);
 }
-/* Teks & Ikon menjadi PUTIH TERANG saat dipilih */
 body.dark .option-radio:checked + label .font-semibold,
 body.dark .option-radio:checked + label .text-slate-500,
 body.dark .option-radio:checked + label i,
@@ -221,8 +210,6 @@ body.dark .platform-checkbox:checked + label i {
     color: var(--text-primary) !important;
 }
 
-
-/* --- 3. Gaya Hover (Saat Disentuh Mouse & Belum Dipilih) --- */
 body.dark .option-radio:not(:checked) + label:hover,
 body.dark .platform-checkbox:not(:checked) + label:hover {
     background-color: var(--bg-button-hover);
@@ -269,7 +256,6 @@ body.dark .modal-content-bg .hover\:bg-slate-100:hover {
 body.dark .modal-content-bg .text-blue-500 {
     color: var(--border-active);
 }
-/* --- Akhir Aturan Tampilan Gelap untuk Modal --- */
 
     /* Dark Mode Toggle Icon */
     #dark-mode-toggle .fa-moon { display: block; }
@@ -277,65 +263,50 @@ body.dark .modal-content-bg .text-blue-500 {
     body.dark #dark-mode-toggle .fa-moon { display: none; }
     body.dark #dark-mode-toggle .fa-sun { display: block; }
 
-    /* Menghilangkan outline/ring tambahan */
     input:focus, textarea:focus, select:focus, #interests-container:focus-within {
         outline: 2px solid transparent; outline-offset: 2px; box-shadow: none;
     }
 
-/* ▼▼▼ LETAKKAN KODE BARU DI SINI ▼▼▼ */
-        .google-logo-icon {
-            width: 18px;
-            height: 18px;
-        }
+    .google-logo-icon {
+        width: 18px;
+        height: 18px;
+    }
 
-/* Perbaikan Tampilan Mode Gelap (Lanjutan) */
+    body.dark #product-focus-fields {
+        background-color: var(--bg-body);
+        border: 1px solid var(--border-primary);
+    }
+    body.dark label[for="platform-tiktok"] .fa-tiktok {
+        color: var(--text-primary);
+    }
+    body.dark #drafts-list .text-slate-800 {
+        color: var(--text-heading);
+    }
+    body.dark #drafts-list .text-slate-500 {
+        color: var(--text-secondary);
+    }
+    body.dark #drafts-list li:hover {
+        background-color: var(--bg-button-hover);
+    }
 
-        /* 1. Memperbaiki kontras bagian 'Fokus Produk' */
-        body.dark #product-focus-fields {
-            background-color: var(--bg-body);
-            border: 1px solid var(--border-primary);
-        }
+    body.dark #draft-viewer-content .bg-white {
+        background-color: var(--bg-card);
+        border-color: var(--border-primary);
+    }
+    body.dark #draft-viewer-content .text-slate-800 { color: var(--text-heading); }
+    body.dark #draft-viewer-content .text-slate-600 { color: var(--text-primary); }
+    body.dark #draft-viewer-content .text-slate-500 { color: var(--text-secondary); }
+    body.dark #draft-viewer-content .text-blue-600 { color: var(--border-active); }
+    body.dark #draft-viewer-content .bg-slate-100 {
+        background-color: var(--bg-button);
+        color: var(--text-primary);
+    }
+    body.dark #draft-viewer-content .bg-slate-100:hover {
+        background-color: var(--bg-button-hover);
+    }
 
-        /* 2. Membuat ikon TikTok terlihat di mode gelap */
-        body.dark label[for="platform-tiktok"] .fa-tiktok {
-            color: var(--text-primary);
-        }
-
-/* 1. Mengatur warna teks di daftar draf (kolom kiri) */
-body.dark #drafts-list .text-slate-800 {
-    color: var(--text-heading);
-}
-body.dark #drafts-list .text-slate-500 {
-    color: var(--text-secondary);
-}
-body.dark #drafts-list li:hover {
-    background-color: var(--bg-button-hover);
-}
-
-/* 2. Mengatur tampilan kartu detail draf (kolom kanan) */
-body.dark #draft-viewer-content .bg-white {
-    background-color: var(--bg-card);
-    border-color: var(--border-primary);
-}
-
-/* 3. Mengatur warna teks di dalam kartu detail draf */
-body.dark #draft-viewer-content .text-slate-800 { color: var(--text-heading); }
-body.dark #draft-viewer-content .text-slate-600 { color: var(--text-primary); }
-body.dark #draft-viewer-content .text-slate-500 { color: var(--text-secondary); }
-body.dark #draft-viewer-content .text-blue-600 { color: var(--border-active); }
-
-/* 4. Mengatur tombol di dalam kartu detail draf */
-body.dark #draft-viewer-content .bg-slate-100 {
-    background-color: var(--bg-button);
-    color: var(--text-primary);
-}
-body.dark #draft-viewer-content .bg-slate-100:hover {
-    background-color: var(--bg-button-hover);
-}
-
-/* --- CSS untuk Animasi Checklist Hijau --- */
 .checkmark-container {
-    width: 64px; /* Sesuaikan ukuran dengan w-16 h-16 */
+    width: 64px;
     height: 64px;
     display: block;
     stroke-width: 2;
@@ -345,7 +316,6 @@ body.dark #draft-viewer-content .bg-slate-100:hover {
     box-shadow: inset 0px 0px 0px #4caf50;
     animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
 }
-
 .checkmark__circle {
     stroke-dasharray: 166;
     stroke-dashoffset: 166;
@@ -355,20 +325,17 @@ body.dark #draft-viewer-content .bg-slate-100:hover {
     fill: none;
     animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
 }
-
 .checkmark__check {
     transform-origin: 50% 50%;
     stroke-dasharray: 48;
     stroke-dashoffset: 48;
     animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
 }
-
 @keyframes stroke {
     100% {
         stroke-dashoffset: 0;
     }
 }
-
 @keyframes scale {
     0%, 100% {
         transform: none;
@@ -377,15 +344,12 @@ body.dark #draft-viewer-content .bg-slate-100:hover {
         transform: scale3d(1.1, 1.1, 1);
     }
 }
-
 @keyframes fill {
     100% {
-        box-shadow: inset 0px 0px 0px 32px #4caf50; /* Setengah dari tinggi/lebar */
+        box-shadow: inset 0px 0px 0px 32px #4caf50;
     }
 }
-/* --- Akhir CSS Animasi --- */
 
-/* ▼▼▼ KODE BARU UNTUK LOADING ICON PUTAR ▼▼▼ */
 @keyframes spin {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
@@ -393,79 +357,18 @@ body.dark #draft-viewer-content .bg-slate-100:hover {
 .icon-spinning {
     animation: spin 1s linear infinite;
 }
-/* ▲▲▲ AKHIR KODE BARU ▲▲▲ */
 
-/* ===== KODE BARU UNTUK INDIKATOR LANGKAH DI MODE GELAP ===== */
-
-/* Memberi warna BIRU untuk langkah yang sedang AKTIF di mode gelap */
 body.dark .step-indicator.active {
-    background-color: #3b82f6; /* Warna biru */
-    color: #ffffff; /* Teks menjadi putih agar terbaca */
+    background-color: #3b82f6;
+    color: #ffffff;
 }
-
-/* Memberi warna HIJAU untuk langkah yang sudah SELESAI di mode gelap */
 body.dark .step-indicator.completed {
-    background-color: #22c55e; /* Warna hijau */
-    color: #ffffff; /* Teks menjadi putih */
+    background-color: #22c55e;
+    color: #ffffff;
 }
-
-/* Memberi warna pada garis penghubung yang sudah dilewati */
 body.dark .step-indicator.completed + .border-t-2 {
-    border-color: #22c55e; /* Garis menjadi hijau */
+    border-color: #22c55e;
 }
-
-
-/* ===== GAYA FINAL v11: Menyeragamkan Semua Teks & Ikon ===== */
-
-/* --- 1. Gaya Dasar (Tidak Aktif): Transparan dengan Teks Seragam --- */
-body.dark .option-radio:not(:checked) + label,
-body.dark .platform-checkbox:not(:checked) + label {
-    background-color: transparent !important;
-    border: 2px solid var(--border-primary);
-    transition: all 0.2s ease-in-out;
-}
-/* KOREKSI: Menyeragamkan warna semua judul menjadi abu-abu redup */
-body.dark .option-radio:not(:checked) + label .font-semibold,
-body.dark .platform-checkbox:not(:checked) + label .font-semibold {
-    color: var(--text-secondary);
-}
-/* Mengatur warna teks deskripsi */
-body.dark .option-radio:not(:checked) + label .text-slate-500 {
-    color: var(--text-secondary);
-}
-/* Mengatur warna ikon platform menjadi abu-abu redup */
-body.dark .platform-checkbox:not(:checked) + label i {
-    color: var(--text-secondary) !important;
-}
-/* Membiarkan ikon original (Tujuan & Suasana) tetap berwarna */
-body.dark .option-radio:not(:checked) + label i {
-    color: inherit !important;
-}
-
-
-/* --- 2. Gaya Saat DIPILIH (Aktif): Outline Putih --- */
-body.dark .option-radio:checked + label,
-body.dark .platform-checkbox:checked + label {
-    background-color: transparent !important;
-    border-color: var(--text-primary) !important;
-}
-/* Teks & Ikon menjadi PUTIH TERANG saat dipilih */
-body.dark .option-radio:checked + label .font-semibold,
-body.dark .option-radio:checked + label .text-slate-500,
-body.dark .option-radio:checked + label i,
-body.dark .platform-checkbox:checked + label .font-semibold,
-body.dark .platform-checkbox:checked + label i {
-    color: var(--text-primary) !important;
-}
-
-
-/* --- 3. Gaya Hover (Disentuh Mouse & Belum Aktif) --- */
-body.dark .option-radio:not(:checked) + label:hover,
-body.dark .platform-checkbox:not(:checked) + label:hover {
-    background-color: var(--bg-card) !important;
-    border-color: var(--border-secondary) !important;
-}
-
 </style>
 </head>
 <body>
@@ -490,9 +393,9 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
                     </button>
                 </div>
                 <button id="login-btn" title="Masuk dengan Google" class="bg-white text-slate-700 font-bold py-2 px-4 rounded-lg hover:bg-slate-100 transition-colors shadow-md flex items-center gap-2">
-    <img src="assets/google-logo.png" alt="Google logo" class="google-logo-icon">
-    <span>Masuk</span>
-</button>
+                    <img src="assets/google-logo.png" alt="Google logo" class="google-logo-icon">
+                    <span>Masuk</span>
+                </button>
                 <button id="dark-mode-toggle" title="Ubah Tema" class="w-10 h-10 flex items-center justify-center font-bold rounded-lg hover:bg-slate-100 transition-colors shadow-md">
                     <i class="fas fa-moon"></i>
                     <i class="fas fa-sun"></i>
@@ -526,60 +429,60 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
 
 
                 <div id="step-1" class="form-step active">
-    <div class="max-w-xl mx-auto">
-        <h2 class="text-xl sm:text-2xl font-bold mb-2 text-center text-slate-900">Profil Bisnis & Audiens</h2>
-        <p class="text-center text-sm sm:text-base text-slate-500 mb-8">Semakin baik kami memahami bisnis Anda, semakin relevan ide konten yang akan dihasilkan.</p>
-        <div class="space-y-5">
-            <div>
-                <label for="business-name" class="block text-sm font-medium text-slate-700 mb-1">Nama Merek Anda</label>
-                <input type="text" id="business-name" autocomplete="off" class="form-input mt-1 block w-full px-4 py-2.5 border border-slate-300 rounded-lg shadow-sm focus:border-slate-400 text-xs sm:text-sm" placeholder="Contoh: Kopi Senja, Sinar Jaya Motor">
-            </div>
-            <div>
-                <label for="industry" class="block text-sm font-medium text-slate-700 mb-1">Industri atau Kategori Bisnis</label>
-                <input type="text" id="industry" autocomplete="off" class="form-input mt-1 block w-full px-4 py-2.5 border border-slate-300 rounded-lg shadow-sm focus:border-slate-400 text-xs sm:text-sm" placeholder="Contoh: Makanan & Minuman, Fashion, Otomotif, Jasa">
-            </div>
-            <div>
-                <label for="description" class="block text-sm font-medium text-slate-700 mb-1">Deskripsi Singkat Bisnis Anda</label>
-                <textarea id="description" rows="3" autocomplete="off" class="form-input mt-1 block w-full px-4 py-2.5 border border-slate-300 rounded-lg shadow-sm focus:border-slate-400 text-xs sm:text-sm" placeholder="Jelaskan produk/jasa utama dan keunggulan khas Anda."></textarea>
-            </div>
-            
-            <div class="pt-5 border-t border-dashed border-slate-200">
-                <p class="text-base sm:text-md font-semibold text-slate-800 mb-3 flex items-center"><i class="fas fa-users-viewfinder mr-2 text-slate-500"></i>Siapa Target Pelanggan Anda?</p>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-5">
-                    <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-slate-700">Rentang Usia</label>
-                        <div class="grid grid-cols-2 gap-2 mt-1">
-                            <input type="number" id="audience-age-from" class="form-input block w-full px-4 py-2.5 border border-slate-300 rounded-lg shadow-sm focus:border-slate-400 text-xs sm:text-sm" placeholder="Dari (Cth: 18)">
-                            <input type="number" id="audience-age-to" class="form-input block w-full px-4 py-2.5 border border-slate-300 rounded-lg shadow-sm focus:border-slate-400 text-xs sm:text-sm" placeholder="Sampai (Cth: 35)">
-                        </div>
-                    </div>
-                    <div>
-                        <label for="audience-gender" class="block text-sm font-medium text-slate-700">Jenis Kelamin</label>
-                        <select id="audience-gender" class="form-input mt-1 block w-full px-4 py-2.5 border border-slate-300 rounded-lg shadow-sm focus:border-slate-400 text-xs sm:text-sm">
-                            <option value="Semua">Semua</option>
-                            <option value="Pria">Pria</option>
-                            <option value="Wanita">Wanita</option>
-                        </select>
-                    </div>
-                    <div class="md:col-span-2">
-                        <label for="interests-input" class="block text-sm font-medium text-slate-700">Minat & Hobi Target Audiens</label>
-                        <div id="interests-container" class="form-input bg-white mt-1 flex items-center flex-wrap gap-2 p-2 border border-slate-300 rounded-lg shadow-sm focus-within:border-slate-400">
-                            <input type="text" id="interests-input" autocomplete="off" class="flex-grow bg-transparent border-none focus:ring-0 p-0.5 text-xs sm:text-sm" placeholder="Contoh: Memasak, Kopi, Teknologi (lalu tekan Enter)">
-                        </div>
-                        <div class="mt-2 flex items-center gap-2">
-                            <div id="suggested-interests" class="flex flex-wrap gap-2">
+                    <div class="max-w-xl mx-auto">
+                        <h2 class="text-xl sm:text-2xl font-bold mb-2 text-center text-slate-900">Profil Bisnis & Audiens</h2>
+                        <p class="text-center text-sm sm:text-base text-slate-500 mb-8">Semakin baik kami memahami bisnis Anda, semakin relevan ide konten yang akan dihasilkan.</p>
+                        <div class="space-y-5">
+                            <div>
+                                <label for="business-name" class="block text-sm font-medium text-slate-700 mb-1">Nama Merek Anda</label>
+                                <input type="text" id="business-name" autocomplete="off" class="form-input mt-1 block w-full px-4 py-2.5 border border-slate-300 rounded-lg shadow-sm focus:border-slate-400 text-xs sm:text-sm" placeholder="Contoh: Kopi Senja, Sinar Jaya Motor">
+                            </div>
+                            <div>
+                                <label for="industry" class="block text-sm font-medium text-slate-700 mb-1">Industri atau Kategori Bisnis</label>
+                                <input type="text" id="industry" autocomplete="off" class="form-input mt-1 block w-full px-4 py-2.5 border border-slate-300 rounded-lg shadow-sm focus:border-slate-400 text-xs sm:text-sm" placeholder="Contoh: Makanan & Minuman, Fashion, Otomotif, Jasa">
+                            </div>
+                            <div>
+                                <label for="description" class="block text-sm font-medium text-slate-700 mb-1">Deskripsi Singkat Bisnis Anda</label>
+                                <textarea id="description" rows="3" autocomplete="off" class="form-input mt-1 block w-full px-4 py-2.5 border border-slate-300 rounded-lg shadow-sm focus:border-slate-400 text-xs sm:text-sm" placeholder="Jelaskan produk/jasa utama dan keunggulan khas Anda."></textarea>
+                            </div>
+                            
+                            <div class="pt-5 border-t border-dashed border-slate-200">
+                                <p class="text-base sm:text-md font-semibold text-slate-800 mb-3 flex items-center"><i class="fas fa-users-viewfinder mr-2 text-slate-500"></i>Siapa Target Pelanggan Anda?</p>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-5">
+                                    <div class="md:col-span-2">
+                                        <label class="block text-sm font-medium text-slate-700">Rentang Usia</label>
+                                        <div class="grid grid-cols-2 gap-2 mt-1">
+                                            <input type="number" id="audience-age-from" class="form-input block w-full px-4 py-2.5 border border-slate-300 rounded-lg shadow-sm focus:border-slate-400 text-xs sm:text-sm" placeholder="Dari (Cth: 18)">
+                                            <input type="number" id="audience-age-to" class="form-input block w-full px-4 py-2.5 border border-slate-300 rounded-lg shadow-sm focus:border-slate-400 text-xs sm:text-sm" placeholder="Sampai (Cth: 35)">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label for="audience-gender" class="block text-sm font-medium text-slate-700">Jenis Kelamin</label>
+                                        <select id="audience-gender" class="form-input mt-1 block w-full px-4 py-2.5 border border-slate-300 rounded-lg shadow-sm focus:border-slate-400 text-xs sm:text-sm">
+                                            <option value="Semua">Semua</option>
+                                            <option value="Pria">Pria</option>
+                                            <option value="Wanita">Wanita</option>
+                                        </select>
+                                    </div>
+                                    <div class="md:col-span-2">
+                                        <label for="interests-input" class="block text-sm font-medium text-slate-700">Minat & Hobi Target Audiens</label>
+                                        <div id="interests-container" class="form-input bg-white mt-1 flex items-center flex-wrap gap-2 p-2 border border-slate-300 rounded-lg shadow-sm focus-within:border-slate-400">
+                                            <input type="text" id="interests-input" autocomplete="off" class="flex-grow bg-transparent border-none focus:ring-0 p-0.5 text-xs sm:text-sm" placeholder="Contoh: Memasak, Kopi, Teknologi (lalu tekan Enter)">
+                                        </div>
+                                        <div class="mt-2 flex items-center gap-2">
+                                            <div id="suggested-interests" class="flex flex-wrap gap-2">
+                                                </div>
+                                            <div id="suggestion-loader" class="hidden">
+                                                <i class="fas fa-spinner fa-spin text-slate-500"></i>
+                                            </div>
+                                        </div>
+                                        <p class="text-xs text-slate-400 mt-1">Saran diperbarui secara otomatis berdasarkan bidang usaha & minat Anda.</p>
+                                    </div>
                                 </div>
-                            <div id="suggestion-loader" class="hidden">
-                                <i class="fas fa-spinner fa-spin text-slate-500"></i>
                             </div>
                         </div>
-                        <p class="text-xs text-slate-400 mt-1">Saran diperbarui secara otomatis berdasarkan bidang usaha & minat Anda.</p>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-</div>
 
                 <div id="step-2" class="form-step">
                         <div class="max-w-xl mx-auto">
@@ -834,7 +737,7 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
     </div>
   </div>
 </div>
-</div> 
+
 <script type="module">
     // --- Firebase Imports ---
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -881,8 +784,6 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
         };
     };
     
-    // --- DATA STORAGE LOGIC (Firestore) ---
-    // NOTE: appId will be defined in initFirebase
     const getFormStateRef = () => doc(db, `artifacts/${appId}/users/${userId}/formState/latest`);
     const getDraftsCollectionRef = () => collection(db, `artifacts/${appId}/users/${userId}/drafts`);
 
@@ -948,7 +849,7 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
 
 
     // --- DRAFT (Firestore) LOGIC ---
-    const showDraftsModal = async () => { // Tambahkan 'async'
+    const showDraftsModal = async () => {
         if (!auth.currentUser) {
             showErrorModal("Terjadi kesalahan, silakan muat ulang halaman.");
             return;
@@ -959,13 +860,7 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
         if(draftViewer) draftViewer.classList.add('hidden');
         getEl('drafts-modal').classList.remove('hidden');
 
-        // Hapus logika unsubscribe yang tidak lagi diperlukan
-        // if (draftsUnsubscribe) {
-        //     draftsUnsubscribe();
-        // }
-        
         try {
-            // Ganti onSnapshot dengan getDocs untuk pengambilan satu kali
             const snapshot = await getDocs(query(getDraftsCollectionRef()));
 
             draftsList.innerHTML = '';
@@ -1006,8 +901,7 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
                 });
                 draftsList.appendChild(li);
             });
-
-	} catch (error) { // TAMBAHKAN BLOK CATCH INI
+        } catch (error) {
             console.error("Error fetching drafts:", error);
             draftsList.innerHTML = `<p class="text-red-500 text-center">Gagal memuat draf. Coba lagi nanti.</p>`;
         }
@@ -1735,7 +1629,6 @@ Balas HANYA dengan objek JSON valid sesuai skema.`;
         resetForm();
     };
     
-    // --- PDF & CSV EXPORT ---
     const handleExportPDF = (dataToExport, title, subtitle) => {
         if (!dataToExport || dataToExport.length === 0) {
             showErrorModal("Tidak ada data untuk diekspor.");
@@ -1854,7 +1747,6 @@ Balas HANYA dengan objek JSON valid sesuai skema.`;
         document.body.removeChild(a);
     };
     
-    // --- CALENDAR INTEGRATION LOGIC ---
     const parseDateString = (dateStr) => {
         if (!dateStr || dateStr.toLowerCase().startsWith('ide')) return null;
         const monthMap = { "januari": 0, "februari": 1, "maret": 2, "april": 3, "mei": 4, "juni": 5, "juli": 6, "agustus": 7, "september": 8, "oktober": 9, "november": 10, "desember": 11 };
@@ -1923,7 +1815,6 @@ END:VCALENDAR`;
         getEl('calendar-modal').classList.add('hidden');
     };
     
-    // --- NEW FEATURES & INITIALIZATION ---
     const setDefaultDate = () => {
         const startDateInput = getEl('start-date');
         const today = new Date();
@@ -1938,7 +1829,6 @@ END:VCALENDAR`;
         if(promoEnd) promoEnd.value = '';
     };
 
-    // --- Tag Input Logic ---
     const renderTags = () => {
         const interestsContainer = getEl('interests-container');
         const interestsInput = getEl('interests-input');
@@ -2025,7 +1915,6 @@ END:VCALENDAR`;
 
     const debouncedUpdateSuggestions = debounce(updateSuggestedTags, 1200);
     
-    // --- DARK MODE LOGIC ---
     const setupDarkMode = () => {
         const darkModeToggle = getEl('dark-mode-toggle');
         const applyTheme = (theme) => {
@@ -2056,7 +1945,6 @@ END:VCALENDAR`;
     };
 
 
-    // --- FIREBASE AUTHENTICATION ---
     const signInWithGoogle = async () => {
         const provider = new GoogleAuthProvider();
         try {
@@ -2121,17 +2009,14 @@ END:VCALENDAR`;
         }
     };
 
-    // --- FIREBASE INITIALIZATION ---
     const initFirebase = async () => {
         try {
-            // Selalu ambil konfigurasi dari API
             const response = await fetch('/api/config');
             if (!response.ok) {
                 throw new Error('Failed to fetch config from API.');
             }
             const firebaseConfig = await response.json();
 
-            // Lanjutkan inisialisasi Firebase
             app = initializeApp(firebaseConfig);
             db = getFirestore(app);
             auth = getAuth(app);
