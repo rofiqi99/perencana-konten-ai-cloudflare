@@ -5,14 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Generator Perencana Konten Media Sosial</title>
     
+    <!-- Optimasi: Lakukan Preconnect ke Domain Penting Lebih Awal -->
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
+    <!-- Muat CSS dan Font -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
+    <!-- Optimasi: Tunda (defer) Pemuatan Script yang Tidak Mendesak -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js" defer></script>
     
@@ -97,18 +100,14 @@
         color: var(--text-placeholder);
         opacity: 1;
     }
-
-    /* PERBAIKAN: Menyamakan tampilan input minat & perilakunya */
     body.dark #interests-container.bg-white {
         background-color: var(--bg-input);
     }
-
-    /* Tag Minat yang sudah ditambahkan */
     .interest-tag {
         display: inline-flex;
         align-items: center;
-        background-color: #e0e7ff; /* indigo-100 */
-        color: #4338ca; /* indigo-700 */
+        background-color: #e0e7ff;
+        color: #4338ca;
         padding: 0.25rem 0.75rem;
         border-radius: 9999px;
         font-size: 0.875rem;
@@ -119,12 +118,11 @@
         cursor: pointer; padding: 0; line-height: 1;
     }
     body.dark .interest-tag {
-        background-color: #4f46e5; /* indigo-600 */
-        color: #e0e7ff; /* indigo-100 */
+        background-color: #4f46e5;
+        color: #e0e7ff;
     }
     body.dark .interest-tag button { color: #e0e7ff; }
     
-    /* PERBAIKAN: Memberi "bentuk" pada tag saran */
     .suggestion-tag {
         background-color: var(--bg-button);
         color: var(--text-secondary);
@@ -134,130 +132,121 @@
         border: 1px solid var(--border-primary);
         cursor: pointer;
         transition: all 0.2s ease;
-        display: inline-block; /* Memastikan tag tidak menyatu */
-        margin: 2px; /* Memberi sedikit jarak antar tag */
+        display: inline-block;
+        margin: 2px;
     }
     .suggestion-tag:hover {
         background-color: var(--bg-button-hover);
         border-color: var(--border-secondary);
     }
     
-    /* Tombol Header & Toggle */
-#auth-container .bg-white { background-color: #ffffff; color: var(--text-on-light-bg); }
-#auth-container .bg-white:hover { background-color: #f3f4f6; }
+    #auth-container .bg-white { background-color: #ffffff; color: var(--text-on-light-bg); }
+    #auth-container .bg-white:hover { background-color: #f3f4f6; }
 
-/* Menyesuaikan tombol Draf & Masuk di mode gelap */
-body.dark #auth-container .bg-white {
-    background-color: var(--bg-button);
-    color: var(--text-primary);
-}
-body.dark #auth-container .bg-white:hover {
-    background-color: var(--bg-button-hover);
-}
+    body.dark #auth-container .bg-white {
+        background-color: var(--bg-button);
+        color: var(--text-primary);
+    }
+    body.dark #auth-container .bg-white:hover {
+        background-color: var(--bg-button-hover);
+    }
 
-#dark-mode-toggle { background-color: var(--bg-card); color: var(--text-primary); }
+    #dark-mode-toggle { background-color: var(--bg-card); color: var(--text-primary); }
 
-    /* Tombol abu-abu (Kembali, Jadwalkan, dll) */
     .bg-slate-100, .bg-slate-200 { background-color: var(--bg-button); color: var(--text-secondary); }
     .bg-slate-100:hover, .bg-slate-200:hover { background-color: var(--bg-button-hover); }
     body.dark .bg-slate-100, body.dark .bg-slate-200 { background-color: var(--bg-button); color: var(--text-primary); }
     body.dark .bg-slate-100:hover, body.dark .bg-slate-200:hover { background-color: var(--bg-button-hover); }
     
-    /* Kartu Hasil */
     #results-grid .bg-white { background-color: var(--bg-card); }
     body.dark #results-grid .bg-white .text-slate-800,
     body.dark #results-grid .bg-white .text-slate-600,
     body.dark #results-grid .bg-white .text-slate-500 { color: var(--text-primary); }
     body.dark #results-grid .bg-white .text-blue-600 { color: var(--border-active); }
 
-    /* Aturan Pilihan yang Aktif (Checkbox/Radio) */
-.option-radio:checked + label,
-.platform-checkbox:checked + label {
-    border-color: var(--border-active); /* HANYA mengubah warna border untuk semua mode */
-}
+    .option-radio:checked + label,
+    .platform-checkbox:checked + label {
+        border-color: var(--border-active);
+    }
 
-/* KHUSUS mode gelap, tambahkan efek tambahan agar lebih jelas */
-body.dark .option-radio + label,
-body.dark .platform-checkbox + label {
-    background-color: var(--bg-button);
-    border: 2px solid var(--bg-button);
-    transition: all 0.2s ease-in-out;
-}
-body.dark .option-radio + label .font-semibold,
-body.dark .platform-checkbox + label .font-semibold {
-    color: var(--text-primary);
-}
-body.dark .option-radio + label .text-slate-500 {
-    color: var(--text-secondary);
-}
-body.dark .platform-checkbox + label .fab {
-    color: inherit;
-}
-body.dark label[for="platform-tiktok"] i {
-    color: var(--text-primary) !important;
-}
+    body.dark .option-radio + label,
+    body.dark .platform-checkbox + label {
+        background-color: var(--bg-button);
+        border: 2px solid var(--bg-button);
+        transition: all 0.2s ease-in-out;
+    }
+    body.dark .option-radio + label .font-semibold,
+    body.dark .platform-checkbox + label .font-semibold {
+        color: var(--text-primary);
+    }
+    body.dark .option-radio + label .text-slate-500 {
+        color: var(--text-secondary);
+    }
+    body.dark .platform-checkbox + label .fab {
+        color: inherit;
+    }
+    body.dark label[for="platform-tiktok"] i {
+        color: var(--text-primary) !important;
+    }
 
-body.dark .option-radio:checked + label,
-body.dark .platform-checkbox:checked + label {
-    background-color: transparent !important;
-    border-color: var(--text-primary);
-}
-body.dark .option-radio:checked + label .font-semibold,
-body.dark .option-radio:checked + label .text-slate-500,
-body.dark .option-radio:checked + label i,
-body.dark .platform-checkbox:checked + label .font-semibold,
-body.dark .platform-checkbox:checked + label i {
-    color: var(--text-primary) !important;
-}
+    body.dark .option-radio:checked + label,
+    body.dark .platform-checkbox:checked + label {
+        background-color: transparent !important;
+        border-color: var(--text-primary);
+    }
+    body.dark .option-radio:checked + label .font-semibold,
+    body.dark .option-radio:checked + label .text-slate-500,
+    body.dark .option-radio:checked + label i,
+    body.dark .platform-checkbox:checked + label .font-semibold,
+    body.dark .platform-checkbox:checked + label i {
+        color: var(--text-primary) !important;
+    }
 
-body.dark .option-radio:not(:checked) + label:hover,
-body.dark .platform-checkbox:not(:checked) + label:hover {
-    background-color: var(--bg-button-hover);
-    border-color: var(--bg-button-hover);
-}
-    /* Wizard Steps */
+    body.dark .option-radio:not(:checked) + label:hover,
+    body.dark .platform-checkbox:not(:checked) + label:hover {
+        background-color: var(--bg-button-hover);
+        border-color: var(--bg-button-hover);
+    }
     .step-indicator { transition: all 0.3s ease; background-color: #e2e8f0; color: #64748b; }
     body.dark .step-indicator { background-color: var(--bg-button); color: var(--text-secondary); }
     .step-indicator.active { background-color: var(--bg-checked); color: var(--text-on-accent); }
     .step-indicator.completed { background-color: #22c55e; color: white; }
 
-/* --- Aturan Tampilan Gelap untuk Semua Modal --- */
-body.dark .modal-content-bg {
-    background-color: var(--bg-card);
-}
-body.dark .modal-content-bg h3,
-body.dark .modal-content-bg h4,
-body.dark .modal-content-bg .text-slate-900,
-body.dark .modal-content-bg .text-slate-800 {
-    color: var(--text-heading);
-}
-body.dark .modal-content-bg p,
-body.dark .modal-content-bg li,
-body.dark .modal-content-bg .text-slate-700,
-body.dark .modal-content-bg .text-slate-600 {
-    color: var(--text-primary);
-}
-body.dark .modal-content-bg .text-slate-500,
-body.dark .modal-content-bg button.hover\:text-slate-800:hover {
-    color: var(--text-secondary);
-}
-body.dark .modal-content-bg .border-b,
-body.dark .modal-content-bg .border-t,
-body.dark .modal-content-bg .border-r,
-body.dark .modal-content-bg .border-slate-200 {
-    border-color: var(--border-primary);
-}
-body.dark .modal-content-bg .bg-slate-50 {
-     background-color: var(--bg-body);
-}
-body.dark .modal-content-bg .hover\:bg-slate-100:hover {
-    background-color: var(--bg-button-hover);
-}
-body.dark .modal-content-bg .text-blue-500 {
-    color: var(--border-active);
-}
+    body.dark .modal-content-bg {
+        background-color: var(--bg-card);
+    }
+    body.dark .modal-content-bg h3,
+    body.dark .modal-content-bg h4,
+    body.dark .modal-content-bg .text-slate-900,
+    body.dark .modal-content-bg .text-slate-800 {
+        color: var(--text-heading);
+    }
+    body.dark .modal-content-bg p,
+    body.dark .modal-content-bg li,
+    body.dark .modal-content-bg .text-slate-700,
+    body.dark .modal-content-bg .text-slate-600 {
+        color: var(--text-primary);
+    }
+    body.dark .modal-content-bg .text-slate-500,
+    body.dark .modal-content-bg button.hover\:text-slate-800:hover {
+        color: var(--text-secondary);
+    }
+    body.dark .modal-content-bg .border-b,
+    body.dark .modal-content-bg .border-t,
+    body.dark .modal-content-bg .border-r,
+    body.dark .modal-content-bg .border-slate-200 {
+        border-color: var(--border-primary);
+    }
+    body.dark .modal-content-bg .bg-slate-50 {
+         background-color: var(--bg-body);
+    }
+    body.dark .modal-content-bg .hover\:bg-slate-100:hover {
+        background-color: var(--bg-button-hover);
+    }
+    body.dark .modal-content-bg .text-blue-500 {
+        color: var(--border-active);
+    }
 
-    /* Dark Mode Toggle Icon */
     #dark-mode-toggle .fa-moon { display: block; }
     #dark-mode-toggle .fa-sun { display: none; }
     body.dark #dark-mode-toggle .fa-moon { display: none; }
@@ -266,12 +255,10 @@ body.dark .modal-content-bg .text-blue-500 {
     input:focus, textarea:focus, select:focus, #interests-container:focus-within {
         outline: 2px solid transparent; outline-offset: 2px; box-shadow: none;
     }
-
     .google-logo-icon {
         width: 18px;
         height: 18px;
     }
-
     body.dark #product-focus-fields {
         background-color: var(--bg-body);
         border: 1px solid var(--border-primary);
@@ -288,7 +275,6 @@ body.dark .modal-content-bg .text-blue-500 {
     body.dark #drafts-list li:hover {
         background-color: var(--bg-button-hover);
     }
-
     body.dark #draft-viewer-content .bg-white {
         background-color: var(--bg-card);
         border-color: var(--border-primary);
@@ -304,89 +290,83 @@ body.dark .modal-content-bg .text-blue-500 {
     body.dark #draft-viewer-content .bg-slate-100:hover {
         background-color: var(--bg-button-hover);
     }
-
-.checkmark-container {
-    width: 64px;
-    height: 64px;
-    display: block;
-    stroke-width: 2;
-    stroke: #ffffff;
-    stroke-miterlimit: 10;
-    margin: 0 auto;
-    box-shadow: inset 0px 0px 0px #4caf50;
-    animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
-}
-.checkmark__circle {
-    stroke-dasharray: 166;
-    stroke-dashoffset: 166;
-    stroke-width: 2;
-    stroke-miterlimit: 10;
-    stroke: #4caf50;
-    fill: none;
-    animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
-}
-.checkmark__check {
-    transform-origin: 50% 50%;
-    stroke-dasharray: 48;
-    stroke-dashoffset: 48;
-    animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
-}
-@keyframes stroke {
-    100% {
-        stroke-dashoffset: 0;
+    .checkmark-container {
+        width: 64px;
+        height: 64px;
+        display: block;
+        stroke-width: 2;
+        stroke: #ffffff;
+        stroke-miterlimit: 10;
+        margin: 0 auto;
+        box-shadow: inset 0px 0px 0px #4caf50;
+        animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
     }
-}
-@keyframes scale {
-    0%, 100% {
-        transform: none;
+    .checkmark__circle {
+        stroke-dasharray: 166;
+        stroke-dashoffset: 166;
+        stroke-width: 2;
+        stroke-miterlimit: 10;
+        stroke: #4caf50;
+        fill: none;
+        animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
     }
-    50% {
-        transform: scale3d(1.1, 1.1, 1);
+    .checkmark__check {
+        transform-origin: 50% 50%;
+        stroke-dasharray: 48;
+        stroke-dashoffset: 48;
+        animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
     }
-}
-@keyframes fill {
-    100% {
-        box-shadow: inset 0px 0px 0px 32px #4caf50;
+    @keyframes stroke {
+        100% {
+            stroke-dashoffset: 0;
+        }
     }
-}
+    @keyframes scale {
+        0%, 100% {
+            transform: none;
+        }
+        50% {
+            transform: scale3d(1.1, 1.1, 1);
+        }
+    }
+    @keyframes fill {
+        100% {
+            box-shadow: inset 0px 0px 0px 32px #4caf50;
+        }
+    }
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    .icon-spinning {
+        animation: spin 1s linear infinite;
+    }
+    body.dark .step-indicator.active {
+        background-color: #3b82f6;
+        color: #ffffff;
+    }
+    body.dark .step-indicator.completed {
+        background-color: #22c55e;
+        color: #ffffff;
+    }
+    body.dark .step-indicator.completed + .border-t-2 {
+        border-color: #22c55e;
+    }
+    /* --- KODE BARU UNTUK EFEK BLUR --- */
+    main.blurred {
+        filter: blur(5px);
+        transition: filter 0.2s ease-in-out;
+        pointer-events: none; /* Mencegah interaksi dengan background */
+        user-select: none; /* Mencegah teks di background terseleksi */
+    }
 
-@keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-.icon-spinning {
-    animation: spin 1s linear infinite;
-}
-
-body.dark .step-indicator.active {
-    background-color: #3b82f6;
-    color: #ffffff;
-}
-body.dark .step-indicator.completed {
-    background-color: #22c55e;
-    color: #ffffff;
-}
-body.dark .step-indicator.completed + .border-t-2 {
-    border-color: #22c55e;
-}
-
-/* --- KODE BARU UNTUK EFEK BLUR --- */
-main.blurred {
-    filter: blur(5px);
-    transition: filter 0.2s ease-in-out;
-    pointer-events: none; /* Mencegah interaksi dengan background */
-    user-select: none; /* Mencegah teks di background terseleksi */
-}
-
-body.modal-open {
-    overflow: hidden; /* Mencegah body di-scroll */
-}
-/* --- AKHIR KODE BARU --- */
-
-</style>
+    body.modal-open {
+        overflow: hidden; /* Mencegah body di-scroll */
+    }
+    /* --- AKHIR KODE BARU --- */
+    </style>
 </head>
 <body>
-
     <div id="app" class="container mx-auto p-4 md:p-8 max-w-6xl">
         
         <header class="text-center mb-12">
@@ -420,28 +400,25 @@ body.modal-open {
         <main id="main-content" class="p-6 md:p-10 rounded-2xl shadow-2xl shadow-slate-300/20">
 
             <div id="form-wizard">
+                <!-- Wizard Steps -->
                 <div class="flex items-start justify-between w-full max-w-2xl mx-auto mb-10">
                     <div class="text-center w-40">
                         <div id="step-indicator-1" class="step-indicator active w-10 h-10 rounded-full flex items-center justify-center font-bold border-2 border-transparent text-lg mx-auto">1</div>
                         <p class="mt-2 text-xs sm:text-sm font-semibold text-slate-600">Info Bisnis</p>
                     </div>
-                
                     <div class="flex-1 border-t-2 border-slate-200 mt-5"></div>
-                
                     <div class="text-center w-40">
                         <div id="step-indicator-2" class="step-indicator w-10 h-10 rounded-full flex items-center justify-center font-bold border-2 border-transparent text-lg mx-auto">2</div>
                         <p class="mt-2 text-xs sm:text-sm font-semibold text-slate-600">Gaya & Tujuan</p>
                     </div>
-                
                     <div class="flex-1 border-t-2 border-slate-200 mt-5"></div>
-                
                     <div class="text-center w-40">
                         <div id="step-indicator-3" class="step-indicator w-10 h-10 rounded-full flex items-center justify-center font-bold border-2 border-transparent text-lg mx-auto">3</div>
                         <p class="mt-2 text-xs sm:text-sm font-semibold text-slate-600">Platform & Jadwal</p>
                     </div>
                 </div>
 
-
+                <!-- Step 1: Business Info -->
                 <div id="step-1" class="form-step active">
                     <div class="max-w-xl mx-auto">
                         <h2 class="text-xl sm:text-2xl font-bold mb-2 text-center text-slate-900">Profil Bisnis & Audiens</h2>
@@ -484,8 +461,7 @@ body.modal-open {
                                             <input type="text" id="interests-input" autocomplete="off" class="flex-grow bg-transparent border-none focus:ring-0 p-0.5 text-xs sm:text-sm" placeholder="Contoh: Memasak, Kopi, Teknologi (lalu tekan Enter)">
                                         </div>
                                         <div class="mt-2 flex items-center gap-2">
-                                            <div id="suggested-interests" class="flex flex-wrap gap-2">
-                                                </div>
+                                            <div id="suggested-interests" class="flex flex-wrap gap-2"></div>
                                             <div id="suggestion-loader" class="hidden">
                                                 <i class="fas fa-spinner fa-spin text-slate-500"></i>
                                             </div>
@@ -498,85 +474,88 @@ body.modal-open {
                     </div>
                 </div>
 
+                <!-- Step 2: Style & Goals -->
                 <div id="step-2" class="form-step">
-                        <div class="max-w-xl mx-auto">
-                            <h2 class="text-xl sm:text-2xl font-bold mb-2 text-center text-slate-900">Gaya & Tujuan Konten</h2>
-                            <p class="text-center text-sm sm:text-base text-slate-500 mb-8">Pilih gaya yang paling sesuai dengan kepribadian merek Anda.</p>
-                            <div class="space-y-6">
-                                <div>
-                                    <label class="block text-sm font-medium text-slate-700 mb-3">Apa Tujuan Utama Konten Anda?</label>
-                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                        <div><input type="radio" name="business-stage" id="stage-awareness" value="Kesadaran" class="hidden option-radio form-input" checked><label for="stage-awareness" class="cursor-pointer flex flex-col items-center justify-center text-center p-4 border-2 border-slate-200 rounded-lg h-full"><i class="fas fa-bullhorn text-2xl mb-2 text-purple-500"></i><span class="block text-sm font-semibold text-slate-700">Kesadaran</span><span class="text-xs text-slate-500">Jangkau audiens baru & perkenalkan merek</span></label></div>
-                                        <div><input type="radio" name="business-stage" id="stage-interaction" value="Interaksi" class="hidden option-radio form-input"><label for="stage-interaction" class="cursor-pointer flex flex-col items-center justify-center text-center p-4 border-2 border-slate-200 rounded-lg h-full"><i class="fas fa-comments text-2xl mb-2 text-sky-500"></i><span class="block text-sm font-semibold text-slate-700">Interaksi</span><span class="text-xs text-slate-500">Bangun interaksi & kepercayaan</span></label></div>
-                                        <div><input type="radio" name="business-stage" id="stage-loyalty" value="Loyalitas" class="hidden option-radio form-input"><label for="stage-loyalty" class="cursor-pointer flex flex-col items-center justify-center text-center p-4 border-2 border-slate-200 rounded-lg h-full"><i class="fas fa-crown text-2xl mb-2 text-amber-500"></i><span class="block text-sm font-semibold text-slate-700">Loyalitas</span><span class="text-xs text-slate-500">Pertahankan pelanggan & bangun komunitas</span></label></div>
-                                    </div>
+                    <div class="max-w-xl mx-auto">
+                        <h2 class="text-xl sm:text-2xl font-bold mb-2 text-center text-slate-900">Gaya & Tujuan Konten</h2>
+                        <p class="text-center text-sm sm:text-base text-slate-500 mb-8">Pilih gaya yang paling sesuai dengan kepribadian merek Anda.</p>
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-3">Apa Tujuan Utama Konten Anda?</label>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div><input type="radio" name="business-stage" id="stage-awareness" value="Kesadaran" class="hidden option-radio form-input" checked><label for="stage-awareness" class="cursor-pointer flex flex-col items-center justify-center text-center p-4 border-2 border-slate-200 rounded-lg h-full"><i class="fas fa-bullhorn text-2xl mb-2 text-purple-500"></i><span class="block text-sm font-semibold text-slate-700">Kesadaran</span><span class="text-xs text-slate-500">Jangkau audiens baru & perkenalkan merek</span></label></div>
+                                    <div><input type="radio" name="business-stage" id="stage-interaction" value="Interaksi" class="hidden option-radio form-input"><label for="stage-interaction" class="cursor-pointer flex flex-col items-center justify-center text-center p-4 border-2 border-slate-200 rounded-lg h-full"><i class="fas fa-comments text-2xl mb-2 text-sky-500"></i><span class="block text-sm font-semibold text-slate-700">Interaksi</span><span class="text-xs text-slate-500">Bangun interaksi & kepercayaan</span></label></div>
+                                    <div><input type="radio" name="business-stage" id="stage-loyalty" value="Loyalitas" class="hidden option-radio form-input"><label for="stage-loyalty" class="cursor-pointer flex flex-col items-center justify-center text-center p-4 border-2 border-slate-200 rounded-lg h-full"><i class="fas fa-crown text-2xl mb-2 text-amber-500"></i><span class="block text-sm font-semibold text-slate-700">Loyalitas</span><span class="text-xs text-slate-500">Pertahankan pelanggan & bangun komunitas</span></label></div>
                                 </div>
-                                
-                                <div>
-                                    <label class="block text-sm font-medium text-slate-700 mb-3">Pilih Suasana Konten</label>
-                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                        <div><input type="radio" name="content-mood" id="mood-informative" value="Informatif dan Edukatif" class="hidden option-radio form-input" checked><label for="mood-informative" class="cursor-pointer flex flex-col items-center justify-center text-center p-4 border-2 border-slate-200 rounded-lg h-full"><i class="fas fa-graduation-cap text-2xl mb-2 text-blue-500"></i><span class="block text-sm font-semibold text-slate-700">Informatif</span></label></div>
-                                        <div><input type="radio" name="content-mood" id="mood-casual" value="Santai dan Humoris" class="hidden option-radio form-input"><label for="mood-casual" class="cursor-pointer flex flex-col items-center justify-center text-center p-4 border-2 border-slate-200 rounded-lg h-full"><i class="fas fa-smile-beam text-2xl mb-2 text-yellow-500"></i><span class="block text-sm font-semibold text-slate-700">Santai</span></label></div>
-                                        <div><input type="radio" name="content-mood" id="mood-professional" value="Profesional dan Formal" class="hidden option-radio form-input"><label for="mood-professional" class="cursor-pointer flex flex-col items-center justify-center text-center p-4 border-2 border-slate-200 rounded-lg h-full"><i class="fas fa-briefcase text-2xl mb-2 text-slate-700"></i><span class="block text-sm font-semibold text-slate-700">Profesional</span></label></div>
-                                        <div><input type="radio" name="content-mood" id="mood-inspirational" value="Inspiratif dan Motivasi" class="hidden option-radio form-input"><label for="mood-inspirational" class="cursor-pointer flex flex-col items-center justify-center text-center p-4 border-2 border-slate-200 rounded-lg h-full"><i class="fas fa-lightbulb text-2xl mb-2 text-orange-500"></i><span class="block text-sm font-semibold text-slate-700">Inspiratif</span></label></div>
-                                    </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-3">Pilih Suasana Konten</label>
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    <div><input type="radio" name="content-mood" id="mood-informative" value="Informatif dan Edukatif" class="hidden option-radio form-input" checked><label for="mood-informative" class="cursor-pointer flex flex-col items-center justify-center text-center p-4 border-2 border-slate-200 rounded-lg h-full"><i class="fas fa-graduation-cap text-2xl mb-2 text-blue-500"></i><span class="block text-sm font-semibold text-slate-700">Informatif</span></label></div>
+                                    <div><input type="radio" name="content-mood" id="mood-casual" value="Santai dan Humoris" class="hidden option-radio form-input"><label for="mood-casual" class="cursor-pointer flex flex-col items-center justify-center text-center p-4 border-2 border-slate-200 rounded-lg h-full"><i class="fas fa-smile-beam text-2xl mb-2 text-yellow-500"></i><span class="block text-sm font-semibold text-slate-700">Santai</span></label></div>
+                                    <div><input type="radio" name="content-mood" id="mood-professional" value="Profesional dan Formal" class="hidden option-radio form-input"><label for="mood-professional" class="cursor-pointer flex flex-col items-center justify-center text-center p-4 border-2 border-slate-200 rounded-lg h-full"><i class="fas fa-briefcase text-2xl mb-2 text-slate-700"></i><span class="block text-sm font-semibold text-slate-700">Profesional</span></label></div>
+                                    <div><input type="radio" name="content-mood" id="mood-inspirational" value="Inspiratif dan Motivasi" class="hidden option-radio form-input"><label for="mood-inspirational" class="cursor-pointer flex flex-col items-center justify-center text-center p-4 border-2 border-slate-200 rounded-lg h-full"><i class="fas fa-lightbulb text-2xl mb-2 text-orange-500"></i><span class="block text-sm font-semibold text-slate-700">Inspiratif</span></label></div>
                                 </div>
                             </div>
                         </div>
+                    </div>
                 </div>
 
+                <!-- Step 3: Platform & Scheduling -->
                 <div id="step-3" class="form-step">
-                        <div class="max-w-2xl mx-auto">
-                            <h2 class="text-xl sm:text-2xl font-bold mb-2 text-center text-slate-900">Platform & Penjadwalan</h2>
-                            <p class="text-center text-sm sm:text-base text-slate-500 mb-8">Atur jadwal dan platform agar rencana konten lebih terorganisir.</p>
-                            <div class="space-y-6">
-                                <div>
-                                    <label class="block text-sm font-medium text-slate-700 mb-3">Pilih Platform Media Sosial</label>
-                                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                                        <div><input type="checkbox" id="platform-instagram" value="Instagram" class="hidden platform-checkbox form-input" checked><label for="platform-instagram" class="cursor-pointer flex flex-col items-center justify-center text-center p-4 border-2 border-slate-200 rounded-lg h-full"><i class="fab fa-instagram text-3xl mb-2 text-pink-500"></i><span class="block text-sm font-semibold text-slate-700">Instagram</span></label></div>
-                                        <div><input type="checkbox" id="platform-tiktok" value="TikTok" class="hidden platform-checkbox form-input"><label for="platform-tiktok" class="cursor-pointer flex flex-col items-center justify-center text-center p-4 border-2 border-slate-200 rounded-lg h-full"><i class="fab fa-tiktok text-3xl mb-2 text-black"></i><span class="block text-sm font-semibold text-slate-700">TikTok</span></label></div>
-                                        <div><input type="checkbox" id="platform-facebook" value="Facebook" class="hidden platform-checkbox form-input"><label for="platform-facebook" class="cursor-pointer flex flex-col items-center justify-center text-center p-4 border-2 border-slate-200 rounded-lg h-full"><i class="fab fa-facebook text-3xl mb-2 text-blue-600"></i><span class="block text-sm font-semibold text-slate-700">Facebook</span></label></div>
-                                    </div>
+                    <div class="max-w-2xl mx-auto">
+                        <h2 class="text-xl sm:text-2xl font-bold mb-2 text-center text-slate-900">Platform & Penjadwalan</h2>
+                        <p class="text-center text-sm sm:text-base text-slate-500 mb-8">Atur jadwal dan platform agar rencana konten lebih terorganisir.</p>
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-3">Pilih Platform Media Sosial</label>
+                                <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                    <div><input type="checkbox" id="platform-instagram" value="Instagram" class="hidden platform-checkbox form-input" checked><label for="platform-instagram" class="cursor-pointer flex flex-col items-center justify-center text-center p-4 border-2 border-slate-200 rounded-lg h-full"><i class="fab fa-instagram text-3xl mb-2 text-pink-500"></i><span class="block text-sm font-semibold text-slate-700">Instagram</span></label></div>
+                                    <div><input type="checkbox" id="platform-tiktok" value="TikTok" class="hidden platform-checkbox form-input"><label for="platform-tiktok" class="cursor-pointer flex flex-col items-center justify-center text-center p-4 border-2 border-slate-200 rounded-lg h-full"><i class="fab fa-tiktok text-3xl mb-2 text-black"></i><span class="block text-sm font-semibold text-slate-700">TikTok</span></label></div>
+                                    <div><input type="checkbox" id="platform-facebook" value="Facebook" class="hidden platform-checkbox form-input"><label for="platform-facebook" class="cursor-pointer flex flex-col items-center justify-center text-center p-4 border-2 border-slate-200 rounded-lg h-full"><i class="fab fa-facebook text-3xl mb-2 text-blue-600"></i><span class="block text-sm font-semibold text-slate-700">Facebook</span></label></div>
                                 </div>
-                               <div id="plan-details-container" class="space-y-6">
-                                    <div>
-                                        <label for="start-date" class="block text-sm font-medium text-slate-700">Tanggal Mulai Rencana</label>
-                                        <input type="date" id="start-date" class="form-input mt-1 block w-full px-4 py-2.5 border border-slate-300 rounded-lg shadow-sm focus:border-slate-400 text-sm">
-                                    </div>
-                                    <div id="duration-container">
-                                        <label for="duration" class="block text-sm font-medium text-slate-700">Durasi Rencana Konten</label>
-                                        <select id="duration" class="form-input mt-1 block w-full px-4 py-2.5 border border-slate-300 rounded-lg shadow-sm focus:border-slate-400 text-sm">
-                                            <option value="7">1 Minggu</option>
-                                            <option value="14">2 Minggu</option>
-                                            <option value="30" selected>1 Bulan</option>
-                                        </select>
-                                    </div>
-                               </div>
-                               <div class="pt-6 border-t border-dashed border-slate-200">
-                                    <label class="flex items-center space-x-3 cursor-pointer">
-                                        <input type="checkbox" id="product-focus-toggle" class="form-input h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-0">
-                                        <span class="text-sm font-medium text-slate-700">Fokus pada Produk Unggulan? (Opsional)</span>
-                                    </label>
-                                    <div id="product-focus-fields" class="hidden mt-4 space-y-4 bg-slate-50 p-4 rounded-lg">
-                                        <div><label for="product-focus-input" class="block text-sm font-medium text-slate-700">Nama Produk/Layanan</label><input type="text" id="product-focus-input" class="form-input mt-1 block w-full px-4 py-2.5 border border-slate-300 rounded-lg shadow-sm focus:border-slate-400 text-sm" placeholder="Contoh: Es Kopi Pandan Gula Aren"></div>
-                                        <div><label for="product-description" class="block text-sm font-medium text-slate-700">Deskripsi Singkat Produk</label><textarea id="product-description" rows="2" class="form-input mt-1 block w-full px-4 py-2.5 border border-slate-300 rounded-lg shadow-sm focus:border-slate-400 text-sm" placeholder="Contoh: Minuman kopi dingin dengan rasa manis dan wangi pandan alami."></textarea></div>
-                                    </div>
-                               </div>
-                                <div class="pt-6 border-t border-dashed border-slate-200">
-                                    <h3 class="text-base sm:text-lg font-semibold text-center text-slate-800">Detail Promosi (Opsional)</h3>
-                                    <p class="text-center text-sm text-slate-500 mb-4">Isi jika ada promosi yang sedang berjalan.</p>
-                                    <div class="space-y-4">
-                                        <div><label for="promotion-details" class="block text-sm font-medium text-slate-700">Jelaskan Promosi Anda</label><textarea id="promotion-details" rows="2" class="form-input mt-1 block w-full px-4 py-2.5 border border-slate-300 rounded-lg shadow-sm focus:border-slate-400 text-sm" placeholder="Contoh: Diskon 20% untuk semua minuman, Beli 1 Gratis 1"></textarea></div>
-                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div><label for="promotion-start-date" class="block text-sm font-medium text-slate-700">Tanggal Mulai</label><input type="date" id="promotion-start-date" class="form-input mt-1 block w-full px-4 py-2.5 border border-slate-300 rounded-lg shadow-sm focus:border-slate-400 text-sm"></div>
-                                            <div><label for="promotion-end-date" class="block text-sm font-medium text-slate-700">Tanggal Berakhir</label><input type="date" id="promotion-end-date" class="form-input mt-1 block w-full px-4 py-2.5 border border-slate-300 rounded-lg shadow-sm focus:border-slate-400 text-sm"></div>
-                                        </div>
+                            </div>
+                           <div id="plan-details-container" class="space-y-6">
+                                <div>
+                                    <label for="start-date" class="block text-sm font-medium text-slate-700">Tanggal Mulai Rencana</label>
+                                    <input type="date" id="start-date" class="form-input mt-1 block w-full px-4 py-2.5 border border-slate-300 rounded-lg shadow-sm focus:border-slate-400 text-sm">
+                                </div>
+                                <div id="duration-container">
+                                    <label for="duration" class="block text-sm font-medium text-slate-700">Durasi Rencana Konten</label>
+                                    <select id="duration" class="form-input mt-1 block w-full px-4 py-2.5 border border-slate-300 rounded-lg shadow-sm focus:border-slate-400 text-sm">
+                                        <option value="7">1 Minggu</option>
+                                        <option value="14">2 Minggu</option>
+                                        <option value="30" selected>1 Bulan</option>
+                                    </select>
+                                </div>
+                           </div>
+                           <div class="pt-6 border-t border-dashed border-slate-200">
+                                <label class="flex items-center space-x-3 cursor-pointer">
+                                    <input type="checkbox" id="product-focus-toggle" class="form-input h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-0">
+                                    <span class="text-sm font-medium text-slate-700">Fokus pada Produk Unggulan? (Opsional)</span>
+                                </label>
+                                <div id="product-focus-fields" class="hidden mt-4 space-y-4 bg-slate-50 p-4 rounded-lg">
+                                    <div><label for="product-focus-input" class="block text-sm font-medium text-slate-700">Nama Produk/Layanan</label><input type="text" id="product-focus-input" class="form-input mt-1 block w-full px-4 py-2.5 border border-slate-300 rounded-lg shadow-sm focus:border-slate-400 text-sm" placeholder="Contoh: Es Kopi Pandan Gula Aren"></div>
+                                    <div><label for="product-description" class="block text-sm font-medium text-slate-700">Deskripsi Singkat Produk</label><textarea id="product-description" rows="2" class="form-input mt-1 block w-full px-4 py-2.5 border border-slate-300 rounded-lg shadow-sm focus:border-slate-400 text-sm" placeholder="Contoh: Minuman kopi dingin dengan rasa manis dan wangi pandan alami."></textarea></div>
+                                </div>
+                           </div>
+                            <div class="pt-6 border-t border-dashed border-slate-200">
+                                <h3 class="text-base sm:text-lg font-semibold text-center text-slate-800">Detail Promosi (Opsional)</h3>
+                                <p class="text-center text-sm text-slate-500 mb-4">Isi jika ada promosi yang sedang berjalan.</p>
+                                <div class="space-y-4">
+                                    <div><label for="promotion-details" class="block text-sm font-medium text-slate-700">Jelaskan Promosi Anda</label><textarea id="promotion-details" rows="2" class="form-input mt-1 block w-full px-4 py-2.5 border border-slate-300 rounded-lg shadow-sm focus:border-slate-400 text-sm" placeholder="Contoh: Diskon 20% untuk semua minuman, Beli 1 Gratis 1"></textarea></div>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div><label for="promotion-start-date" class="block text-sm font-medium text-slate-700">Tanggal Mulai</label><input type="date" id="promotion-start-date" class="form-input mt-1 block w-full px-4 py-2.5 border border-slate-300 rounded-lg shadow-sm focus:border-slate-400 text-sm"></div>
+                                        <div><label for="promotion-end-date" class="block text-sm font-medium text-slate-700">Tanggal Berakhir</label><input type="date" id="promotion-end-date" class="form-input mt-1 block w-full px-4 py-2.5 border border-slate-300 rounded-lg shadow-sm focus:border-slate-400 text-sm"></div>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                    </div>
                 </div>
 
+                <!-- Navigation Buttons -->
                 <div class="mt-10 pt-5 border-t border-slate-200 flex justify-between items-center max-w-xl mx-auto">
                     <div class="flex items-center gap-4">
                         <button id="prev-btn" class="bg-slate-200 text-slate-700 font-bold py-2 px-6 rounded-lg hover:bg-slate-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base">Kembali</button>
@@ -592,16 +571,17 @@ body.modal-open {
                 </div>
             </div>
 
+            <!-- Loading Indicator -->
             <div id="loading" class="text-center py-16 hidden">
-    <svg class="animate-spin h-10 w-10 text-blue-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-    </svg>
-    
-    <p class="mt-6 text-md font-semibold text-slate-700">Mempersiapkan Rencana Konten Anda</p>
-    <p id="loading-subtitle" class="text-slate-500 text-sm mt-1">Harap tunggu sebentar...</p>
-</div>
+                <svg class="animate-spin h-10 w-10 text-blue-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <p class="mt-6 text-md font-semibold text-slate-700">Mempersiapkan Rencana Konten Anda</p>
+                <p id="loading-subtitle" class="text-slate-500 text-sm mt-1">Harap tunggu sebentar...</p>
+            </div>
 
+            <!-- Results Section -->
             <div id="results" class="hidden">
                 <div class="flex flex-col md:flex-row justify-between md:items-center mb-8">
                     <div class="mb-4 md:mb-0 text-center md:text-left">
@@ -623,12 +603,12 @@ body.modal-open {
                         </button>
                     </div>
                 </div>
-                <div id="results-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    </div>
+                <div id="results-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
             </div>
         </main>
         
-        <div id="drafts-modal" class="fixed inset-0 bg-black flex items-center justify-center p-4 hidden z-50">
+        <!-- Modals -->
+        <div id="drafts-modal" class="fixed inset-0 bg-slate-900/50 flex items-center justify-center p-4 hidden z-50">
             <div class="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col modal-content-bg">
                 <div class="p-4 border-b border-slate-200 flex justify-between items-center">
                     <h3 class="text-lg font-semibold text-slate-800"><i class="fas fa-folder-open mr-2 text-yellow-500"></i>Draf Tersimpan</h3>
@@ -636,8 +616,7 @@ body.modal-open {
                 </div>
                 <div class="p-6 overflow-y-auto flex-grow grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div id="drafts-list-container" class="md:col-span-1 h-full overflow-y-auto pr-4 border-r border-slate-200">
-                         <ul id="drafts-list" class="space-y-3">
-                             </ul>
+                         <ul id="drafts-list" class="space-y-3"></ul>
                     </div>
                     <div id="draft-viewer" class="md:col-span-2 hidden">
                         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 pb-2 border-b">
@@ -647,8 +626,7 @@ body.modal-open {
                                  <button id="export-draft-csv-btn" class="bg-blue-100 text-blue-800 font-semibold py-1.5 px-3 rounded-lg hover:bg-blue-200 transition-colors text-sm"><i class="fas fa-download mr-2"></i>CSV</button>
                             </div>
                         </div>
-                        <div id="draft-viewer-content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-6">
-                            </div>
+                        <div id="draft-viewer-content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-6"></div>
                     </div>
                 </div>
             </div>
@@ -662,12 +640,12 @@ body.modal-open {
                 </div>
                 <div class="p-6 overflow-y-auto">
                     <div id="draft-caption-loading" class="text-center py-10">
-    <svg class="animate-spin h-10 w-10 text-blue-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-    </svg>
-    <p class="mt-4 font-semibold text-slate-700">AI sedang bekerja...</p>
-</div>
+                        <svg class="animate-spin h-10 w-10 text-blue-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <p class="mt-4 font-semibold text-slate-700">AI sedang bekerja...</p>
+                    </div>
                     <div id="draft-caption-content" class="text-slate-700 hidden space-y-6 modal-content"></div>
                 </div>
                  <div class="p-4 bg-slate-50 border-t border-slate-200">
@@ -676,7 +654,7 @@ body.modal-open {
             </div>
         </div>
 
-        <div id="error-modal" class="fixed inset-0 bg-black flex items-center justify-center p-4 hidden z-50">
+        <div id="error-modal" class="fixed inset-0 bg-slate-900/50 flex items-center justify-center p-4 hidden z-50">
             <div class="bg-white rounded-lg shadow-xl p-8 max-w-sm w-full text-center modal-content-bg">
                 <div class="text-red-500 mx-auto w-16 h-16 flex items-center justify-center bg-red-100 rounded-full">
                     <i class="fas fa-times fa-3x"></i>
@@ -687,26 +665,24 @@ body.modal-open {
             </div>
         </div>
         
-        <div id="info-modal" class="fixed inset-0 bg-black flex items-center justify-center p-4 hidden z-50">
-    <div class="bg-white rounded-lg shadow-xl p-8 max-w-sm w-full text-center modal-content-bg">
-        
-        <div id="info-modal-icon-container" class="w-16 h-16 mx-auto">
-            <div id="info-modal-default-icon" class="text-blue-500 w-full h-full flex items-center justify-center bg-blue-100 rounded-full">
-                <i class="fas fa-info-circle fa-3x"></i>
-            </div>
-            <div id="info-modal-success-icon" class="hidden">
-                 <svg class="checkmark-container rounded-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
-                    <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
-                    <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
-                </svg>
+        <div id="info-modal" class="fixed inset-0 bg-slate-900/50 flex items-center justify-center p-4 hidden z-50">
+            <div class="bg-white rounded-lg shadow-xl p-8 max-w-sm w-full text-center modal-content-bg">
+                <div id="info-modal-icon-container" class="w-16 h-16 mx-auto">
+                    <div id="info-modal-default-icon" class="text-blue-500 w-full h-full flex items-center justify-center bg-blue-100 rounded-full">
+                        <i class="fas fa-info-circle fa-3x"></i>
+                    </div>
+                    <div id="info-modal-success-icon" class="hidden">
+                         <svg class="checkmark-container rounded-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                            <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
+                            <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                        </svg>
+                    </div>
+                </div>
+                <h3 id="info-title" class="text-xl font-semibold text-slate-900 mt-6">Informasi</h3>
+                <p id="info-message" class="text-slate-600 mt-2">Pesan informasi akan muncul di sini.</p>
+                <button id="close-info-modal" class="mt-6 bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors w-full">Mengerti</button>
             </div>
         </div>
-
-        <h3 id="info-title" class="text-xl font-semibold text-slate-900 mt-6">Informasi</h3>
-        <p id="info-message" class="text-slate-600 mt-2">Pesan informasi akan muncul di sini.</p>
-        <button id="close-info-modal" class="mt-6 bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors w-full">Mengerti</button>
-    </div>
-</div>
 
         <div id="caption-modal" class="fixed inset-0 bg-slate-900/50 flex items-center justify-center p-4 hidden z-40">
             <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col modal-content-bg">
@@ -714,15 +690,14 @@ body.modal-open {
                     <h3 class="text-lg font-semibold text-slate-800"><i class="fas fa-robot mr-2 text-blue-500"></i>Hasil AI</h3>
                     <button id="close-caption-modal" class="text-slate-500 hover:text-slate-800"><i class="fas fa-times fa-lg"></i></button>
                 </div>
-
                 <div class="p-6 overflow-y-auto">
                     <div id="caption-loading" class="text-center py-10">
-    <svg class="animate-spin h-10 w-10 text-blue-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-    </svg>
-    <p class="mt-4 font-semibold text-slate-700">AI sedang bekerja...</p>
-</div>
+                        <svg class="animate-spin h-10 w-10 text-blue-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <p class="mt-4 font-semibold text-slate-700">AI sedang bekerja...</p>
+                    </div>
                     <div id="caption-content" class="text-slate-700 hidden space-y-6 modal-content"></div>
                 </div>
                  <div class="p-4 bg-slate-50 border-t border-slate-200">
@@ -731,7 +706,7 @@ body.modal-open {
             </div>
         </div>
 
-        <div id="calendar-modal" class="fixed inset-0 bg-black flex items-center justify-center p-4 hidden z-[60]">
+        <div id="calendar-modal" class="fixed inset-0 bg-slate-900/50 flex items-center justify-center p-4 hidden z-[60]">
             <div class="bg-white rounded-xl shadow-2xl p-6 max-w-sm w-full text-center modal-content-bg">
                 <h3 class="text-xl font-semibold text-slate-900 mb-4">Tambahkan ke Kalender</h3>
                 <p class="text-slate-600 mb-6">Pilih layanan kalender Anda untuk menjadwalkan ide konten ini.</p>
@@ -748,35 +723,34 @@ body.modal-open {
         </div>
     </div>
 
-    <div id="user-api-key-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden z-50">
-  <div class="bg-white rounded-lg shadow-xl p-6 max-w-md w-full modal-content-bg">
-    <h3 class="text-lg font-semibold text-slate-800">Gunakan API Key Pribadi</h3>
-    <p class="text-sm text-slate-600 mt-2">
-        Tempel API Key Gemini Anda untuk mendapatkan akses prioritas tanpa batas. Kunci Anda akan kami simpan dengan aman.
-    </p>
-    <div class="mt-4">
-        <input type="password" id="user-gemini-key-input" class="form-input w-full" placeholder="Masukkan API Key Anda...">
+    <div id="user-api-key-modal" class="fixed inset-0 bg-slate-900/50 flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-white rounded-lg shadow-xl p-6 max-w-md w-full modal-content-bg">
+            <h3 class="text-lg font-semibold text-slate-800">Gunakan API Key Pribadi</h3>
+            <p class="text-sm text-slate-600 mt-2">
+                Tempel API Key Gemini Anda untuk mendapatkan akses prioritas tanpa batas. Kunci Anda akan kami simpan dengan aman.
+            </p>
+            <div class="mt-4">
+                <input type="password" id="user-gemini-key-input" class="form-input w-full" placeholder="Masukkan API Key Anda...">
+            </div>
+            <div class="mt-4 flex justify-end gap-3">
+                <button id="cancel-key-btn" class="bg-slate-200 text-slate-700 font-bold py-2 px-4 rounded-lg">Batal</button>
+                <button id="save-key-btn" class="bg-blue-500 text-white font-bold py-2 px-4 rounded-lg">Simpan</button>
+            </div>
+        </div>
     </div>
-    <div class="mt-4 flex justify-end gap-3">
-        <button id="cancel-key-btn" class="bg-slate-200 text-slate-700 font-bold py-2 px-4 rounded-lg">Batal</button>
-        <button id="save-key-btn" class="bg-blue-500 text-white font-bold py-2 px-4 rounded-lg">Simpan</button>
-    </div>
-  </div>
-</div>
 
 <script type="module">
     // --- Firebase Imports ---
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, addDoc, getDocs, deleteDoc, collection, query, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc, addDoc, getDocs, deleteDoc, collection, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     // --- GLOBAL AND FIREBASE VARIABLES ---
     const getEl = (id) => document.getElementById(id);
     
     // Firebase variables
-    let app, db, auth, appId; // Tambahkan appId di sini
+    let app, db, auth, appId;
     let userId;
-    let draftsUnsubscribe = null; // To detach listener
 
     let loadingInterval; 
 
@@ -789,18 +763,6 @@ body.modal-open {
     let interestTags = [];
     let suggestionCache = [];
 
-    const defaultInterestSuggestions = {
-        'makanan': ['promo', 'menu baru', 'review pelanggan', 'resep', 'latte art', 'vegetarian', 'diskon'],
-        'minuman': ['promo', 'menu baru', 'review pelanggan', 'resep', 'latte art', 'kopi susu', 'non-kopi'],
-        'fashion': ['ootd', 'tren fashion', 'diskon', 'new arrival', 'styling tips', 'lookbook', 'sustainable fashion'],
-        'kecantikan': ['skincare routine', 'tutorial makeup', 'review produk', 'promo', 'tips & trik', 'before after', 'local brand'],
-        'kesehatan': ['tips sehat', 'olahraga', 'resep sehat', 'mitos vs fakta', 'konsultasi', 'mindfulness', 'kesehatan mental'],
-        'pendidikan': ['kursus online', 'beasiswa', 'tips belajar', 'webinar', 'info jurusan', 'skill baru', 'edutech'],
-        'teknologi': ['gadget review', 'tips teknologi', 'aplikasi rekomendasi', 'berita startup', 'AI', 'coding'],
-        'travel': ['destinasi wisata', 'tips packing', 'promo tiket', 'hidden gem', 'kuliner lokal', 'staycation'],
-        'hewan': ['perawatan hewan', 'fakta unik hewan', 'adopsi', 'produk hewan', 'tingkah lucu', 'komunitas pecinta hewan']
-    };
-
     // --- DEBOUNCE FUNCTION ---
     const debounce = (func, delay) => {
         let timeout;
@@ -810,7 +772,7 @@ body.modal-open {
         };
     };
     
-    const getFormStateRef = () => doc(db, `artifacts/${appId}/users/${userId}/formState/latest`);
+    // --- DATA STORAGE LOGIC (Firestore) ---
     const getDraftsCollectionRef = () => collection(db, `artifacts/${appId}/users/${userId}/drafts`);
 
     const loadFormStateFromFirestore = async () => {
@@ -823,56 +785,6 @@ body.modal-open {
     };
     
     const debouncedSave = debounce(saveFormStateToFirestore, 1500);
-
-    const populateForm = (data) => {
-         if (!data) return;
-         const productFocusToggle = getEl('product-focus-toggle');
-         
-         const setValue = (el, value) => {
-            if (el.type === 'checkbox') {
-                if (el.classList.contains('platform-checkbox')) {
-                    el.checked = Array.isArray(data.platforms) && data.platforms.includes(el.value);
-                } else {
-                    el.checked = value;
-                }
-            } else if (el.type === 'radio') {
-                if (el.value === value) {
-                    el.checked = true;
-                }
-            } else {
-                el.value = value;
-            }
-         };
-
-         document.querySelectorAll('.form-input').forEach(el => {
-            const key = el.id;
-            if (data[key] !== undefined && data[key] !== null) {
-                setValue(el, data[key]);
-            }
-         });
-         
-         const stage = data['business-stage'];
-         if (stage) {
-            const stageRadio = document.querySelector(`input[name="business-stage"][value="${stage}"]`);
-            if (stageRadio) stageRadio.checked = true;
-         }
-         const mood = data['content-mood'];
-         if (mood) {
-            const moodRadio = document.querySelector(`input[name="content-mood"][value="${mood}"]`);
-            if (moodRadio) moodRadio.checked = true;
-         }
-
-         if (productFocusToggle) {
-             productFocusToggle.checked = !!data['product-focus-toggle'];
-             productFocusToggle.dispatchEvent(new Event('change'));
-         }
-
-         if (data['audience-interests']) {
-             interestTags = data['audience-interests'].split(',').map(t => t.trim()).filter(t => t);
-             renderTags();
-         }
-    };
-
 
     // --- DRAFT (Firestore) LOGIC ---
     const showDraftsModal = async () => {
@@ -1480,10 +1392,8 @@ ${languageInstruction}`;
         const loadingToShow = isDraftContext ? getEl('draft-caption-loading') : getEl('caption-loading');
         const contentToShow = isDraftContext ? getEl('draft-caption-content') : getEl('caption-content');
 
-	// --- TAMBAHKAN KODE INI ---
         getEl('main-content').classList.add('blurred');
         document.body.classList.add('modal-open');
-        // -------------------------
 
         const originalButtonHTML = buttonElement.innerHTML;
         buttonElement.disabled = true;
@@ -1907,11 +1817,6 @@ END:VCALENDAR`;
         suggestionContainer.innerHTML = '';
 
         let suggestions = new Set();
-        for (const key in defaultInterestSuggestions) {
-            if (industry.includes(key)) {
-                defaultInterestSuggestions[key].forEach(s => suggestions.add(s));
-            }
-        }
 
         if (!industry && !description) {
              suggestionCache.forEach(s => suggestions.add(s));
@@ -2047,9 +1952,7 @@ END:VCALENDAR`;
                 throw new Error('Failed to fetch config from API.');
             }
             const firebaseConfig = await response.json();
-
-	// Isi nilai appId dari konfigurasi yang didapat
-            appId = firebaseConfig.appId; // Tambahkan baris ini
+            appId = firebaseConfig.appId;
 
             app = initializeApp(firebaseConfig);
             db = getFirestore(app);
@@ -2116,11 +2019,11 @@ END:VCALENDAR`;
         
         if(closeErrorModalBtn) closeErrorModalBtn.addEventListener('click', () => getEl('error-modal').classList.add('hidden'));
         if(closeInfoModalBtn) closeInfoModalBtn.addEventListener('click', () => getEl('info-modal').classList.add('hidden'));
-        if(closeCaptionModalBtn) closeCaptionModalBtn.addEventListener('click', () => getEl('caption-modal').classList.add('hidden'));
-	// --- TAMBAHKAN KODE INI ---
+        
+        if(closeCaptionModalBtn) closeCaptionModalBtn.addEventListener('click', () => {
+            getEl('caption-modal').classList.add('hidden');
             getEl('main-content').classList.remove('blurred');
             document.body.classList.remove('modal-open');
-            // -------------------------
         });
         if(copyCaptionBtn) copyCaptionBtn.addEventListener('click', () => { copyTextFromModal(getEl('caption-content'), copyCaptionBtn, "Salin Teks"); });
         
@@ -2147,16 +2050,11 @@ END:VCALENDAR`;
         if(closeDraftsModalBtn) closeDraftsModalBtn.addEventListener('click', () => {
             getEl('drafts-modal').classList.add('hidden');
             currentDraftObject = null;
-            if (draftsUnsubscribe) {
-                draftsUnsubscribe();
-                draftsUnsubscribe = null;
-            }
         });
-        if(closeDraftAiResultModalBtn) closeDraftAiResultModalBtn.addEventListener('click', () => getEl('draft-ai-result-modal').classList.add('hidden'));
-	// --- TAMBAHKAN KODE INI ---
+        if(closeDraftAiResultModalBtn) closeDraftAiResultModalBtn.addEventListener('click', () => {
+            getEl('draft-ai-result-modal').classList.add('hidden');
             getEl('main-content').classList.remove('blurred');
             document.body.classList.remove('modal-open');
-            // -------------------------
         });
         if (copyDraftCaptionBtn) { copyDraftCaptionBtn.addEventListener('click', () => { copyTextFromModal(getEl('draft-caption-content'), copyDraftCaptionBtn, "Salin Teks"); }); }
 
