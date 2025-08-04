@@ -948,7 +948,7 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
 
 
     // --- DRAFT (Firestore) LOGIC ---
-    const showDraftsModal = () => {
+    const showDraftsModal = async () => { // Tambahkan 'async'
         if (!auth.currentUser) {
             showErrorModal("Terjadi kesalahan, silakan muat ulang halaman.");
             return;
@@ -959,11 +959,15 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
         if(draftViewer) draftViewer.classList.add('hidden');
         getEl('drafts-modal').classList.remove('hidden');
 
-        if (draftsUnsubscribe) {
-            draftsUnsubscribe();
-        }
+        // Hapus logika unsubscribe yang tidak lagi diperlukan
+        // if (draftsUnsubscribe) {
+        //     draftsUnsubscribe();
+        // }
+        
+        try {
+            // Ganti onSnapshot dengan getDocs untuk pengambilan satu kali
+            const snapshot = await getDocs(query(getDraftsCollectionRef()));
 
-        draftsUnsubscribe = onSnapshot(query(getDraftsCollectionRef()), (snapshot) => {
             draftsList.innerHTML = '';
             if (snapshot.empty) {
                 draftsList.innerHTML = `<p class="text-slate-500 text-center">Belum ada draf yang tersimpan.</p>`;
