@@ -748,7 +748,7 @@ body.dark .step-indicator.completed + .border-t-2 {
     const getEl = (id) => document.getElementById(id);
     
     // Firebase variables
-    let app, db, auth;
+    let app, db, auth, appId; // Tambahkan appId di sini
     let userId;
     let draftsUnsubscribe = null; // To detach listener
 
@@ -2016,6 +2016,9 @@ END:VCALENDAR`;
                 throw new Error('Failed to fetch config from API.');
             }
             const firebaseConfig = await response.json();
+
+	// Isi nilai appId dari konfigurasi yang didapat
+            appId = firebaseConfig.appId; // Tambahkan baris ini
 
             app = initializeApp(firebaseConfig);
             db = getFirestore(app);
