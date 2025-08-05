@@ -1592,31 +1592,35 @@ Balas HANYA dengan objek JSON valid sesuai skema.`;
         detailHeader: '#3b82f6',
         primaryText: '#1e293b',
         secondaryText: '#475569',
-        cardSeparator: '#cbd5e1'
+        border: '#cbd5e1' // Warna garis batas tabel
     };
     const FONT_FAMILY = 'helvetica';
 
     // === MEMBUAT BODY KONTEN UNTUK TABEL ===
-    const body = dataToExport.map(item => {
-        const infoCell = {
-            content: `${item.day || 'Ide'}\n\n${item.platform || 'N/A'}\n\n${item.pillar || 'N/A'}`,
-            styles: {
-                fillColor: colors.infoPanelBg,
-                textColor: colors.infoPanelText,
-                fontStyle: 'bold',
-                halign: 'center',
-                valign: 'middle'
+    const body = [];
+    dataToExport.forEach(item => {
+        // Baris Header untuk setiap Ide Konten
+        body.push([
+            {
+                content: `${item.day || 'Ide'}  |  Platform: ${item.platform || 'N/A'}  |  Pilar: ${item.pillar || 'N/A'}`,
+                colSpan: 2,
+                styles: {
+                    halign: 'center',
+                    fontStyle: 'bold',
+                    fillColor: colors.infoPanelBg,
+                    textColor: colors.infoPanelText,
+                    fontSize: 10,
+                    lineWidth: { top: 0.5, right: 0.1, bottom: 0.1, left: 0.1 }, // Garis atas lebih tebal
+                    lineColor: colors.primaryText
+                }
             }
-        };
+        ]);
 
-        const detailCell = {
-            content: `[[header]]IDE POKOK\n[[body]]${item.idea || 'N/A'}\n\n` +
-                     `[[header]]DRAF CAPTION\n[[body]]${item.caption_brief || 'N/A'}\n\n` +
-                     `[[header]]SARAN VISUAL\n[[body]]${item.visual_idea || 'N/A'}\n\n` +
-                     `[[header]]SARAN HASHTAG\n[[body]]${item.hashtags || 'N/A'}`,
-            styles: { valign: 'top' }
-        };
-        return [infoCell, detailCell];
+        // Baris-baris detail
+        body.push([{ content: 'Ide Pokok', styles: { fontStyle: 'bold' } }, item.idea || 'N/A']);
+        body.push([{ content: 'Draf Caption', styles: { fontStyle: 'bold' } }, item.caption_brief || 'N/A']);
+        body.push([{ content: 'Saran Visual', styles: { fontStyle: 'bold' } }, item.visual_idea || 'N/A']);
+        body.push([{ content: 'Saran Hashtag', styles: { fontStyle: 'bold' } }, item.hashtags || 'N/A']);
     });
 
     // === MENGGUNAKAN AUTOTABLE UNTUK MEMBUAT PDF ===
@@ -1634,7 +1638,7 @@ Balas HANYA dengan objek JSON valid sesuai skema.`;
             doc.setFontSize(10);
             doc.text(subtitle, data.settings.margin.left, 21);
 
-            // Footer (Nomor Halaman)
+            // Footer
             doc.setFontSize(8);
             doc.setTextColor(colors.secondaryText);
             doc.text(`Halaman ${doc.internal.getNumberOfPages()}`, doc.internal.pageSize.width / 2, doc.internal.pageSize.height - 10, { align: 'center' });
@@ -1643,68 +1647,29 @@ Balas HANYA dengan objek JSON valid sesuai skema.`;
         // Data dan Konfigurasi Tabel
         body: body,
         startY: 30,
-        theme: 'plain',
+        theme: 'grid', // Menggunakan tema 'grid' yang stabil
         
-        // Hook untuk menggambar garis pemisah
-        willDrawCell: function (data) {
-            if (data.column.index === 0 && data.section === 'body') {
-                doc.setDrawColor(colors.cardSeparator);
-                doc.setLineWidth(0.5);
-                // PERBAIKAN: Menggunakan data.settings.margin.left, bukan table.margins.left
-                const margin = data.settings.margin;
-                const table = data.table;
-                doc.line(margin.left, data.row.y, margin.left + table.width, data.row.y);
-            }
+        // Gaya tabel secara keseluruhan
+        styles: {
+            font: FONT_FAMILY,
+            textColor: colors.secondaryText,
+            lineColor: colors.border,
+            lineWidth: 0.1,
+            cellPadding: 2.5,
+            valign: 'middle'
         },
         
-        didDrawCell: function (data) {
-            if (data.column.index === 1) {
-                data.cell.styles.cellPadding = 4;
-                let y = data.cell.y + 5;
-                const x = data.cell.x + 4;
-                const maxWidth = data.cell.width - 8;
-
-                const lines = data.cell.raw.split('\n');
-                lines.forEach(line => {
-                    if (y > doc.internal.pageSize.height - 20) return;
-
-                    if (line.startsWith('[[header]]')) {
-                        const text = line.replace('[[header]]', '');
-                        doc.setFont(FONT_FAMILY, 'bold');
-                        doc.setFontSize(9);
-                        doc.setTextColor(colors.detailHeader);
-                        doc.text(text, x, y);
-                        y += 4.5; // Menambah spasi
-                    } else if (line.startsWith('[[body]]')) {
-                        const text = line.replace('[[body]]', '');
-                        doc.setFont(FONT_FAMILY, 'normal');
-                        doc.setFontSize(9);
-                        doc.setTextColor(colors.secondaryText);
-                        const splitText = doc.splitTextToSize(text, maxWidth);
-                        doc.text(splitText, x, y);
-                        y += (splitText.length * 3.8);
-                    } else {
-                         y += 3;
-                    }
-                });
-            }
-        },
-
         // Gaya Kolom
         columnStyles: {
-            0: { cellWidth: 45, fontSize: 10 },
-            1: {}
+            0: { cellWidth: 40, fontSize: 9, textColor: colors.primaryText }, // Kolom label
+            1: { fontSize: 9 } // Kolom konten
         },
+
+        // Mencegah kartu terpotong antar halaman
+        rowPageBreak: 'avoid',
 
         margin: { top: 30, bottom: 20 }
     });
-
-    // Gambar garis di bawah kartu terakhir
-    const table = doc.autoTable.previous;
-    const margin = table.settings.margin;
-    doc.setDrawColor(colors.cardSeparator);
-    doc.setLineWidth(0.5);
-    doc.line(margin.left, table.finalY, margin.left + table.width, table.finalY);
 
     // === SIMPAN DOKUMEN PDF ===
     const sanitizedTitle = title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
