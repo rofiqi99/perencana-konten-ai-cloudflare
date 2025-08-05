@@ -1575,97 +1575,146 @@ Balas HANYA dengan objek JSON valid sesuai skema.`;
     };
     
     const handleExportPDF = (dataToExport, title, subtitle) => {
-        if (!dataToExport || dataToExport.length === 0) {
-            showErrorModal("Tidak ada data untuk diekspor.");
-            return;
-        }
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
-        const pageHeight = doc.internal.pageSize.height;
-        const pageWidth = doc.internal.pageSize.width;
-        const margin = 15;
-        let yPos = margin + 5;
+    if (!dataToExport || dataToExport.length === 0) {
+        showErrorModal("Tidak ada data untuk diekspor.");
+        return;
+    }
 
-        const checkPageBreak = (spaceNeeded) => {
-            if (yPos + spaceNeeded > pageHeight - margin) {
-                doc.addPage();
-                yPos = margin + 10;
-            }
-        };
+    // Menggunakan dekonstruksi untuk mengakses jsPDF dan autoTable dari window.jspdf
+    const { jsPDF, autoTable } = window.jspdf;
+    
+    // Inisialisasi dokumen PDF
+    // 'p' = portrait, 'mm' = milimeter, 'a4' = ukuran kertas
+    const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
 
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(20);
-        doc.setTextColor(31, 41, 55);
-        doc.text(title, margin, yPos);
-        yPos += 8;
-
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(11);
-        doc.setTextColor(107, 114, 128);
-        doc.text(subtitle, margin, yPos);
-        yPos += 12;
-
-        dataToExport.forEach((item, index) => {
-            checkPageBreak(70); 
-
-            yPos += 10;
-            doc.setFont('helvetica', 'bold');
-            doc.setFontSize(12);
-            doc.setTextColor(17, 24, 39);
-            doc.text(item.day || 'Ide', margin, yPos + 1);
-            
-            doc.setFont('helvetica', 'normal');
-            doc.setFontSize(9);
-            const pillarText = `Pilar: ${item.pillar || 'General'}`;
-            const pillarWidth = doc.getTextWidth(pillarText);
-            const pillarTagX = pageWidth - margin - pillarWidth - 8;
-            const pillarTagY = yPos - 3;
-            doc.setFillColor(243, 244, 246);
-            doc.setTextColor(55, 65, 81);
-            doc.roundedRect(pillarTagX, pillarTagY, pillarWidth + 6, 7, 3.5, 3.5, 'F');
-            doc.text(pillarText, pillarTagX + 3, yPos + 1);
-
-            const platformText = item.platform || 'General';
-            const platformWidth = doc.getTextWidth(platformText);
-            const platformTagX = pillarTagX - platformWidth - 14;
-            doc.setFillColor(224, 231, 255);
-            doc.setTextColor(67, 56, 202);
-            doc.roundedRect(platformTagX, pillarTagY, platformWidth + 6, 7, 3.5, 3.5, 'F');
-            doc.text(platformText, platformTagX + 3, yPos + 1);
-
-            yPos += 8;
-
-            doc.setDrawColor(229, 231, 235);
-            doc.line(margin, yPos, pageWidth - margin, yPos);
-            yPos += 10;
-            
-            const printSection = (label, content) => {
-                const cardContentWidth = pageWidth - (margin * 2);
-                checkPageBreak(15 + (doc.splitTextToSize(content, cardContentWidth).length * 5));
-                doc.setFontSize(9);
-                doc.setFont('helvetica', 'bold');
-                doc.setTextColor(55, 65, 81); 
-                doc.text(label, margin, yPos);
-                yPos += 5;
-                
-                doc.setFont('helvetica', 'normal');
-                doc.setFontSize(10);
-                doc.setTextColor(75, 85, 99);
-                const splitText = doc.splitTextToSize(content || 'N/A', cardContentWidth);
-                doc.text(splitText, margin, yPos);
-                yPos += (splitText.length * 5) + 6;
-            };
-
-            printSection('Ide Pokok:', item.idea);
-            printSection('Draf Caption:', item.caption_brief);
-            printSection('Saran Visual:', item.visual_idea);
-            
-            yPos += 5; 
-        });
-
-        const sanitizedTitle = title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-        doc.save(`Rencana_Konten_${sanitizedTitle}.pdf`);
+    // === DEFINISI WARNA & FONT ===
+    // Menggunakan palet warna yang terinspirasi dari CSS aplikasi Anda
+    const colors = {
+        primaryText: '#1e293b', // --text-primary
+        secondaryText: '#475569', // --text-secondary
+        headerBg: '#f1f5f9',    // --bg-body
+        accent: '#3b82f6',       // --border-active
+        border: '#e2e8f0'      // --border-primary
     };
+    const FONT_FAMILY = 'helvetica'; // Font standar yang tersedia di jsPDF
+
+    // === MEMBUAT BODY KONTEN UNTUK TABEL ===
+    // Mengubah data JSON Anda menjadi format yang bisa dibaca oleh autoTable
+    const body = dataToExport.map(item => {
+        // Gabungkan semua detail item menjadi satu string untuk satu sel besar
+        const content = [
+            { text: item.idea || 'N/A', style: 'idea' },
+            { text: '\nDRAF CAPTION', style: 'sectionTitle' },
+            { text: item.caption_brief || 'N/A', style: 'sectionContent' },
+            { text: '\nSARAN VISUAL', style: 'sectionTitle' },
+            { text: item.visual_idea || 'N/A', style: 'sectionContent' },
+            { text: '\nSARAN HASHTAG', style: 'sectionTitle' },
+            { text: item.hashtags || 'N/A', style: 'sectionContentHashtag' }
+        ];
+        
+        // Setiap baris dalam tabel akan memiliki 2 kolom: [Kolom Tanggal & Platform, Kolom Konten Utama]
+        return [
+            // Sel pertama: Tanggal dan Platform
+            {
+                content: `${item.day || 'Ide'}\nPlatform: ${item.platform || 'General'}\nPilar: ${item.pillar || 'General'}`,
+                styles: { halign: 'center', valign: 'middle', fontStyle: 'bold' }
+            },
+            // Sel kedua: Gabungan semua konten ide
+            {
+                content: content.map(c => c.text).join('\n'),
+                styles: { cellPadding: 5 } // Beri padding agar konten tidak menempel ke tepi sel
+            }
+        ];
+    });
+
+    // === MENGGUNAKAN AUTOTABLE UNTUK MEMBUAT PDF ===
+    doc.autoTable({
+        // Opsi untuk Header Halaman
+        didDrawPage: function (data) {
+            // Gambar kotak header dengan latar belakang berwarna
+            doc.setFillColor(colors.headerBg);
+            doc.rect(0, 0, doc.internal.pageSize.width, 25, 'F');
+
+            // Tambahkan Judul Utama
+            doc.setFont(FONT_FAMILY, 'bold');
+            doc.setFontSize(16);
+            doc.setTextColor(colors.primaryText);
+            doc.text(title, data.settings.margin.left, 15);
+
+            // Tambahkan Subjudul (deskripsi/rentang tanggal)
+            doc.setFont(FONT_FAMILY, 'normal');
+            doc.setFontSize(10);
+            doc.setTextColor(colors.secondaryText);
+            doc.text(subtitle, data.settings.margin.left, 21);
+        },
+
+        // Opsi untuk Footer Halaman
+        willDrawCell: function (data) {
+            // Tambahkan nomor halaman di footer
+            const pageCount = doc.internal.getNumberOfPages();
+            if (data.pageNumber === pageCount) {
+                doc.setFontSize(8);
+                doc.setTextColor(colors.secondaryText);
+                doc.text(
+                    `Halaman ${data.pageNumber}`,
+                    doc.internal.pageSize.width / 2,
+                    doc.internal.pageSize.height - 10,
+                    { align: 'center' }
+                );
+            }
+        },
+        
+        // Data dan Konfigurasi Tabel Utama
+        body: body, // Data konten yang sudah kita siapkan
+        startY: 30, // Posisi awal tabel, di bawah header
+        theme: 'grid', // Tema 'grid' memberikan garis di semua sel
+        
+        columnStyles: {
+            0: { // Kolom pertama (Tanggal/Platform)
+                halign: 'center', 
+                valign: 'top',
+                fontStyle: 'bold', 
+                fontSize: 9,
+                cellWidth: 40 // Lebar kolom tetap
+            },
+            1: { // Kolom kedua (Konten Utama)
+                fontSize: 10
+            }
+        },
+
+        // Opsi untuk styling sel secara dinamis
+        didParseCell: function(data) {
+            // Atur styling untuk sel konten berdasarkan teksnya
+            if (data.column.index === 1) { // Hanya berlaku untuk kolom konten utama
+                const cellText = data.cell.text.join('\n');
+                
+                if (cellText.includes('DRAF CAPTION')) {
+                    // Ini adalah cara untuk menerapkan style yang berbeda dalam satu sel
+                    // Namun, autoTable memiliki batasan di sini.
+                    // Pendekatan yang lebih sederhana adalah menggunakan styling per baris.
+                }
+            }
+        },
+        
+        // Gaya tabel secara keseluruhan
+        styles: {
+            font: FONT_FAMILY,
+            lineColor: colors.border,
+            lineWidth: 0.2,
+        },
+        headStyles: { // Kita tidak menggunakan header tabel, tapi ini untuk referensi
+            fillColor: colors.primaryText,
+            textColor: '#ffffff',
+            fontStyle: 'bold'
+        },
+        margin: { top: 30 } // Margin atas untuk memberi ruang bagi header kustom kita
+    });
+
+    // === SIMPAN DOKUMEN PDF ===
+    // Sanitasi judul file agar aman digunakan
+    const sanitizedTitle = title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+    doc.save(`Rencana_Konten_${sanitizedTitle}.pdf`);
+};
 
     const handleExportCSV = (dataToExport, title) => {
         if (!dataToExport || dataToExport.length === 0) {
