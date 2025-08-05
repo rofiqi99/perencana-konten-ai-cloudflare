@@ -1623,7 +1623,7 @@ Balas HANYA dengan objek JSON valid sesuai skema.`;
     doc.autoTable({
         // Opsi untuk Header dan Footer Halaman
         didDrawPage: function (data) {
-            // --- Gambar Header ---
+            // Header
             doc.setFillColor(colors.pageHeaderBg);
             doc.rect(0, 0, doc.internal.pageSize.width, 25, 'F');
             doc.setFont(FONT_FAMILY, 'bold');
@@ -1634,16 +1634,10 @@ Balas HANYA dengan objek JSON valid sesuai skema.`;
             doc.setFontSize(10);
             doc.text(subtitle, data.settings.margin.left, 21);
 
-            // --- Gambar Footer (Nomor Halaman) ---
-            // Ini adalah perbaikan untuk error "addPageContent deprecated"
+            // Footer (Nomor Halaman)
             doc.setFontSize(8);
             doc.setTextColor(colors.secondaryText);
-            doc.text(
-                `Halaman ${doc.internal.getNumberOfPages()}`,
-                doc.internal.pageSize.width / 2,
-                doc.internal.pageSize.height - 10,
-                { align: 'center' }
-            );
+            doc.text(`Halaman ${doc.internal.getNumberOfPages()}`, doc.internal.pageSize.width / 2, doc.internal.pageSize.height - 10, { align: 'center' });
         },
 
         // Data dan Konfigurasi Tabel
@@ -1651,29 +1645,28 @@ Balas HANYA dengan objek JSON valid sesuai skema.`;
         startY: 30,
         theme: 'plain',
         
-        // Hook untuk menggambar garis pemisah (Perbaikan untuk error "jsPDF.line")
+        // Hook untuk menggambar garis pemisah
         willDrawCell: function (data) {
-            // Kita hanya menggambar garis di atas setiap baris (kartu)
-            // dan hanya melakukannya sekali per baris (saat di kolom pertama)
             if (data.column.index === 0 && data.section === 'body') {
                 doc.setDrawColor(colors.cardSeparator);
                 doc.setLineWidth(0.5);
-                // Menggunakan properti dari 'data.table' yang lebih stabil
+                // PERBAIKAN: Menggunakan data.settings.margin.left, bukan table.margins.left
+                const margin = data.settings.margin;
                 const table = data.table;
-                doc.line(table.margins.left, data.row.y, table.margins.left + table.width, data.row.y);
+                doc.line(margin.left, data.row.y, margin.left + table.width, data.row.y);
             }
         },
         
         didDrawCell: function (data) {
             if (data.column.index === 1) {
-                data.cell.styles.cellPadding = 4; // Menambah padding internal
+                data.cell.styles.cellPadding = 4;
                 let y = data.cell.y + 5;
                 const x = data.cell.x + 4;
                 const maxWidth = data.cell.width - 8;
 
                 const lines = data.cell.raw.split('\n');
                 lines.forEach(line => {
-                    if (y > doc.internal.pageSize.height - 20) return; // Hentikan jika sudah di luar halaman
+                    if (y > doc.internal.pageSize.height - 20) return;
 
                     if (line.startsWith('[[header]]')) {
                         const text = line.replace('[[header]]', '');
@@ -1681,7 +1674,7 @@ Balas HANYA dengan objek JSON valid sesuai skema.`;
                         doc.setFontSize(9);
                         doc.setTextColor(colors.detailHeader);
                         doc.text(text, x, y);
-                        y += 4;
+                        y += 4.5; // Menambah spasi
                     } else if (line.startsWith('[[body]]')) {
                         const text = line.replace('[[body]]', '');
                         doc.setFont(FONT_FAMILY, 'normal');
@@ -1689,7 +1682,7 @@ Balas HANYA dengan objek JSON valid sesuai skema.`;
                         doc.setTextColor(colors.secondaryText);
                         const splitText = doc.splitTextToSize(text, maxWidth);
                         doc.text(splitText, x, y);
-                        y += (splitText.length * 3.8); // Sedikit menambah spasi antar baris
+                        y += (splitText.length * 3.8);
                     } else {
                          y += 3;
                     }
@@ -1707,10 +1700,11 @@ Balas HANYA dengan objek JSON valid sesuai skema.`;
     });
 
     // Gambar garis di bawah kartu terakhir
-    const finalY = doc.autoTable.previous.finalY;
+    const table = doc.autoTable.previous;
+    const margin = table.settings.margin;
     doc.setDrawColor(colors.cardSeparator);
     doc.setLineWidth(0.5);
-    doc.line(doc.autoTable.previous.settings.margin.left, finalY, doc.autoTable.previous.settings.margin.left + doc.autoTable.previous.width, finalY);
+    doc.line(margin.left, table.finalY, margin.left + table.width, table.finalY);
 
     // === SIMPAN DOKUMEN PDF ===
     const sanitizedTitle = title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
