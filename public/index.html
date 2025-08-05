@@ -1583,22 +1583,21 @@ Balas HANYA dengan objek JSON valid sesuai skema.`;
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
 
-    // === DEFINISI WARNA & FONT (PALET KONTRAST TINGGI) ===
+    // === DEFINISI WARNA & FONT ===
     const colors = {
-        pageHeaderBg: '#1e293b',   // Biru Gelap dari --text-primary
-        pageHeaderText: '#ffffff', // Teks Putih
-        infoPanelBg: '#e2e8f0',    // Abu-abu terang dari --bg-button
-        infoPanelText: '#1e293b',  // Teks Gelap Kontras
-        detailHeader: '#3b82f6',   // Biru Aksen dari --border-active
+        pageHeaderBg: '#1e293b',
+        pageHeaderText: '#ffffff',
+        infoPanelBg: '#e2e8f0',
+        infoPanelText: '#1e293b',
+        detailHeader: '#3b82f6',
         primaryText: '#1e293b',
         secondaryText: '#475569',
-        cardSeparator: '#cbd5e1'   // Warna garis pemisah antar kartu
+        cardSeparator: '#cbd5e1'
     };
     const FONT_FAMILY = 'helvetica';
 
     // === MEMBUAT BODY KONTEN UNTUK TABEL ===
     const body = dataToExport.map(item => {
-        // Kolom 1: Panel Info (akan di-style dengan warna latar kontras)
         const infoCell = {
             content: `${item.day || 'Ide'}\n\n${item.platform || 'N/A'}\n\n${item.pillar || 'N/A'}`,
             styles: {
@@ -1610,25 +1609,21 @@ Balas HANYA dengan objek JSON valid sesuai skema.`;
             }
         };
 
-        // Kolom 2: Panel Detail (akan di-render secara kustom)
         const detailCell = {
-            // Kita gabungkan semua teks dengan penanda unik untuk di-parsing nanti
             content: `[[header]]IDE POKOK\n[[body]]${item.idea || 'N/A'}\n\n` +
                      `[[header]]DRAF CAPTION\n[[body]]${item.caption_brief || 'N/A'}\n\n` +
                      `[[header]]SARAN VISUAL\n[[body]]${item.visual_idea || 'N/A'}\n\n` +
                      `[[header]]SARAN HASHTAG\n[[body]]${item.hashtags || 'N/A'}`,
-            styles: {
-                valign: 'top'
-            }
+            styles: { valign: 'top' }
         };
-
         return [infoCell, detailCell];
     });
 
     // === MENGGUNAKAN AUTOTABLE UNTUK MEMBUAT PDF ===
     doc.autoTable({
-        // Opsi untuk Header Halaman Utama
+        // Opsi untuk Header dan Footer Halaman
         didDrawPage: function (data) {
+            // --- Gambar Header ---
             doc.setFillColor(colors.pageHeaderBg);
             doc.rect(0, 0, doc.internal.pageSize.width, 25, 'F');
             doc.setFont(FONT_FAMILY, 'bold');
@@ -1638,69 +1633,64 @@ Balas HANYA dengan objek JSON valid sesuai skema.`;
             doc.setFont(FONT_FAMILY, 'normal');
             doc.setFontSize(10);
             doc.text(subtitle, data.settings.margin.left, 21);
-        },
 
-        // Opsi untuk Footer Halaman
-        addPageContent: function () {
+            // --- Gambar Footer (Nomor Halaman) ---
+            // Ini adalah perbaikan untuk error "addPageContent deprecated"
             doc.setFontSize(8);
             doc.setTextColor(colors.secondaryText);
-            doc.text(`Halaman ${doc.internal.getNumberOfPages()}`, doc.internal.pageSize.width / 2, doc.internal.pageSize.height - 10, { align: 'center' });
+            doc.text(
+                `Halaman ${doc.internal.getNumberOfPages()}`,
+                doc.internal.pageSize.width / 2,
+                doc.internal.pageSize.height - 10,
+                { align: 'center' }
+            );
         },
 
         // Data dan Konfigurasi Tabel
         body: body,
         startY: 30,
-        theme: 'plain', // Tema 'plain' agar kita bisa mengontrol garis sendiri
+        theme: 'plain',
         
-        // Hook untuk menggambar sel secara kustom (KUNCI UTAMA TAMPILAN)
-        didParseCell: function (data) {
-            // Hanya berlaku untuk kolom kedua (Panel Detail)
-            if (data.column.index === 1) {
-                data.cell.styles.valign = 'top';
-                // Reset padding agar kita bisa mengontrol posisi teks dari awal
-                data.cell.styles.cellPadding = 3; 
-            }
-        },
-        
+        // Hook untuk menggambar garis pemisah (Perbaikan untuk error "jsPDF.line")
         willDrawCell: function (data) {
-             // Gambar garis pemisah tebal di ATAS setiap kartu
-            if (data.row.index === 0 || data.section === 'body') {
+            // Kita hanya menggambar garis di atas setiap baris (kartu)
+            // dan hanya melakukannya sekali per baris (saat di kolom pertama)
+            if (data.column.index === 0 && data.section === 'body') {
                 doc.setDrawColor(colors.cardSeparator);
-                doc.setLineWidth(0.5); // Garis lebih tebal
-                doc.line(data.cell.x, data.row.y, data.cell.x + data.table.width, data.row.y);
+                doc.setLineWidth(0.5);
+                // Menggunakan properti dari 'data.table' yang lebih stabil
+                const table = data.table;
+                doc.line(table.margins.left, data.row.y, table.margins.left + table.width, data.row.y);
             }
         },
         
-        // Hook untuk menggambar konten sel secara Kustom
         didDrawCell: function (data) {
-            // Hanya berlaku untuk kolom detail (index 1)
             if (data.column.index === 1) {
-                let y = data.cell.y + 4; // Posisi y awal di dalam sel
-                const x = data.cell.x + 3; // Posisi x awal
-                const maxWidth = data.cell.width - 6; // Lebar maksimum teks
+                data.cell.styles.cellPadding = 4; // Menambah padding internal
+                let y = data.cell.y + 5;
+                const x = data.cell.x + 4;
+                const maxWidth = data.cell.width - 8;
 
-                // Pisahkan konten berdasarkan penanda yang kita buat
                 const lines = data.cell.raw.split('\n');
                 lines.forEach(line => {
+                    if (y > doc.internal.pageSize.height - 20) return; // Hentikan jika sudah di luar halaman
+
                     if (line.startsWith('[[header]]')) {
                         const text = line.replace('[[header]]', '');
                         doc.setFont(FONT_FAMILY, 'bold');
                         doc.setFontSize(9);
                         doc.setTextColor(colors.detailHeader);
                         doc.text(text, x, y);
-                        y += 4; // Spasi setelah header
+                        y += 4;
                     } else if (line.startsWith('[[body]]')) {
                         const text = line.replace('[[body]]', '');
                         doc.setFont(FONT_FAMILY, 'normal');
                         doc.setFontSize(9);
                         doc.setTextColor(colors.secondaryText);
-                        // Fungsi splitTextToSize untuk menangani text-wrapping otomatis
                         const splitText = doc.splitTextToSize(text, maxWidth);
                         doc.text(splitText, x, y);
-                        // Tambah y berdasarkan jumlah baris dari teks yang di-wrap
-                        y += (splitText.length * 3.5);
+                        y += (splitText.length * 3.8); // Sedikit menambah spasi antar baris
                     } else {
-                         // Untuk baris kosong (spasi antar bagian)
                          y += 3;
                     }
                 });
@@ -1715,6 +1705,12 @@ Balas HANYA dengan objek JSON valid sesuai skema.`;
 
         margin: { top: 30, bottom: 20 }
     });
+
+    // Gambar garis di bawah kartu terakhir
+    const finalY = doc.autoTable.previous.finalY;
+    doc.setDrawColor(colors.cardSeparator);
+    doc.setLineWidth(0.5);
+    doc.line(doc.autoTable.previous.settings.margin.left, finalY, doc.autoTable.previous.settings.margin.left + doc.autoTable.previous.width, finalY);
 
     // === SIMPAN DOKUMEN PDF ===
     const sanitizedTitle = title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
