@@ -1,51 +1,45 @@
 // functions/api/generate.js
 
-let lastUsedKeyIndex = 0; // TAMBAHKAN baris ini
+// Variabel ini akan melacak kunci mana yang terakhir digunakan untuk SEMUA tugas.
+let lastUsedKeyIndex = 0;
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-// Gunakan onRequestPost untuk hanya menangani metode POST
 export async function onRequestPost(context) {
-    // request dan env sekarang didapat dari 'context'
     const { request, env } = context;
 
-    const apiKeys = [
-        env.GEMINI_API_KEY,
-        env.GEMINI_API_KEY_2,
-        env.GEMINI_API_KEY_3,
-	env.GEMINI_API_KEY_4,
-	env.GEMINI_API_KEY_5,
-	env.GEMINI_API_KEY_6,
-	env.GEMINI_API_KEY_7,
-	env.GEMINI_API_KEY_8,
-	env.GEMINI_API_KEY_9,
-	env.GEMINI_API_KEY_10,
-    ].filter(key => key);
+    // --- LOGIKA BARU: SATU POOL API UNTUK SEMUA TUGAS ---
+    // Menggabungkan semua kunci menjadi satu tim yang solid.
+    const allApiKeys = [
+        env.GEMINI_API_KEY_PRIMARY,
+        env.GEMINI_API_KEY_SECONDARY_1,
+        env.GEMINI_API_KEY_SECONDARY_2,
+    ].filter(key => key); // Memastikan hanya kunci yang ada yang masuk ke pool
 
-    if (apiKeys.length === 0) {
+    if (allApiKeys.length === 0) {
         return new Response(JSON.stringify({ error: "Tidak ada Kunci API Gemini yang diatur di server." }), {
             status: 500,
             headers: { 'Content-Type': 'application/json' },
         });
     }
 
-    // --- AWAL PERUBAHAN LOGIKA ---
-    // Ganti baris di bawah ini
-    // const geminiApiKey = apiKeys[Math.floor(Math.random() * apiKeys.length)];
-
-    // Menjadi seperti ini
-    const geminiApiKey = apiKeys[lastUsedKeyIndex];
-    lastUsedKeyIndex = (lastUsedKeyIndex + 1) % apiKeys.length;
-    // --- AKHIR PERUBAHAN LOGIKA ---
-
     try {
+        // Kita tidak lagi butuh 'purpose', jadi kita hapus dari sini.
         const { prompt, isJson, schema } = await request.json();
+
         if (!prompt) {
             return new Response(JSON.stringify({ error: "Prompt tidak boleh kosong." }), {
                 status: 400,
                 headers: { 'Content-Type': 'application/json' },
             });
         }
+        
+        // --- LOGIKA PEMILIHAN KUNCI YANG DISEDERHANAKAN ---
+        // Pilih kunci berikutnya dari pool secara bergiliran, tidak peduli apa tugasnya.
+        const geminiApiKey = allApiKeys[lastUsedKeyIndex];
+        console.log(`Menggunakan API Key dari pool (indeks: ${lastUsedKeyIndex})`);
+        // Rotasi ke kunci berikutnya untuk permintaan selanjutnya.
+        lastUsedKeyIndex = (lastUsedKeyIndex + 1) % allApiKeys.length;
 
         const payload = {
             contents: [{ role: "user", parts: [{ text: prompt }] }]
@@ -59,6 +53,7 @@ export async function onRequestPost(context) {
 
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`;
 
+        // Logika fetch, retry, dll. tetap sama
         let geminiResponse;
         const maxRetries = 5;
         let attempt = 0;
