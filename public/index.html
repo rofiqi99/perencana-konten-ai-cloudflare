@@ -1073,40 +1073,40 @@ ATURAN MUTLAK: Balas HANYA dengan objek JSON yang valid, mengikuti skema yang di
     };
 
     const callGemini = async (prompt, isJson = false, schema = null) => {
-        try {
-            const user = auth.currentUser;
-            if (!user) {
-                console.log("Pengguna anonim, token tidak dikirim.");
-            }
-
-            const headers = {
-                'Content-Type': 'application/json'
-            };
-
-            if (user && !user.isAnonymous) {
-                const idToken = await user.getIdToken(true);
-                headers['Authorization'] = `Bearer ${idToken}`;
-            }
-            
-            const response = await fetch('/api/generate', {
-                method: 'POST',
-                headers: headers,
-                body: JSON.stringify({ prompt, schema, isJson }),
-            });
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(errorText || `Terjadi kesalahan dengan status: ${response.status}`);
-            }
-            
-            const result = await response.json();
-            return result;
-
-        } catch (error) {
-            console.error('Gagal memanggil API function:', error);
-            throw error;
+    try {
+        const user = auth.currentUser;
+        if (!user) {
+            console.log("Pengguna anonim, token tidak dikirim.");
         }
-    };
+
+        const headers = {
+            'Content-Type': 'application/json'
+        };
+
+        if (user && !user.isAnonymous) {
+            const idToken = await user.getIdToken(true);
+            headers['Authorization'] = `Bearer ${idToken}`;
+        }
+
+        const response = await fetch('/api/generate', {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify({ prompt, schema, isJson }), // Body sederhana tanpa 'purpose'
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(errorText || `Terjadi kesalahan dengan status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        return result;
+
+    } catch (error) {
+        console.error('Gagal memanggil API function:', error);
+        throw error;
+    }
+};
 
     const getFormInputs = (isForStateSave = false) => {
         const isProductFocus = getEl('product-focus-toggle').checked;
