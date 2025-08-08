@@ -8,7 +8,6 @@ const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 export async function onRequestPost(context) {
     const { request, env } = context;
 
-    // --- LOGIKA BARU: SATU POOL API UNTUK SEMUA TUGAS ---
     // Menggabungkan semua kunci menjadi satu tim yang solid.
     const allApiKeys = [
         env.GEMINI_API_KEY_PRIMARY,
@@ -24,7 +23,6 @@ export async function onRequestPost(context) {
     }
 
     try {
-        // Kita tidak lagi butuh 'purpose', jadi kita hapus dari sini.
         const { prompt, isJson, schema } = await request.json();
 
         if (!prompt) {
@@ -34,11 +32,9 @@ export async function onRequestPost(context) {
             });
         }
         
-        // --- LOGIKA PEMILIHAN KUNCI YANG DISEDERHANAKAN ---
-        // Pilih kunci berikutnya dari pool secara bergiliran, tidak peduli apa tugasnya.
+        // Pilih kunci berikutnya dari pool secara bergiliran.
         const geminiApiKey = allApiKeys[lastUsedKeyIndex];
         console.log(`Menggunakan API Key dari pool (indeks: ${lastUsedKeyIndex})`);
-        // Rotasi ke kunci berikutnya untuk permintaan selanjutnya.
         lastUsedKeyIndex = (lastUsedKeyIndex + 1) % allApiKeys.length;
 
         const payload = {
@@ -53,7 +49,6 @@ export async function onRequestPost(context) {
 
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`;
 
-        // Logika fetch, retry, dll. tetap sama
         let geminiResponse;
         const maxRetries = 5;
         let attempt = 0;
