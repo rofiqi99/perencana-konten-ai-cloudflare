@@ -13,6 +13,15 @@ export async function onRequestPost(context) {
         env.GEMINI_API_KEY_PRIMARY,
         env.GEMINI_API_KEY_SECONDARY_1,
         env.GEMINI_API_KEY_SECONDARY_2,
+	env.GEMINI_API_KEY_SECONDARY_3,
+	env.GEMINI_API_KEY_SECONDARY_4,
+	env.GEMINI_API_KEY_SECONDARY_5,
+	env.GEMINI_API_KEY_SECONDARY_6,
+	env.GEMINI_API_KEY_SECONDARY_7,
+	env.GEMINI_API_KEY_SECONDARY_8,
+	env.GEMINI_API_KEY_SECONDARY_9,
+	env.GEMINI_API_KEY_SECONDARY_10,
+	env.GEMINI_API_KEY_SECONDARY_11,
     ].filter(key => key); // Memastikan hanya kunci yang ada yang masuk ke pool
 
     if (allApiKeys.length === 0) {
