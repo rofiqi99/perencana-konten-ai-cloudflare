@@ -375,10 +375,6 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
             <p class="mt-4 text-base sm:text-lg text-slate-600 max-w-2xl mx-auto">Hasilkan ide konten media sosial yang siap pakai hanya dalam beberapa detik.</p>
             
             <div id="auth-container" class="mt-8 flex justify-center items-center gap-3">
-                 <button id="upgrade-btn" title="Upgrade ke Premium" class="hidden bg-amber-400 text-amber-900 font-bold py-2 px-4 rounded-lg hover:bg-amber-500 transition-colors shadow-md flex items-center gap-2">
-                    <i class="fas fa-crown"></i>
-                    <span>Upgrade</span>
-                </button>
                 <button id="view-drafts-btn" title="Draf (Fitur Premium)" class="bg-white text-slate-700 font-bold py-2 px-4 rounded-lg hover:bg-slate-100 transition-colors shadow-md flex items-center gap-2">
                     <i class="fas fa-folder text-yellow-500"></i>
                     <span>Draf</span>
@@ -1796,7 +1792,6 @@ END:VCALENDAR`;
         const loginBtn = getEl('login-btn');
         const userInfo = getEl('user-info');
         const viewDraftsBtn = getEl('view-drafts-btn');
-        const upgradeBtn = getEl('upgrade-btn');
         
         if (user && !user.isAnonymous) { // Pengguna Terdaftar
             userId = user.uid;
@@ -1811,12 +1806,10 @@ END:VCALENDAR`;
 
             if (isPaidUser()) {
                 // Tampilan untuk pengguna Premium
-                upgradeBtn.classList.add('hidden');
                 viewDraftsBtn.classList.remove('opacity-50', 'cursor-not-allowed');
                 viewDraftsBtn.title = "Lihat Draf";
             } else {
                 // Tampilan untuk pengguna Terdaftar (Gratis)
-                upgradeBtn.classList.remove('hidden');
                 viewDraftsBtn.classList.add('opacity-50', 'cursor-not-allowed');
                 viewDraftsBtn.title = "Draf (Fitur Premium)";
             }
@@ -1829,7 +1822,6 @@ END:VCALENDAR`;
             loginBtn.classList.remove('hidden');
             userInfo.classList.add('hidden');
             userInfo.classList.remove('flex');
-            upgradeBtn.classList.add('hidden');
             
             viewDraftsBtn.classList.add('opacity-50', 'cursor-not-allowed');
             viewDraftsBtn.title = "Draf (Fitur Premium)";
@@ -1892,7 +1884,6 @@ END:VCALENDAR`;
         const icsDownloadBtn = getEl('ics-download-btn');
         const loginBtn = getEl('login-btn');
         const logoutBtn = getEl('logout-btn');
-        const upgradeBtn = getEl('upgrade-btn');
         const closeUpgradeModalBtn = getEl('close-upgrade-modal');
         const upgradeNowBtn = getEl('upgrade-now-btn');
 
@@ -1909,11 +1900,6 @@ END:VCALENDAR`;
 
         if(loginBtn) loginBtn.addEventListener('click', signInWithGoogle);
         if(logoutBtn) logoutBtn.addEventListener('click', signOutUser);
-        if(upgradeBtn) upgradeBtn.addEventListener('click', () => {
-            // Ini adalah titik awal untuk alur pembayaran
-            showUpgradeModal("Upgrade ke Premium");
-        });
-
 
         if(prevBtn) prevBtn.addEventListener('click', () => { if (currentStep > 1) { currentStep--; showStep(currentStep); } });
         if(nextBtn) nextBtn.addEventListener('click', () => { if (currentStep < totalSteps) { currentStep++; showStep(currentStep); } });
