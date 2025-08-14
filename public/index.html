@@ -11,7 +11,7 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" as="style" onload="this.rel='stylesheet'">
-<link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" as="style" onload="this.rel='stylesheet'">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" as="style" onload="this.rel='stylesheet'">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js" defer></script>
@@ -365,15 +365,6 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
         overflow: hidden; /* Mencegah body di-scroll */
     }
     /* --- AKHIR KODE BARU --- */
-
-    /* KODE BARU: Warna Mahkota Premium */
-    .text-premium-crown {
-        color: #FFD700; /* Warna emas */
-        text-shadow: 1px 1px 2px rgba(0,0,0,0.2); /* Bayangan tipis untuk kesan mewah */
-    }
-    body.dark .text-premium-crown {
-        color: #FBBF24; /* Warna kuning-amber yang lebih cocok untuk dark mode */
-    }
     </style>
 </head>
 <body>
@@ -692,10 +683,10 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
                     <i class="fas fa-times fa-lg"></i>
                 </button>
                 <div class="mb-4">
-                    <i class="fas fa-crown fa-3x text-premium-crown"></i>
+                    <i class="fas fa-gem fa-3x" style="color: #9333ea;"></i>
                 </div>
-                <h3 class="text-xl font-semibold text-slate-900 mt-6">Fitur Premium</h3>
-                <p id="upgrade-message" class="text-slate-600 mt-2">Fitur ini hanya tersedia untuk pelanggan premium.</p>
+                <h3 class="text-xl font-semibold text-slate-900 mt-6">Buka Fitur Premium</h3>
+                <p class="text-slate-600 mt-2">Tingkatkan akun Anda untuk menikmati semua fitur tanpa batas.</p>
                 <button id="upgrade-now-btn" class="mt-6 bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors w-full">Upgrade Sekarang</button>
             </div>
         </div>
@@ -763,6 +754,7 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
     // --- GLOBAL AND FIREBASE VARIABLES ---
     const getEl = (id) => document.getElementById(id);
     const ANONYMOUS_USAGE_LIMIT = 5; 
+    let regenerationCount = 0;
     
     // Firebase variables
     let app, db, auth, appId;
@@ -810,13 +802,15 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
         localStorage.setItem('anonymousUsageCount', currentCount + 1);
     };
 
-    const showUpgradeModal = (featureName) => {
-        const upgradeMessage = getEl('upgrade-message');
+    const showUpgradeModal = (title, message) => {
         const upgradeModal = getEl('upgrade-modal');
-        if(upgradeMessage && upgradeModal){
-            upgradeMessage.textContent = `Fitur "${featureName}" hanya tersedia untuk pelanggan premium. Silakan upgrade untuk membuka semua fitur.`;
-            upgradeModal.classList.remove('hidden');
-        }
+        const modalTitle = upgradeModal.querySelector('h3');
+        const modalMessage = upgradeModal.querySelector('p');
+
+        if(modalTitle) modalTitle.textContent = title;
+        if(modalMessage) modalMessage.textContent = message;
+        
+        if(upgradeModal) upgradeModal.classList.remove('hidden');
     };
 
     const showLoginPromptModal = (featureName) => {
@@ -863,7 +857,7 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
     // --- DRAFT & EXPORT LOGIC ---
     const showDraftsModal = async () => {
         if (!isPaidUser()) {
-            showUpgradeModal("Melihat & Menyimpan Draf");
+            showUpgradeModal("Fitur Premium", "Melihat & menyimpan draf hanya tersedia untuk pengguna premium.");
             return;
         }
         // ... Logika untuk menampilkan draf dari Firestore
@@ -872,7 +866,7 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
     
     const saveCurrentPlanAsDraft = async () => {
         if (!isPaidUser()) {
-            showUpgradeModal("Menyimpan Draf");
+            showUpgradeModal("Fitur Premium", "Menyimpan draf hanya tersedia untuk pengguna premium.");
             return;
         }
        // ... Logika untuk menyimpan draf ke Firestore
@@ -881,7 +875,7 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
 
     const handleExportPDF = (dataToExport, title, subtitle) => {
         if (!isPaidUser()) {
-            showUpgradeModal("Ekspor PDF");
+            showUpgradeModal("Fitur Premium", "Ekspor ke PDF hanya tersedia untuk pengguna premium.");
             return;
         }
         // ... (Logika ekspor PDF yang ada tetap sama)
@@ -889,7 +883,7 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
 
     const handleExportCSV = (dataToExport, title) => {
         if (!isPaidUser()) {
-            showUpgradeModal("Ekspor CSV");
+            showUpgradeModal("Fitur Premium", "Ekspor ke CSV hanya tersedia untuk pengguna premium.");
             return;
         }
         // ... (Logika ekspor CSV yang ada tetap sama)
@@ -964,6 +958,7 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
 
     // --- Core Application Logic ---
     const generatePlan = async () => {
+        regenerationCount = 0;
         if (!isLoggedInUser() && getAnonymousUsageCount() >= ANONYMOUS_USAGE_LIMIT) {
             showInfoModal(
                 "Batas Penggunaan Tercapai",
@@ -1360,6 +1355,18 @@ ${languageInstruction}`;
             return;
         }
 
+        if (!isPaidUser()) {
+            if (regenerationCount >= 5) {
+                showUpgradeModal(
+                    "Batas Tercapai",
+                    `Anda telah mencapai batas 5 kali Buat Ulang Ide. Upgrade ke premium untuk penggunaan tanpa batas.`
+                );
+                return;
+            }
+            regenerationCount++;
+            console.log(`Regeneration count: ${regenerationCount}/5`);
+        }
+
         let dataArray = draft ? draft.planData : generatedData;
         const itemToReplace = dataArray[index];
         
@@ -1581,6 +1588,7 @@ Balas HANYA dengan objek JSON valid sesuai skema.`;
     };
 
     const startOver = () => {
+        regenerationCount = 0;
         resetToFormView();
         resetForm();
     };
