@@ -40,50 +40,65 @@ export async function onRequestPost(context) {
 
     try {
         // 1. Verifikasi Token Pengguna
-        // Pastikan environment variable FIREBASE_PROJECT_ID sudah diatur di Cloudflare
         const idToken = request.headers.get('Authorization')?.split('Bearer ')?.[1];
         const projectId = env.FIREBASE_PROJECT_ID;
         const decodedToken = await verifyFirebaseToken(idToken, projectId);
         const userId = decodedToken.uid;
 
+        // [FIXED] Tolak akses jika pengguna anonim
         if (decodedToken.provider_id === 'anonymous') {
              return new Response(JSON.stringify({ error: 'Fitur ini memerlukan login.' }), { status: 403 });
         }
 
         // 2. Dapatkan token akses untuk Firestore
-        // Pastikan environment variable FIREBASE_SERVICE_ACCOUNT_KEY sudah diatur di Cloudflare
         const serviceAccount = JSON.parse(env.FIREBASE_SERVICE_ACCOUNT_KEY);
         const authToken = await getGoogleAuthToken(serviceAccount);
 
-        // 3. Baca data penggunaan dari Firestore
-        const firestoreUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/user_usage/${userId}`;
-        const usageResponse = await fetch(firestoreUrl, {
+        // [FIXED] Logika Pengecekan Batas Pengguna Premium
+        let isPremiumUser = false;
+        const userProfileUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/users/${userId}`;
+        const profileResponse = await fetch(userProfileUrl, {
             headers: { 'Authorization': `Bearer ${authToken}` }
         });
 
-        let usageData = { regenerationCount: 0, lastResetDate: '' };
-        if (usageResponse.ok) {
-            const firestoreDoc = await usageResponse.json();
-            usageData.regenerationCount = firestoreDoc.fields.regenerationCount?.integerValue || 0;
-            usageData.lastResetDate = firestoreDoc.fields.lastResetDate?.stringValue || '';
+        if (profileResponse.ok) {
+            const userDoc = await profileResponse.json();
+            if (userDoc.fields?.isPremium?.booleanValue === true) {
+                isPremiumUser = true;
+            }
         }
+        
+        let usageData = { regenerationCount: 0 };
 
-        // 4. Logika Pengecekan Batas
-        const today = new Date().toISOString().split('T')[0];
-        if (usageData.lastResetDate !== today) {
-            usageData.regenerationCount = 0;
-        }
+        if (!isPremiumUser) {
+            // 3. Baca dan Terapkan Batas Penggunaan HANYA untuk pengguna non-premium
+            const firestoreUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/user_usage/${userId}`;
+            const usageResponse = await fetch(firestoreUrl, {
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            });
 
-        if (usageData.regenerationCount >= REGENERATION_DAILY_LIMIT) {
-            const errorMessage = `Anda telah menggunakan fitur ini ${usageData.regenerationCount} dari ${REGENERATION_DAILY_LIMIT} kali hari ini. Upgrade ke premium untuk penggunaan tanpa batas.`;
-            return new Response(JSON.stringify({ error: errorMessage }), { status: 429 });
+            let lastResetDate = '';
+            if (usageResponse.ok) {
+                const firestoreDoc = await usageResponse.json();
+                usageData.regenerationCount = firestoreDoc.fields.regenerationCount?.integerValue || 0;
+                lastResetDate = firestoreDoc.fields.lastResetDate?.stringValue || '';
+            }
+
+            const today = new Date().toISOString().split('T')[0];
+            if (lastResetDate !== today) {
+                usageData.regenerationCount = 0;
+            }
+
+            if (usageData.regenerationCount >= REGENERATION_DAILY_LIMIT) {
+                const errorMessage = `Anda telah menggunakan fitur ini ${usageData.regenerationCount} dari ${REGENERATION_DAILY_LIMIT} kali hari ini. Upgrade ke premium untuk penggunaan tanpa batas.`;
+                return new Response(JSON.stringify({ error: errorMessage }), { status: 429 });
+            }
         }
 
         // 5. Jika OK, panggil API Gemini
         const { itemToReplace, context: currentInputs } = await request.json();
         const prompt = buildRegeneratePrompt(itemToReplace, currentInputs);
-
-        // PENTING: Salin semua daftar kunci API dari generate.js ke sini
+        
         const allApiKeys = [
             env.GEMINI_API_KEY_PRIMARY, env.GEMINI_API_KEY_SECONDARY_1, env.GEMINI_API_KEY_SECONDARY_2,
             env.GEMINI_API_KEY_SECONDARY_3, env.GEMINI_API_KEY_SECONDARY_4, env.GEMINI_API_KEY_SECONDARY_5,
@@ -126,23 +141,26 @@ export async function onRequestPost(context) {
             throw new Error(errorResult.error?.message || "Terjadi kesalahan pada API Gemini.");
         }
 
-        // 6. Update hitungan di Firestore SETELAH berhasil
-        const newCount = parseInt(usageData.regenerationCount) + 1;
-        const updatePayload = {
-            fields: {
-                regenerationCount: { integerValue: newCount },
-                lastResetDate: { stringValue: today }
-            }
-        };
-
-        await fetch(firestoreUrl, {
-            method: 'PATCH',
-            headers: {
-                'Authorization': `Bearer ${authToken}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(updatePayload)
-        });
+        // 6. Update hitungan di Firestore SETELAH berhasil (HANYA untuk non-premium)
+        if (!isPremiumUser) {
+            const newCount = parseInt(usageData.regenerationCount) + 1;
+            const today = new Date().toISOString().split('T')[0];
+            const updatePayload = {
+                fields: {
+                    regenerationCount: { integerValue: newCount },
+                    lastResetDate: { stringValue: today }
+                }
+            };
+            const firestoreUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/user_usage/${userId}`;
+            await fetch(firestoreUrl, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${authToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(updatePayload)
+            });
+        }
 
         // 7. Kembalikan hasil ke frontend
         const geminiResult = await geminiResponse.json();
