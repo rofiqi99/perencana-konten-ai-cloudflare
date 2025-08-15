@@ -2,8 +2,7 @@
 
 import { verifyFirebaseToken, getGoogleAuthToken } from './_auth-firebase.js';
 
-// Ambil kunci API dari environment, sama seperti di generate.js
-// Variabel ini akan melacak kunci mana yang terakhir digunakan.
+// Variabel ini harus ada di luar handler agar bisa melacak kunci yang digunakan antar pemanggilan
 let lastUsedKeyIndex = 0;
 
 const buildRegeneratePrompt = (itemToReplace, contextInputs) => {
@@ -41,17 +40,18 @@ export async function onRequestPost(context) {
 
     try {
         // 1. Verifikasi Token Pengguna
+        // Pastikan environment variable FIREBASE_PROJECT_ID sudah diatur di Cloudflare
         const idToken = request.headers.get('Authorization')?.split('Bearer ')?.[1];
         const projectId = env.FIREBASE_PROJECT_ID;
         const decodedToken = await verifyFirebaseToken(idToken, projectId);
         const userId = decodedToken.uid;
 
-        // Jangan proses jika pengguna anonim
         if (decodedToken.provider_id === 'anonymous') {
              return new Response(JSON.stringify({ error: 'Fitur ini memerlukan login.' }), { status: 403 });
         }
 
         // 2. Dapatkan token akses untuk Firestore
+        // Pastikan environment variable FIREBASE_SERVICE_ACCOUNT_KEY sudah diatur di Cloudflare
         const serviceAccount = JSON.parse(env.FIREBASE_SERVICE_ACCOUNT_KEY);
         const authToken = await getGoogleAuthToken(serviceAccount);
 
@@ -69,9 +69,9 @@ export async function onRequestPost(context) {
         }
 
         // 4. Logika Pengecekan Batas
-        const today = new Date().toISOString().split('T')[0]; // Format YYYY-MM-DD
+        const today = new Date().toISOString().split('T')[0];
         if (usageData.lastResetDate !== today) {
-            usageData.regenerationCount = 0; // Reset jika hari berbeda
+            usageData.regenerationCount = 0;
         }
 
         if (usageData.regenerationCount >= REGENERATION_DAILY_LIMIT) {
@@ -83,7 +83,26 @@ export async function onRequestPost(context) {
         const { itemToReplace, context: currentInputs } = await request.json();
         const prompt = buildRegeneratePrompt(itemToReplace, currentInputs);
 
-        const allApiKeys = [env.GEMINI_API_KEY_PRIMARY, /* ...tambahkan kunci lainnya jika ada */].filter(key => key);
+        // PENTING: Salin semua daftar kunci API dari generate.js ke sini
+        const allApiKeys = [
+            env.GEMINI_API_KEY_PRIMARY, env.GEMINI_API_KEY_SECONDARY_1, env.GEMINI_API_KEY_SECONDARY_2,
+            env.GEMINI_API_KEY_SECONDARY_3, env.GEMINI_API_KEY_SECONDARY_4, env.GEMINI_API_KEY_SECONDARY_5,
+            env.GEMINI_API_KEY_SECONDARY_6, env.GEMINI_API_KEY_SECONDARY_7, env.GEMINI_API_KEY_SECONDARY_8,
+            env.GEMINI_API_KEY_SECONDARY_9, env.GEMINI_API_KEY_SECONDARY_10, env.GEMINI_API_KEY_SECONDARY_11,
+            env.GEMINI_API_KEY_SECONDARY_12, env.GEMINI_API_KEY_SECONDARY_13, env.GEMINI_API_KEY_SECONDARY_14,
+            env.GEMINI_API_KEY_SECONDARY_15, env.GEMINI_API_KEY_SECONDARY_16, env.GEMINI_API_KEY_SECONDARY_17,
+            env.GEMINI_API_KEY_SECONDARY_18, env.GEMINI_API_KEY_SECONDARY_19, env.GEMINI_API_KEY_SECONDARY_20,
+            env.GEMINI_API_KEY_SECONDARY_21, env.GEMINI_API_KEY_SECONDARY_22, env.GEMINI_API_KEY_SECONDARY_23,
+            env.GEMINI_API_KEY_SECONDARY_24, env.GEMINI_API_KEY_SECONDARY_25, env.GEMINI_API_KEY_SECONDARY_26,
+            env.GEMINI_API_KEY_SECONDARY_27, env.GEMINI_API_KEY_SECONDARY_28, env.GEMINI_API_KEY_SECONDARY_29,
+            env.GEMINI_API_KEY_SECONDARY_30, env.GEMINI_API_KEY_SECONDARY_31, env.GEMINI_API_KEY_SECONDARY_33,
+            env.GEMINI_API_KEY_SECONDARY_34, env.GEMINI_API_KEY_SECONDARY_35,
+        ].filter(key => key);
+
+        if (allApiKeys.length === 0) {
+            throw new Error("Tidak ada Kunci API Gemini yang diatur di server.");
+        }
+
         const geminiApiKey = allApiKeys[lastUsedKeyIndex];
         lastUsedKeyIndex = (lastUsedKeyIndex + 1) % allApiKeys.length;
 
@@ -117,7 +136,7 @@ export async function onRequestPost(context) {
         };
 
         await fetch(firestoreUrl, {
-            method: 'PATCH', // Menggunakan PATCH untuk membuat atau menimpa dokumen
+            method: 'PATCH',
             headers: {
                 'Authorization': `Bearer ${authToken}`,
                 'Content-Type': 'application/json'
