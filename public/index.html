@@ -1989,7 +1989,7 @@ END:VCALENDAR`;
                 return;
             }
 
-            const idToken = await user.getIdToken();
+            const idToken = await user.getIdToken(true); // Perubahan di sini
 
             const response = await fetch('/api/save-key', {
                 method: 'POST',
