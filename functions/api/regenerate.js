@@ -2,7 +2,7 @@
 
 import { verifyFirebaseToken, getGoogleAuthToken } from './_auth-firebase.js';
 
-// Variabel ini harus ada di luar handler agar bisa melacak kunci yang digunakan antar pemanggilan
+// [FIXED] Pindahkan variabel ini ke luar fungsi agar persisten.
 let lastUsedKeyIndex = 0;
 
 const buildRegeneratePrompt = (itemToReplace, contextInputs) => {
