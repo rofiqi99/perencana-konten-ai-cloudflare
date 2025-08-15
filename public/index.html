@@ -1343,7 +1343,7 @@ ${languageInstruction}`;
 
         try {
             const user = auth.currentUser;
-            const idToken = await user.getIdToken();
+            const idToken = await user.getIdToken(true);
 
             const response = await fetch('/api/regenerate', {
                 method: 'POST',
