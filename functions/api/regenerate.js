@@ -2,7 +2,6 @@
 
 import { verifyFirebaseToken, getGoogleAuthToken } from './_auth-firebase.js';
 
-// [FIXED] Pindahkan variabel ini ke luar fungsi agar persisten.
 let lastUsedKeyIndex = 0;
 
 const buildRegeneratePrompt = (itemToReplace, contextInputs) => {
@@ -42,10 +41,14 @@ export async function onRequestPost(context) {
         // 1. Verifikasi Token Pengguna
         const idToken = request.headers.get('Authorization')?.split('Bearer ')?.[1];
         const projectId = env.FIREBASE_PROJECT_ID;
+
+        if (!idToken) {
+             return new Response(JSON.stringify({ error: 'Tidak ada token otentikasi. Silakan masuk kembali.' }), { status: 401 });
+        }
+
         const decodedToken = await verifyFirebaseToken(idToken, projectId);
         const userId = decodedToken.uid;
 
-        // [FIXED] Tolak akses jika pengguna anonim
         if (decodedToken.provider_id === 'anonymous') {
              return new Response(JSON.stringify({ error: 'Fitur ini memerlukan login.' }), { status: 403 });
         }
@@ -54,7 +57,6 @@ export async function onRequestPost(context) {
         const serviceAccount = JSON.parse(env.FIREBASE_SERVICE_ACCOUNT_KEY);
         const authToken = await getGoogleAuthToken(serviceAccount);
 
-        // [FIXED] Logika Pengecekan Batas Pengguna Premium
         let isPremiumUser = false;
         const userProfileUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/users/${userId}`;
         const profileResponse = await fetch(userProfileUrl, {
@@ -71,7 +73,6 @@ export async function onRequestPost(context) {
         let usageData = { regenerationCount: 0 };
 
         if (!isPremiumUser) {
-            // 3. Baca dan Terapkan Batas Penggunaan HANYA untuk pengguna non-premium
             const firestoreUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/user_usage/${userId}`;
             const usageResponse = await fetch(firestoreUrl, {
                 headers: { 'Authorization': `Bearer ${authToken}` }
@@ -95,7 +96,6 @@ export async function onRequestPost(context) {
             }
         }
 
-        // 5. Jika OK, panggil API Gemini
         const { itemToReplace, context: currentInputs } = await request.json();
         const prompt = buildRegeneratePrompt(itemToReplace, currentInputs);
         
@@ -141,7 +141,6 @@ export async function onRequestPost(context) {
             throw new Error(errorResult.error?.message || "Terjadi kesalahan pada API Gemini.");
         }
 
-        // 6. Update hitungan di Firestore SETELAH berhasil (HANYA untuk non-premium)
         if (!isPremiumUser) {
             const newCount = parseInt(usageData.regenerationCount) + 1;
             const today = new Date().toISOString().split('T')[0];
@@ -162,7 +161,6 @@ export async function onRequestPost(context) {
             });
         }
 
-        // 7. Kembalikan hasil ke frontend
         const geminiResult = await geminiResponse.json();
         const text = geminiResult.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
 

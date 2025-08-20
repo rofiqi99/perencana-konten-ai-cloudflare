@@ -27,6 +27,7 @@ async function verifyFirebaseToken(idToken, projectId) {
     return payload;
   } catch (error) {
     console.error("Token verification failed:", error.message);
+    // [FIXED] Pesan kesalahan yang lebih umum untuk alasan keamanan
     throw new Error('Invalid authentication token.');
   }
 }
