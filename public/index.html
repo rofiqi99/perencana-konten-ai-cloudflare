@@ -761,7 +761,6 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
     let userProfile = null; // Menyimpan profil pengguna termasuk status premium
 
     let loadingInterval; 
-
     let currentStep = 1;
     const totalSteps = 3;
     let generatedData = [];
@@ -1325,11 +1324,6 @@ ${languageInstruction}`;
             return;
         }
 
-        if (!isPaidUser()) {
-            // Cek untuk pengguna gratis sekarang dilakukan di backend.
-            // Frontend tidak perlu tahu tentang batas lagi.
-        }
-
         let dataArray = draft ? draft.planData : generatedData;
         const itemToReplace = dataArray[index];
 
@@ -1351,23 +1345,25 @@ ${languageInstruction}`;
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${idToken}`
                 },
-                body: JSON.stringify({ itemToReplace, context: currentInputs }) // Kirim item dan konteksnya
+                body: JSON.stringify({ itemToReplace, context: currentInputs })
             });
 
             if (!response.ok) {
                 const errorData = await response.json();
-                // Jika error karena batas tercapai (429), tampilkan modal upgrade
-                if (response.status === 429) {
+                
+                if (response.status === 401) {
+                    showInfoModal("Sesi Berakhir", "Sesi Anda telah berakhir. Silakan masuk kembali untuk melanjutkan.");
+                    await signOutUser(); // Lakukan sign out agar UI kembali ke keadaan awal
+                    throw new Error("Sesi berakhir.");
+                } else if (response.status === 429) {
                     showUpgradeModal("Batas Harian Tercapai", errorData.error);
                 } else {
                     throw new Error(errorData.error || `Error: ${response.statusText}`);
                 }
-                // Hentikan eksekusi jika ada error
-                throw new Error("Gagal membuat ulang ide."); 
+                throw new Error("Gagal membuat ulang ide.");
             }
 
             const newIdea = await response.json();
-
             dataArray[index] = newIdea;
 
             if (draft && isPaidUser()) {
@@ -1379,12 +1375,10 @@ ${languageInstruction}`;
 
         } catch (error) {
             console.error('Error regenerating idea:', error);
-            // Hindari menampilkan pesan error teknis jika sudah ditangani (seperti batas 429)
-            if (error.message !== "Gagal membuat ulang ide.") {
+            if (error.message !== "Gagal membuat ulang ide." && error.message !== "Sesi berakhir.") {
                  showErrorModal(error.message);
             }
         } finally {
-            // Pastikan tombol kembali normal meskipun ada error
             buttonElement.disabled = false;
             icon.classList.remove('icon-spinning');
             textSpan.textContent = originalText;
