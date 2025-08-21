@@ -1375,8 +1375,15 @@ ${languageInstruction}`;
 
         } catch (error) {
             console.error('Error regenerating idea:', error);
-            if (error.message !== "Gagal membuat ulang ide." && error.message !== "Sesi berakhir.") {
-                 showErrorModal(error.message);
+            const errorMessage = error.message;
+
+            if (errorMessage && errorMessage.includes('Sesi Anda telah berakhir')) {
+                showInfoModal("Sesi Berakhir", "Sesi Anda telah berakhir. Silakan masuk kembali untuk melanjutkan.");
+                await signOutUser();
+            } else if (errorMessage && errorMessage.includes('Batas Harian Tercapai')) {
+                showUpgradeModal("Batas Harian Tercapai", errorMessage);
+            } else {
+                 showErrorModal(errorMessage);
             }
         } finally {
             buttonElement.disabled = false;
