@@ -583,13 +583,13 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
                         <p id="results-subtitle" class="text-slate-600 mt-1 text-sm sm:text-base">Berikut adalah ide-ide yang dihasilkan khusus untuk Anda.</p>
                     </div>
                     <div class="flex justify-center md:justify-end gap-3">
-                        <button id="save-draft-btn" title="Simpan ke Draf (Fitur Premium)" class="w-10 h-10 flex items-center justify-center bg-yellow-100 text-yellow-800 font-semibold rounded-lg hover:bg-yellow-200 transition-colors">
+                        <button id="save-draft-btn" title="Simpan ke Draf" class="w-10 h-10 flex items-center justify-center bg-yellow-100 text-yellow-800 font-semibold rounded-lg hover:bg-yellow-200 transition-colors">
                             <i class="fas fa-save"></i>
                         </button>
-                        <button id="export-pdf-btn" title="Ekspor PDF (Fitur Premium)" class="w-10 h-10 flex items-center justify-center bg-red-100 text-red-800 font-semibold rounded-lg hover:bg-red-200 transition-colors">
+                        <button id="export-pdf-btn" title="Ekspor PDF" class="w-10 h-10 flex items-center justify-center bg-red-100 text-red-800 font-semibold rounded-lg hover:bg-red-200 transition-colors">
                             <i class="fas fa-file-pdf"></i>
                         </button>
-                        <button id="export-csv-btn" title="Ekspor CSV (Fitur Premium)" class="w-10 h-10 flex items-center justify-center bg-blue-100 text-blue-800 font-semibold rounded-lg hover:bg-blue-200 transition-colors">
+                        <button id="export-csv-btn" title="Ekspor CSV" class="w-10 h-10 flex items-center justify-center bg-blue-100 text-blue-800 font-semibold rounded-lg hover:bg-blue-200 transition-colors">
                             <i class="fas fa-file-csv"></i>
                         </button>
                         <button id="restart-btn" title="Buat Rencana Baru" class="w-10 h-10 flex items-center justify-center bg-slate-600 text-white font-semibold rounded-lg hover:bg-slate-700 transition-colors">
@@ -854,36 +854,40 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
 
     // --- DRAFT & EXPORT LOGIC ---
     const showDraftsModal = async () => {
-        if (!isPaidUser()) {
-            showUpgradeModal("Fitur Premium", "Melihat & menyimpan draf hanya tersedia untuk pengguna premium.");
-            return;
-        }
+        // Hapus pengecekan premium
+        // if (!isPaidUser()) {
+        //     showUpgradeModal("Fitur Premium", "Melihat & menyimpan draf hanya tersedia untuk pengguna premium.");
+        //     return;
+        // }
         // ... Logika untuk menampilkan draf dari Firestore
-        showInfoModal("Fitur Premium Aktif", "Ini adalah di mana draf Anda akan muncul. Logika lengkap akan diimplementasikan setelah pembayaran berhasil.");
+        showInfoModal("Draf Aktif", "Ini adalah di mana draf Anda akan muncul.");
     };
 
     const saveCurrentPlanAsDraft = async () => {
-        if (!isPaidUser()) {
-            showUpgradeModal("Fitur Premium", "Menyimpan draf hanya tersedia untuk pengguna premium.");
-            return;
-        }
+       // Hapus pengecekan premium
+       // if (!isPaidUser()) {
+       //     showUpgradeModal("Fitur Premium", "Menyimpan draf hanya tersedia untuk pengguna premium.");
+       //     return;
+       // }
        // ... Logika untuk menyimpan draf ke Firestore
-       showInfoModal("Fitur Premium Aktif", "Rencana Anda akan disimpan di sini setelah integrasi pembayaran selesai.");
+       showInfoModal("Draf Aktif", "Rencana Anda akan disimpan di sini.");
     };
 
     const handleExportPDF = (dataToExport, title, subtitle) => {
-        if (!isPaidUser()) {
-            showUpgradeModal("Fitur Premium", "Ekspor ke PDF hanya tersedia untuk pengguna premium.");
-            return;
-        }
+       // Hapus pengecekan premium
+       // if (!isPaidUser()) {
+       //     showUpgradeModal("Fitur Premium", "Ekspor ke PDF hanya tersedia untuk pengguna premium.");
+       //     return;
+       // }
         // ... (Logika ekspor PDF yang ada tetap sama)
     };
 
     const handleExportCSV = (dataToExport, title) => {
-        if (!isPaidUser()) {
-            showUpgradeModal("Fitur Premium", "Ekspor ke CSV hanya tersedia untuk pengguna premium.");
-            return;
-        }
+       // Hapus pengecekan premium
+       // if (!isPaidUser()) {
+       //     showUpgradeModal("Fitur Premium", "Ekspor ke CSV hanya tersedia untuk pengguna premium.");
+       //     return;
+       // }
         // ... (Logika ekspor CSV yang ada tetap sama)
     };
 
@@ -956,13 +960,14 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
 
     // --- Core Application Logic ---
     const generatePlan = async () => {
-        if (!isLoggedInUser() && getAnonymousUsageCount() >= ANONYMOUS_USAGE_LIMIT) {
-            showInfoModal(
-                "Batas Penggunaan Tercapai",
-                `Anda telah mencapai batas ${ANONYMOUS_USAGE_LIMIT} kali pembuatan rencana sebagai pengguna tamu. Silakan masuk dengan Google untuk penggunaan tanpa batas.`
-            );
-            return;
-        }
+        // Hapus pengecekan penggunaan anonim
+        // if (!isLoggedInUser() && getAnonymousUsageCount() >= ANONYMOUS_USAGE_LIMIT) {
+        //     showInfoModal(
+        //         "Batas Penggunaan Tercapai",
+        //         `Anda telah mencapai batas ${ANONYMOUS_USAGE_LIMIT} kali pembuatan rencana sebagai pengguna tamu. Silakan masuk dengan Google untuk penggunaan tanpa batas.`
+        //     );
+        //     return;
+        // }
 
         showLoading();
         try {
@@ -970,7 +975,7 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
             if(saveDraftBtn) {
                 saveDraftBtn.disabled = false;
                 saveDraftBtn.innerHTML = '<i class="fas fa-save"></i>';
-                saveDraftBtn.title = "Simpan ke Draf (Fitur Premium)";
+                saveDraftBtn.title = "Simpan ke Draf";
                 saveDraftBtn.classList.remove('cursor-not-allowed', 'opacity-60');
             }
 
@@ -988,7 +993,7 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
             const result = await callGemini(prompt, true, plannerSchema);
             generatedData = result.plan || [];
 
-            incrementAnonymousUsageCount();
+            // incrementAnonymousUsageCount(); // Hapus peningkat penggunaan anonim
 
             const businessName = getEl('business-name').value;
             getEl('results-title').textContent = currentInputs.isProductFocus ? `Ide Fokus untuk "${currentInputs.productName}"` : `Rencana Konten untuk "${businessName}"`;
@@ -1298,7 +1303,7 @@ ${languageInstruction}`;
                     <button class="add-to-calendar-btn flex-grow bg-slate-100 text-slate-800 font-semibold py-2 px-4 rounded-lg hover:bg-slate-200 transition-colors text-sm">
                         <i class="fas fa-calendar-plus mr-2"></i>Jadwalkan
                     </button>
-                    <button title="Buat Ulang Ide (Masuk untuk akses)" class="regenerate-idea-btn w-full mt-2 bg-slate-100 text-slate-800 font-semibold py-2 px-4 rounded-lg hover:bg-slate-200 transition-colors text-sm flex items-center justify-center">
+                    <button title="Buat Ulang Ide" class="regenerate-idea-btn w-full mt-2 bg-slate-100 text-slate-800 font-semibold py-2 px-4 rounded-lg hover:bg-slate-200 transition-colors text-sm flex items-center justify-center">
                         <i class="fas fa-sync-alt mr-2"></i><span>Buat Ulang Ide</span>
                     </button>
                 </div>
@@ -1319,10 +1324,11 @@ ${languageInstruction}`;
     };
 
     const handleRegenerateIdea = async (index, buttonElement, container, draft) => {
-        if (!isLoggedInUser()) {
-            showLoginPromptModal("Buat Ulang Ide");
-            return;
-        }
+        // Hapus pengecekan login
+        // if (!isLoggedInUser()) {
+        //     showLoginPromptModal("Buat Ulang Ide");
+        //     return;
+        // }
 
         let dataArray = draft ? draft.planData : generatedData;
         const itemToReplace = dataArray[index];
@@ -1337,13 +1343,13 @@ ${languageInstruction}`;
 
         try {
             const user = auth.currentUser;
-            const idToken = await user.getIdToken(true);
+            const idToken = user ? await user.getIdToken(true) : null;
 
             const response = await fetch('/api/regenerate', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${idToken}`
+                    'Authorization': idToken ? `Bearer ${idToken}` : undefined,
                 },
                 body: JSON.stringify({ itemToReplace, context: currentInputs })
             });
@@ -1366,7 +1372,7 @@ ${languageInstruction}`;
             const newIdea = await response.json();
             dataArray[index] = newIdea;
 
-            if (draft && isPaidUser()) {
+            if (draft) {
                 const draftRef = doc(db, `users/${userId}/drafts/${draft.id}`);
                 await setDoc(draftRef, { planData: dataArray }, { merge: true });
             }
@@ -1420,7 +1426,7 @@ ${languageInstruction}`;
                 contentToShow.innerHTML = htmlResult;
                 item.aiResultJson = resultJson;
 
-                if (draft && isPaidUser()) {
+                if (draft) {
                    const draftRef = doc(db, `users/${userId}/drafts/${draft.id}`);
                    const itemIndex = draft.planData.findIndex(p => p.idea === item.idea && p.day === item.day);
                    if (itemIndex > -1) {
@@ -1811,7 +1817,7 @@ END:VCALENDAR`;
             } else {
                 // Tampilan untuk pengguna Terdaftar (Gratis)
                 viewDraftsBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                viewDraftsBtn.title = "Draf (Fitur Premium)";
+                viewDraftsBtn.title = "Draf"; // Mengubah judul
             }
 
             await loadFormStateFromFirestore();
@@ -1823,8 +1829,9 @@ END:VCALENDAR`;
             userInfo.classList.add('hidden');
             userInfo.classList.remove('flex');
 
+            // Menghapus indikasi 'Premium' dari UI untuk fitur ini
             viewDraftsBtn.classList.add('opacity-50', 'cursor-not-allowed');
-            viewDraftsBtn.title = "Draf (Fitur Premium)";
+            viewDraftsBtn.title = "Draf";
 
             if (!user) {
                 await signInAnonymously(auth).catch(err => {
