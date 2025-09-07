@@ -753,7 +753,7 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
 
     // --- GLOBAL AND FIREBASE VARIABLES ---
     const getEl = (id) => document.getElementById(id);
-    const ANONYMOUS_USAGE_LIMIT = 5; 
+    
 
     // Firebase variables
     let app, db, auth, appId;
@@ -791,7 +791,7 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
     };
 
     const getAnonymousUsageCount = () => {
-        return parseInt(localStorage.getItem('anonymousUsageCount') || '0');
+        return 0;
     };
 
     const incrementAnonymousUsageCount = () => {
@@ -831,7 +831,7 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
                 email: auth.currentUser.email,
                 name: auth.currentUser.displayName,
                 createdAt: new Date(),
-                isPremium: false // Default status
+                isPremium: true // Default status
             };
             await setDoc(userDocRef, newUserProfile);
             return newUserProfile;
@@ -842,53 +842,190 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
     const getDraftsCollectionRef = () => collection(db, `users/${userId}/drafts`);
 
     const loadFormStateFromFirestore = async () => {
-        console.log("History feature disabled. Setting default state.");
-        setDefaultDate(); 
+        console.log("History feature enabled. Loading state.");
+        const userDocRef = doc(db, 'users', userId);
+        const userDoc = await getDoc(userDocRef);
+        if (userDoc.exists() && userDoc.data().formState) {
+            const savedState = userDoc.data().formState;
+            Object.keys(savedState).forEach(key => {
+                const el = getEl(key);
+                if (el) {
+                    if (el.type === 'checkbox') {
+                        el.checked = savedState[key];
+                    } else {
+                        el.value = savedState[key];
+                    }
+                }
+            });
+            interestTags = savedState['audience-interests'] ? savedState['audience-interests'].split(', ') : [];
+            renderTags();
+        } else {
+            setDefaultDate();
+        }
     };
 
     const saveFormStateToFirestore = async () => {
-        return;
+        if (!isLoggedInUser()) return;
+        const formState = getFormInputs(true);
+        const userDocRef = doc(db, 'users', userId);
+        try {
+            await setDoc(userDocRef, { formState }, { merge: true });
+            console.log("Form state saved to Firestore.");
+        } catch (error) {
+            console.error("Failed to save form state:", error);
+        }
     };
 
     const debouncedSave = debounce(saveFormStateToFirestore, 1500);
 
     // --- DRAFT & EXPORT LOGIC ---
     const showDraftsModal = async () => {
-        // Hapus pengecekan premium
-        // if (!isPaidUser()) {
-        //     showUpgradeModal("Fitur Premium", "Melihat & menyimpan draf hanya tersedia untuk pengguna premium.");
-        //     return;
-        // }
-        // ... Logika untuk menampilkan draf dari Firestore
-        showInfoModal("Draf Aktif", "Ini adalah di mana draf Anda akan muncul.");
+        if (!isLoggedInUser()) {
+             showLoginPromptModal("Melihat Draf");
+             return;
+        }
+
+        try {
+             const draftsList = getEl('drafts-list');
+             draftsList.innerHTML = '';
+             getEl('draft-viewer').classList.add('hidden');
+             const draftsRef = getDraftsCollectionRef();
+             const draftsSnapshot = await getDocs(query(draftsRef));
+
+             if (draftsSnapshot.empty) {
+                 draftsList.innerHTML = `<p class="text-center text-slate-500">Tidak ada draf tersimpan.</p>`;
+                 return;
+             }
+
+             draftsSnapshot.forEach(doc => {
+                 const draft = doc.data();
+                 const draftId = doc.id;
+                 const li = document.createElement('li');
+                 li.className = 'p-3 rounded-lg border border-slate-200 cursor-pointer hover:bg-slate-100 transition-colors';
+                 li.innerHTML = `
+                     <h4 class="font-semibold text-sm text-slate-800">${draft.title}</h4>
+                     <p class="text-xs text-slate-500">Disimpan pada: ${new Date(draft.savedAt.toDate()).toLocaleDateString()}</p>
+                 `;
+                 li.addEventListener('click', () => showDraftContent(draft, draftId));
+                 draftsList.appendChild(li);
+             });
+
+             getEl('drafts-modal').classList.remove('hidden');
+
+        } catch (error) {
+            console.error("Gagal memuat draf:", error);
+            showErrorModal("Gagal memuat draf.");
+        }
+    };
+
+    const showDraftContent = (draft, draftId) => {
+        const viewerContent = getEl('draft-viewer-content');
+        viewerContent.innerHTML = '';
+        getEl('draft-viewer').classList.remove('hidden');
+        getEl('draft-viewer-title').textContent = draft.title;
+
+        currentDraftObject = { id: draftId, planData: draft.planData };
+        renderResults(draft.planData, viewerContent, currentDraftObject);
+
+        const exportPdfBtn = getEl('export-draft-pdf-btn');
+        const exportCsvBtn = getEl('export-draft-csv-btn');
+        exportPdfBtn.onclick = () => handleExportPDF(draft.planData, draft.title, '');
+        exportCsvBtn.onclick = () => handleExportCSV(draft.planData, draft.title);
     };
 
     const saveCurrentPlanAsDraft = async () => {
-       // Hapus pengecekan premium
-       // if (!isPaidUser()) {
-       //     showUpgradeModal("Fitur Premium", "Menyimpan draf hanya tersedia untuk pengguna premium.");
-       //     return;
-       // }
-       // ... Logika untuk menyimpan draf ke Firestore
-       showInfoModal("Draf Aktif", "Rencana Anda akan disimpan di sini.");
+       if (!isLoggedInUser()) {
+           showLoginPromptModal("Menyimpan Draf");
+           return;
+       }
+
+       const businessName = getEl('business-name').value;
+       const title = prompt("Beri nama untuk draf ini:", `Rencana Konten - ${businessName || 'Tanpa Nama'}`);
+       if (!title) return;
+
+       const saveDraftBtn = getEl('save-draft-btn');
+       const originalText = saveDraftBtn.innerHTML;
+       saveDraftBtn.disabled = true;
+       saveDraftBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+       try {
+           const draftsRef = getDraftsCollectionRef();
+           await addDoc(draftsRef, {
+               title: title,
+               planData: generatedData,
+               savedAt: new Date()
+           });
+           showSuccessModal("Berhasil!", "Rencana konten Anda telah disimpan ke draf.");
+       } catch (error) {
+           console.error("Gagal menyimpan draf:", error);
+           showErrorModal("Gagal menyimpan draf.");
+       } finally {
+           saveDraftBtn.disabled = false;
+           saveDraftBtn.innerHTML = originalText;
+       }
     };
 
     const handleExportPDF = (dataToExport, title, subtitle) => {
-       // Hapus pengecekan premium
-       // if (!isPaidUser()) {
-       //     showUpgradeModal("Fitur Premium", "Ekspor ke PDF hanya tersedia untuk pengguna premium.");
-       //     return;
-       // }
-        // ... (Logika ekspor PDF yang ada tetap sama)
+       if (!window.jspdf || !window.jspdf.jsPDF) {
+           showErrorModal("Gagal memuat pustaka PDF. Harap coba muat ulang halaman.");
+           return;
+       }
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const columnNames = ["Hari", "Platform", "Ide", "Pilar", "Brief Caption", "Saran Visual"];
+        const rows = dataToExport.map(item => [
+            item.day,
+            item.platform,
+            item.idea,
+            item.pillar,
+            item.caption_brief,
+            item.visual_idea
+        ]);
+
+        doc.text(title, 14, 20);
+        doc.setFontSize(10);
+        doc.text(subtitle, 14, 28);
+        doc.autoTable({
+            startY: 35,
+            head: [columnNames],
+            body: rows,
+            styles: { fontSize: 8 },
+            headStyles: { fillColor: [51, 65, 85] }, // dark slate
+            margin: { top: 10 }
+        });
+        doc.save(`${title.replace(/\s/g, '-')}.pdf`);
+        showSuccessModal("Ekspor Berhasil!", "File PDF Anda telah berhasil dibuat.");
     };
 
     const handleExportCSV = (dataToExport, title) => {
-       // Hapus pengecekan premium
-       // if (!isPaidUser()) {
-       //     showUpgradeModal("Fitur Premium", "Ekspor ke CSV hanya tersedia untuk pengguna premium.");
-       //     return;
-       // }
-        // ... (Logika ekspor CSV yang ada tetap sama)
+        const csvRows = [];
+        const headers = ["Hari", "Platform", "Pilar", "Ide", "Brief Caption", "Saran Visual", "Hashtags"];
+        csvRows.push(headers.join(','));
+        for (const item of dataToExport) {
+            const values = [
+                `"${item.day}"`,
+                `"${item.platform}"`,
+                `"${item.pillar}"`,
+                `"${item.idea.replace(/"/g, '""')}"`,
+                `"${item.caption_brief.replace(/"/g, '""')}"`,
+                `"${item.visual_idea.replace(/"/g, '""')}"`,
+                `"${item.hashtags.replace(/"/g, '""')}"`
+            ];
+            csvRows.push(values.join(','));
+        }
+
+        const csvString = csvRows.join('\n');
+        const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", `${title.replace(/\s/g, '-')}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        showSuccessModal("Ekspor Berhasil!", "File CSV Anda telah berhasil dibuat.");
     };
 
 
@@ -960,14 +1097,7 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
 
     // --- Core Application Logic ---
     const generatePlan = async () => {
-        // Hapus pengecekan penggunaan anonim
-        // if (!isLoggedInUser() && getAnonymousUsageCount() >= ANONYMOUS_USAGE_LIMIT) {
-        //     showInfoModal(
-        //         "Batas Penggunaan Tercapai",
-        //         `Anda telah mencapai batas ${ANONYMOUS_USAGE_LIMIT} kali pembuatan rencana sebagai pengguna tamu. Silakan masuk dengan Google untuk penggunaan tanpa batas.`
-        //     );
-        //     return;
-        // }
+        
 
         showLoading();
         try {
@@ -993,8 +1123,7 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
             const result = await callGemini(prompt, true, plannerSchema);
             generatedData = result.plan || [];
 
-            // incrementAnonymousUsageCount(); // Hapus peningkat penggunaan anonim
-
+             // Hapus peningkat penggunaan anonim
             const businessName = getEl('business-name').value;
             getEl('results-title').textContent = currentInputs.isProductFocus ? `Ide Fokus untuk "${currentInputs.productName}"` : `Rencana Konten untuk "${businessName}"`;
             getEl('results-subtitle').textContent = currentInputs.isProductFocus ? "Berikut adalah 5 ide yang dihasilkan khusus untuk produk ini." : "Berikut adalah ide-ide yang dihasilkan khusus untuk Anda.";
@@ -1100,7 +1229,7 @@ ATURAN MUTLAK: Balas HANYA dengan objek JSON yang valid, mengikuti skema yang di
             'Content-Type': 'application/json'
         };
 
-        if (user && !user.isAnonymous) {
+        if (user) {
             const idToken = await user.getIdToken(true);
             headers['Authorization'] = `Bearer ${idToken}`;
         }
@@ -1324,11 +1453,7 @@ ${languageInstruction}`;
     };
 
     const handleRegenerateIdea = async (index, buttonElement, container, draft) => {
-        // Hapus pengecekan login
-        // if (!isLoggedInUser()) {
-        //     showLoginPromptModal("Buat Ulang Ide");
-        //     return;
-        // }
+        
 
         let dataArray = draft ? draft.planData : generatedData;
         const itemToReplace = dataArray[index];
@@ -1799,7 +1924,7 @@ END:VCALENDAR`;
         const userInfo = getEl('user-info');
         const viewDraftsBtn = getEl('view-drafts-btn');
 
-        if (user && !user.isAnonymous) { // Pengguna Terdaftar
+        if (user) {
             userId = user.uid;
             userProfile = await getUserProfile(user.uid);
 
@@ -1810,35 +1935,22 @@ END:VCALENDAR`;
             userInfo.classList.remove('hidden');
             userInfo.classList.add('flex');
 
-            if (isPaidUser()) {
-                // Tampilan untuk pengguna Premium
-                viewDraftsBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                viewDraftsBtn.title = "Lihat Draf";
-            } else {
-                // Tampilan untuk pengguna Terdaftar (Gratis)
-                viewDraftsBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                viewDraftsBtn.title = "Draf"; // Mengubah judul
-            }
+            viewDraftsBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            viewDraftsBtn.title = "Lihat Draf";
 
             await loadFormStateFromFirestore();
         } else { // Pengguna Anonim
-            userId = user ? user.uid : null;
+            userId = null;
             userProfile = null;
 
             loginBtn.classList.remove('hidden');
             userInfo.classList.add('hidden');
             userInfo.classList.remove('flex');
 
-            // Menghapus indikasi 'Premium' dari UI untuk fitur ini
             viewDraftsBtn.classList.add('opacity-50', 'cursor-not-allowed');
             viewDraftsBtn.title = "Draf";
 
-            if (!user) {
-                await signInAnonymously(auth).catch(err => {
-                    console.error("Anonymous sign in failed:", err);
-                    showErrorModal("Gagal memulai sesi tamu. Silakan muat ulang halaman.");
-                });
-            }
+            // Tidak ada sign in anonim otomatis
         }
     };
 
