@@ -41,27 +41,28 @@ export async function onRequestPost(context) {
         const idToken = request.headers.get('Authorization')?.split('Bearer ')?.[1];
         const projectId = env.FIREBASE_PROJECT_ID;
 
-        // Tambahkan pemeriksaan eksplisit untuk token yang hilang
-        if (!idToken) {
-             return new Response(JSON.stringify({ error: 'Tidak ada token otentikasi. Silakan masuk kembali.' }), { status: 401 });
+        let decodedToken = {};
+
+        // Verifikasi token hanya jika ada, jika tidak, anggap sebagai pengguna anonim.
+        if (idToken) {
+            decodedToken = await verifyFirebaseToken(idToken, projectId);
+        } else {
+            console.log('No authentication token provided, assuming anonymous user.');
         }
 
-        const decodedToken = await verifyFirebaseToken(idToken, projectId);
         const userId = decodedToken.uid;
 
-        // Tolak akses jika pengguna anonim
-        if (decodedToken.provider_id === 'anonymous') {
-             return new Response(JSON.stringify({ error: 'Fitur ini memerlukan login.' }), { status: 403 });
-        }
+        // --- Perbaikan: Baris di bawah ini dihapus untuk memungkinkan pengguna anonim ---
+        // if (decodedToken.provider_id === 'anonymous') {
+        //      return new Response(JSON.stringify({ error: 'Fitur ini memerlukan login.' }), { status: 403 });
+        // }
+        // ---------------------------------------------------------------------------------
 
-        // 2. Dapatkan token akses untuk Firestore
-        const serviceAccount = JSON.parse(env.FIREBASE_SERVICE_ACCOUNT_KEY);
-        const authToken = await getGoogleAuthToken(serviceAccount);
-
+        // Dapatkan token akses untuk Firestore jika diperlukan.
+        // Dalam kasus ini, kita mengasumsikan penggunaan ini tidak memerlukan penulisan ke Firestore.
         // Logika Pengecekan Batas Pengguna Premium dihilangkan untuk penggunaan tanpa batas.
-        // Tidak ada lagi pengecekan isPremiumUser.
 
-        // 5. Jika OK, panggil API Gemini
+        // 5. Panggil API Gemini
         const { itemToReplace, context: currentInputs } = await request.json();
         const prompt = buildRegeneratePrompt(itemToReplace, currentInputs);
         
@@ -84,30 +85,44 @@ export async function onRequestPost(context) {
             throw new Error("Tidak ada Kunci API Gemini yang diatur di server.");
         }
 
-        const geminiApiKey = allApiKeys[lastUsedKeyIndex];
-        lastUsedKeyIndex = (lastUsedKeyIndex + 1) % allApiKeys.length;
+        let currentKeyIndex = lastUsedKeyIndex;
+        let geminiApiKey;
+        let geminiResponse;
+        let attempts = 0;
+        const maxAttempts = allApiKeys.length;
 
-        const geminiApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${geminiApiKey}`;
-        const geminiPayload = {
-            contents: [{ role: "user", parts: [{ text: prompt }] }],
-            generationConfig: {
-                responseMimeType: "application/json",
-                responseSchema: singleIdeaSchema
+        while (attempts < maxAttempts) {
+            geminiApiKey = allApiKeys[currentKeyIndex];
+            const geminiApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${geminiApiKey}`;
+            const geminiPayload = {
+                contents: [{ role: "user", parts: [{ text: prompt }] }],
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: singleIdeaSchema
+                }
+            };
+
+            geminiResponse = await fetch(geminiApiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(geminiPayload)
+            });
+
+            if (geminiResponse.ok) {
+                lastUsedKeyIndex = (currentKeyIndex + 1) % allApiKeys.length;
+                break;
             }
-        };
 
-        const geminiResponse = await fetch(geminiApiUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(geminiPayload)
-        });
-
-        if (!geminiResponse.ok) {
-            const errorResult = await geminiResponse.json();
-            throw new Error(errorResult.error?.message || "Terjadi kesalahan pada API Gemini.");
+            // Jika respons tidak berhasil, coba kunci berikutnya
+            console.error(`Attempt ${attempts + 1} with key at index ${currentKeyIndex} failed: ${geminiResponse.status}`);
+            currentKeyIndex = (currentKeyIndex + 1) % allApiKeys.length;
+            attempts++;
         }
 
-        // Logika update hitungan di Firestore juga dihilangkan.
+        if (!geminiResponse || !geminiResponse.ok) {
+             const errorResult = await geminiResponse.json();
+             throw new Error(errorResult.error?.message || "Terjadi kesalahan pada API Gemini.");
+        }
 
         // 7. Kembalikan hasil ke frontend
         const geminiResult = await geminiResponse.json();
