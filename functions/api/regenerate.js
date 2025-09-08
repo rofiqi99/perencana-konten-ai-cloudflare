@@ -1,6 +1,7 @@
 // functions/api/regenerate.js
 
-import { verifyFirebaseToken, getGoogleAuthToken } from './_auth-firebase.js';
+// Tidak lagi memerlukan verifikasi token untuk fungsi ini
+// import { verifyFirebaseToken, getGoogleAuthToken } from './_auth-firebase.js';
 
 let lastUsedKeyIndex = 0;
 
@@ -23,7 +24,7 @@ const buildRegeneratePrompt = (itemToReplace, contextInputs) => {
     Ide yang akan diganti adalah: "${itemToReplace.idea}" (Pilar: ${itemToReplace.pillar}).
 
     Tugas Anda:
-    1. Buat satu ide konten yang SANGAT BERBEDA dari ide yang akan diganti.
+    1. Buat satu ide konten yang SANGAT BERBEDA dari ide yang sudah ada.
     2. Ide baru harus tetap sesuai dengan semua konteks (audiens, tujuan, suasana, platform).
     3. Jaga agar tanggal/hari ('day') tetap sama: "${itemToReplace.day}".
     4. Hasilkan dalam format JSON tunggal (bukan dalam array 'plan'), sesuai dengan skema yang diberikan.
@@ -37,32 +38,8 @@ export async function onRequestPost(context) {
     const { request, env } = context;
 
     try {
-        // 1. Verifikasi Token Pengguna
-        const idToken = request.headers.get('Authorization')?.split('Bearer ')?.[1];
-        const projectId = env.FIREBASE_PROJECT_ID;
+        // Menghapus semua logika otentikasi untuk memungkinkan akses tanpa batas.
 
-        let decodedToken = {};
-
-        // Verifikasi token hanya jika ada, jika tidak, anggap sebagai pengguna anonim.
-        if (idToken) {
-            decodedToken = await verifyFirebaseToken(idToken, projectId);
-        } else {
-            console.log('No authentication token provided, assuming anonymous user.');
-        }
-
-        const userId = decodedToken.uid;
-
-        // --- Perbaikan: Baris di bawah ini dihapus untuk memungkinkan pengguna anonim ---
-        // if (decodedToken.provider_id === 'anonymous') {
-        //      return new Response(JSON.stringify({ error: 'Fitur ini memerlukan login.' }), { status: 403 });
-        // }
-        // ---------------------------------------------------------------------------------
-
-        // Dapatkan token akses untuk Firestore jika diperlukan.
-        // Dalam kasus ini, kita mengasumsikan penggunaan ini tidak memerlukan penulisan ke Firestore.
-        // Logika Pengecekan Batas Pengguna Premium dihilangkan untuk penggunaan tanpa batas.
-
-        // 5. Panggil API Gemini
         const { itemToReplace, context: currentInputs } = await request.json();
         const prompt = buildRegeneratePrompt(itemToReplace, currentInputs);
         
@@ -71,7 +48,7 @@ export async function onRequestPost(context) {
             env.GEMINI_API_KEY_SECONDARY_3, env.GEMINI_API_KEY_SECONDARY_4, env.GEMINI_API_KEY_SECONDARY_5,
             env.GEMINI_API_KEY_SECONDARY_6, env.GEMINI_API_KEY_SECONDARY_7, env.GEMINI_API_KEY_SECONDARY_8,
             env.GEMINI_API_KEY_SECONDARY_9, env.GEMINI_API_KEY_SECONDARY_10, env.GEMINI_API_KEY_SECONDARY_11,
-            env.GEMINI_API_KEY_SECONDARY_12, env.GEMINI_API_KEY_SECONDARY_13, env.GEMINI_API_KEY_SECONDARY_14,
+            env.GEMINI_API_KEY_SECONDARY_12, env.GEMINI_KEY_SECONDARY_13, env.GEMINI_KEY_SECONDARY_14,
             env.GEMINI_API_KEY_SECONDARY_15, env.GEMINI_API_KEY_SECONDARY_16, env.GEMINI_API_KEY_SECONDARY_17,
             env.GEMINI_API_KEY_SECONDARY_18, env.GEMINI_API_KEY_SECONDARY_19, env.GEMINI_API_KEY_SECONDARY_20,
             env.GEMINI_API_KEY_SECONDARY_21, env.GEMINI_API_KEY_SECONDARY_22, env.GEMINI_API_KEY_SECONDARY_23,
@@ -82,7 +59,10 @@ export async function onRequestPost(context) {
         ].filter(key => key);
 
         if (allApiKeys.length === 0) {
-            throw new Error("Tidak ada Kunci API Gemini yang diatur di server.");
+            return new Response(JSON.stringify({ error: "Tidak ada Kunci API Gemini yang diatur di server." }), {
+                status: 500,
+                headers: { 'Content-Type': 'application/json' },
+            });
         }
 
         let currentKeyIndex = lastUsedKeyIndex;
@@ -124,7 +104,6 @@ export async function onRequestPost(context) {
              throw new Error(errorResult.error?.message || "Terjadi kesalahan pada API Gemini.");
         }
 
-        // 7. Kembalikan hasil ke frontend
         const geminiResult = await geminiResponse.json();
         const text = geminiResult.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
 
@@ -135,10 +114,6 @@ export async function onRequestPost(context) {
 
     } catch (error) {
         console.error("Error in regenerate function:", error.message);
-        // Tangkap kesalahan spesifik dan berikan respons yang lebih informatif
-        if (error.message.includes('Invalid authentication token')) {
-            return new Response(JSON.stringify({ error: 'Sesi Anda telah berakhir atau token tidak valid. Silakan masuk kembali.' }), { status: 401 });
-        }
         return new Response(JSON.stringify({ error: error.message || 'Terjadi kesalahan internal server' }), { status: 500 });
     }
 }
