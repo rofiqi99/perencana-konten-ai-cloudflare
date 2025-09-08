@@ -758,7 +758,7 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
     // Firebase variables
     let app, db, auth, appId;
     let userId;
-    let userProfile = null; // Menyimpan profil pengguna termasuk status premium
+    let userProfile = null; 
 
     let loadingInterval; 
     let currentStep = 1;
@@ -782,7 +782,7 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
     // --- TIER & USAGE LOGIC ---
     const isLoggedInUser = () => {
         const user = auth.currentUser;
-        return user && !user.isAnonymous;
+        return user; // Cek apakah ada pengguna yang login (anonim atau tidak)
     };
 
     const isPaidUser = () => {
@@ -795,7 +795,7 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
     };
 
     const incrementAnonymousUsageCount = () => {
-        if (isLoggedInUser()) return; // Hanya untuk pengguna anonim
+        if (isLoggedInUser()) return; 
         const currentCount = getAnonymousUsageCount();
         localStorage.setItem('anonymousUsageCount', currentCount + 1);
     };
@@ -826,12 +826,11 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
         if (userDoc.exists()) {
             return userDoc.data();
         } else {
-            // Jika dokumen belum ada, buat dokumen baru untuk pengguna terdaftar
             const newUserProfile = {
                 email: auth.currentUser.email,
                 name: auth.currentUser.displayName,
                 createdAt: new Date(),
-                isPremium: true // Default status
+                isPremium: true
             };
             await setDoc(userDocRef, newUserProfile);
             return newUserProfile;
@@ -881,36 +880,36 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
     // --- DRAFT & EXPORT LOGIC ---
     const showDraftsModal = async () => {
         if (!isLoggedInUser()) {
-             showLoginPromptModal("Melihat Draf");
-             return;
+            showLoginPromptModal("Melihat Draf");
+            return;
         }
 
         try {
-             const draftsList = getEl('drafts-list');
-             draftsList.innerHTML = '';
-             getEl('draft-viewer').classList.add('hidden');
-             const draftsRef = getDraftsCollectionRef();
-             const draftsSnapshot = await getDocs(query(draftsRef));
+            const draftsList = getEl('drafts-list');
+            draftsList.innerHTML = '';
+            getEl('draft-viewer').classList.add('hidden');
+            const draftsRef = getDraftsCollectionRef();
+            const draftsSnapshot = await getDocs(query(draftsRef));
 
-             if (draftsSnapshot.empty) {
-                 draftsList.innerHTML = `<p class="text-center text-slate-500">Tidak ada draf tersimpan.</p>`;
-                 return;
-             }
+            if (draftsSnapshot.empty) {
+                draftsList.innerHTML = `<p class="text-center text-slate-500">Tidak ada draf tersimpan.</p>`;
+                return;
+            }
 
-             draftsSnapshot.forEach(doc => {
-                 const draft = doc.data();
-                 const draftId = doc.id;
-                 const li = document.createElement('li');
-                 li.className = 'p-3 rounded-lg border border-slate-200 cursor-pointer hover:bg-slate-100 transition-colors';
-                 li.innerHTML = `
-                     <h4 class="font-semibold text-sm text-slate-800">${draft.title}</h4>
-                     <p class="text-xs text-slate-500">Disimpan pada: ${new Date(draft.savedAt.toDate()).toLocaleDateString()}</p>
-                 `;
-                 li.addEventListener('click', () => showDraftContent(draft, draftId));
-                 draftsList.appendChild(li);
-             });
+            draftsSnapshot.forEach(doc => {
+                const draft = doc.data();
+                const draftId = doc.id;
+                const li = document.createElement('li');
+                li.className = 'p-3 rounded-lg border border-slate-200 cursor-pointer hover:bg-slate-100 transition-colors';
+                li.innerHTML = `
+                    <h4 class="font-semibold text-sm text-slate-800">${draft.title}</h4>
+                    <p class="text-xs text-slate-500">Disimpan pada: ${new Date(draft.savedAt.toDate()).toLocaleDateString()}</p>
+                `;
+                li.addEventListener('click', () => showDraftContent(draft, draftId));
+                draftsList.appendChild(li);
+            });
 
-             getEl('drafts-modal').classList.remove('hidden');
+            getEl('drafts-modal').classList.remove('hidden');
 
         } catch (error) {
             console.error("Gagal memuat draf:", error);
@@ -934,35 +933,35 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
     };
 
     const saveCurrentPlanAsDraft = async () => {
-       if (!isLoggedInUser()) {
-           showLoginPromptModal("Menyimpan Draf");
-           return;
-       }
+        if (!isLoggedInUser()) {
+            showLoginPromptModal("Menyimpan Draf");
+            return;
+        }
 
-       const businessName = getEl('business-name').value;
-       const title = prompt("Beri nama untuk draf ini:", `Rencana Konten - ${businessName || 'Tanpa Nama'}`);
-       if (!title) return;
+        const businessName = getEl('business-name').value;
+        const title = prompt("Beri nama untuk draf ini:", `Rencana Konten - ${businessName || 'Tanpa Nama'}`);
+        if (!title) return;
 
-       const saveDraftBtn = getEl('save-draft-btn');
-       const originalText = saveDraftBtn.innerHTML;
-       saveDraftBtn.disabled = true;
-       saveDraftBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        const saveDraftBtn = getEl('save-draft-btn');
+        const originalText = saveDraftBtn.innerHTML;
+        saveDraftBtn.disabled = true;
+        saveDraftBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
 
-       try {
-           const draftsRef = getDraftsCollectionRef();
-           await addDoc(draftsRef, {
-               title: title,
-               planData: generatedData,
-               savedAt: new Date()
-           });
-           showSuccessModal("Berhasil!", "Rencana konten Anda telah disimpan ke draf.");
-       } catch (error) {
-           console.error("Gagal menyimpan draf:", error);
-           showErrorModal("Gagal menyimpan draf.");
-       } finally {
-           saveDraftBtn.disabled = false;
-           saveDraftBtn.innerHTML = originalText;
-       }
+        try {
+            const draftsRef = getDraftsCollectionRef();
+            await addDoc(draftsRef, {
+                title: title,
+                planData: generatedData,
+                savedAt: new Date()
+            });
+            showSuccessModal("Berhasil!", "Rencana konten Anda telah disimpan ke draf.");
+        } catch (error) {
+            console.error("Gagal menyimpan draf:", error);
+            showErrorModal("Gagal menyimpan draf.");
+        } finally {
+            saveDraftBtn.disabled = false;
+            saveDraftBtn.innerHTML = originalText;
+        }
     };
 
     const handleExportPDF = (dataToExport, title, subtitle) => {
@@ -991,7 +990,7 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
             head: [columnNames],
             body: rows,
             styles: { fontSize: 8 },
-            headStyles: { fillColor: [51, 65, 85] }, // dark slate
+            headStyles: { fillColor: [51, 65, 85] }, 
             margin: { top: 10 }
         });
         doc.save(`${title.replace(/\s/g, '-')}.pdf`);
@@ -1123,7 +1122,6 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
             const result = await callGemini(prompt, true, plannerSchema);
             generatedData = result.plan || [];
 
-             // Hapus peningkat penggunaan anonim
             const businessName = getEl('business-name').value;
             getEl('results-title').textContent = currentInputs.isProductFocus ? `Ide Fokus untuk "${currentInputs.productName}"` : `Rencana Konten untuk "${businessName}"`;
             getEl('results-subtitle').textContent = currentInputs.isProductFocus ? "Berikut adalah 5 ide yang dihasilkan khusus untuk produk ini." : "Berikut adalah ide-ide yang dihasilkan khusus untuk Anda.";
@@ -1237,7 +1235,7 @@ ATURAN MUTLAK: Balas HANYA dengan objek JSON yang valid, mengikuti skema yang di
         const response = await fetch('/api/generate', {
             method: 'POST',
             headers: headers,
-            body: JSON.stringify({ prompt, schema, isJson }), // Body sederhana tanpa 'purpose'
+            body: JSON.stringify({ prompt, schema, isJson }), 
         });
 
         if (!response.ok) {
@@ -1453,8 +1451,6 @@ ${languageInstruction}`;
     };
 
     const handleRegenerateIdea = async (index, buttonElement, container, draft) => {
-        
-
         let dataArray = draft ? draft.planData : generatedData;
         const itemToReplace = dataArray[index];
 
@@ -1467,31 +1463,18 @@ ${languageInstruction}`;
         textSpan.textContent = 'Membuat Ulang...';
 
         try {
-            const user = auth.currentUser;
-            const idToken = user ? await user.getIdToken(true) : null;
-
+            // Perubahan: Menghapus pengiriman token otentikasi
             const response = await fetch('/api/regenerate', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': idToken ? `Bearer ${idToken}` : undefined,
                 },
                 body: JSON.stringify({ itemToReplace, context: currentInputs })
             });
 
             if (!response.ok) {
                 const errorData = await response.json();
-                
-                if (response.status === 401) {
-                    showInfoModal("Sesi Berakhir", "Sesi Anda telah berakhir. Silakan masuk kembali untuk melanjutkan.");
-                    await signOutUser(); // Lakukan sign out agar UI kembali ke keadaan awal
-                    throw new Error("Sesi berakhir.");
-                } else if (response.status === 429) {
-                    showUpgradeModal("Batas Harian Tercapai", errorData.error);
-                } else {
-                    throw new Error(errorData.error || `Error: ${response.statusText}`);
-                }
-                throw new Error("Gagal membuat ulang ide.");
+                throw new Error(errorData.error || `Error: ${response.statusText}`);
             }
 
             const newIdea = await response.json();
@@ -1506,16 +1489,7 @@ ${languageInstruction}`;
 
         } catch (error) {
             console.error('Error regenerating idea:', error);
-            const errorMessage = error.message;
-
-            if (errorMessage && errorMessage.includes('Sesi Anda telah berakhir')) {
-                showInfoModal("Sesi Berakhir", "Sesi Anda telah berakhir. Silakan masuk kembali untuk melanjutkan.");
-                await signOutUser();
-            } else if (errorMessage && errorMessage.includes('Batas Harian Tercapai')) {
-                showUpgradeModal("Batas Harian Tercapai", errorMessage);
-            } else {
-                 showErrorModal(errorMessage);
-            }
+            showErrorModal(error.message);
         } finally {
             buttonElement.disabled = false;
             icon.classList.remove('icon-spinning');
@@ -1735,7 +1709,7 @@ Balas HANYA dengan objek JSON valid sesuai skema.`;
          const item = currentCalendarItem;
          const startDate = parseDateString(item.day);
          if (!startDate) { showErrorModal("Tanggal tidak valid untuk acara kalender."); return; }
-         const endDate = new Date(startDate.getTime() + 3600000); // 1 hour
+         const endDate = new Date(startDate.getTime() + 3600000); 
          const title = encodeURIComponent(`Konten: ${item.platform} - ${item.idea}`);
          const details = encodeURIComponent(`Rencana Konten:\n\nIde: ${item.idea}\nPlatform: ${item.platform}\nPilar: ${item.pillar}\n\nBrief Caption:\n${item.caption_brief}\n\nSaran Visual:\n${item.visual_idea}\n\nHashtags:\n${item.hashtags}`);
          const dates = `${formatToUTC(startDate)}/${formatToUTC(endDate)}`;
@@ -1939,7 +1913,7 @@ END:VCALENDAR`;
             viewDraftsBtn.title = "Lihat Draf";
 
             await loadFormStateFromFirestore();
-        } else { // Pengguna Anonim
+        } else { 
             userId = null;
             userProfile = null;
 
@@ -1949,8 +1923,6 @@ END:VCALENDAR`;
 
             viewDraftsBtn.classList.add('opacity-50', 'cursor-not-allowed');
             viewDraftsBtn.title = "Draf";
-
-            // Tidak ada sign in anonim otomatis
         }
     };
 
@@ -2011,9 +1983,7 @@ END:VCALENDAR`;
         });
 
         if(upgradeNowBtn) upgradeNowBtn.addEventListener('click', () => {
-            // Placeholder untuk mengarahkan ke situs pembayaran
             alert("Mengarahkan ke situs pembayaran...");
-            // Contoh: window.location.href = 'https://link-pembayaran.com';
             getEl('upgrade-modal').classList.add('hidden');
         });
 
@@ -2109,7 +2079,7 @@ END:VCALENDAR`;
                 return;
             }
 
-            const idToken = await user.getIdToken(true); // Perubahan di sini
+            const idToken = await user.getIdToken(true); 
 
             const response = await fetch('/api/save-key', {
                 method: 'POST',
