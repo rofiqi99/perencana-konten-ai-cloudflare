@@ -920,7 +920,7 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
     const showDraftContent = (draft, draftId) => {
         const viewerContent = getEl('draft-viewer-content');
         viewerContent.innerHTML = '';
-        getEl('draft-viewer').classList.add('hidden');
+        getEl('draft-viewer').classList.remove('hidden');
         getEl('draft-viewer-title').textContent = draft.title;
 
         currentDraftObject = { id: draftId, planData: draft.planData };
@@ -1096,11 +1096,7 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
 
     // --- Core Application Logic ---
     const generatePlan = async () => {
-        // PERUBAHAN BARU: Periksa status premium sebelum menghasilkan konten
-        if (!isPaidUser()) {
-            showUpgradeModal("Fitur Khusus Premium", "Untuk menghasilkan rencana konten, silakan tingkatkan akun Anda ke versi premium.");
-            return;
-        }
+        
 
         showLoading();
         try {
@@ -1455,12 +1451,6 @@ ${languageInstruction}`;
     };
 
     const handleRegenerateIdea = async (index, buttonElement, container, draft) => {
-        // PERUBAHAN BARU: Periksa status premium sebelum membuat ulang ide
-        if (!isPaidUser()) {
-            showUpgradeModal("Fitur Khusus Premium", "Untuk membuat ulang ide konten, silakan tingkatkan akun Anda ke versi premium.");
-            return;
-        }
-
         let dataArray = draft ? draft.planData : generatedData;
         const itemToReplace = dataArray[index];
 
