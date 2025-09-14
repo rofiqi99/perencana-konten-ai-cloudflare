@@ -13,23 +13,31 @@ export async function onRequestPost(context) {
 
         // 2. Siapkan data untuk Tripay API
         const merchantRef = `TX-${userId}-${Date.now()}`;
-        const signature = crypto.createHash('sha256').update(`${env.TRIPAY_MERCHANT_CODE}${merchantRef}${amount}`).digest('hex');
+        
+        // PERBAIKAN: Gunakan Web Crypto API untuk membuat tanda tangan
+        const dataToHash = new TextEncoder().encode(`${env.TRIPAY_MERCHANT_CODE}${merchantRef}${amount}`);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', dataToHash);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const signature = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 
         const payload = {
-            method: "QRIS", // Ganti dengan metode pembayaran yang sesuai jika perlu
+            method: "QRIS",
             merchant_ref: merchantRef,
             amount: amount,
             customer_name: name,
             customer_email: email,
             customer_phone: phone,
-            callback_url: "https://perencana-konten-ai-cloudflare.pages.dev/api/tripay-webhook", // URL webhook Anda
+            callback_url: "https://perencana-konten-ai-cloudflare.pages.dev/api/tripay-webhook",
             order_items: [{
                 sku: planId,
                 name: "Upgrade Akun Premium",
                 price: amount,
                 quantity: 1
             }],
-            signature: signature
+            signature: signature,
+            custom_field: {
+                userId: userId
+            }
         };
 
         // 3. Kirim permintaan ke Tripay API

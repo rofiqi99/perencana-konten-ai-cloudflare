@@ -1,5 +1,3 @@
-// functions/api/tripay-webhook.js
-
 import { getGoogleAuthToken } from './_auth-firebase.js';
 
 export async function onRequestPost(context) {
@@ -9,19 +7,25 @@ export async function onRequestPost(context) {
         const signature = request.headers.get('X-Callback-Signature');
         const payload = await request.json();
 
-        // Verifikasi tanda tangan menggunakan kunci privat Tripay
-        const privateKey = env.TRIPAY_PRIVATE_KEY;
-        const hmac = crypto.createHmac('sha256', privateKey);
-        const signed = hmac.update(JSON.stringify(payload)).digest('hex');
+        // PERBAIKAN: Gunakan Web Crypto API untuk memverifikasi tanda tangan
+        const privateKeyData = new TextEncoder().encode(env.TRIPAY_PRIVATE_KEY);
+        const dataToSign = new TextEncoder().encode(JSON.stringify(payload));
+        const key = await crypto.subtle.importKey('raw', privateKeyData, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+        const signedBuffer = await crypto.subtle.sign('HMAC', key, dataToSign);
+        const signedArray = Array.from(new Uint8Array(signedBuffer));
+        const signedHex = signedArray.map(b => b.toString(16).padStart(2, '0')).join('');
 
-        if (signature !== signed) {
+        if (signature !== signedHex) {
             return new Response(JSON.stringify({ success: false, message: "Invalid signature" }), { status: 403 });
         }
 
-        const { reference, status, custom_field, total_amount } = payload;
+        const { status, custom_field } = payload;
 
         if (status === 'PAID') {
-            const userId = custom_field.userId; 
+            const userId = custom_field?.userId;
+            if (!userId) {
+                return new Response(JSON.stringify({ success: false, message: "User ID not found in webhook payload" }), { status: 400 });
+            }
 
             // Dapatkan token autentikasi untuk Firestore
             const serviceAccount = JSON.parse(env.FIREBASE_SERVICE_ACCOUNT_KEY);
@@ -34,7 +38,7 @@ export async function onRequestPost(context) {
                     premiumActivatedAt: { timestampValue: new Date().toISOString() }
                 }
             };
-
+            
             const firestoreResponse = await fetch(firestoreUrl, {
                 method: 'PATCH',
                 headers: {
