@@ -830,7 +830,7 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
                 email: auth.currentUser.email,
                 name: auth.currentUser.displayName,
                 createdAt: new Date(),
-                isPremium: true
+                isPremium: false
             };
             await setDoc(userDocRef, newUserProfile);
             return newUserProfile;
@@ -1982,10 +1982,52 @@ END:VCALENDAR`;
             getEl('upgrade-modal').classList.add('hidden');
         });
 
-        if(upgradeNowBtn) upgradeNowBtn.addEventListener('click', () => {
-            alert("Mengarahkan ke situs pembayaran...");
-            getEl('upgrade-modal').classList.add('hidden');
-        });
+        if (upgradeNowBtn) {
+            upgradeNowBtn.addEventListener('click', async () => {
+                const user = auth.currentUser;
+                if (!user) {
+                    showLoginPromptModal("Upgrade Akun");
+                    return;
+                }
+                
+                // Mendapatkan user profile untuk nama dan email
+                const profile = await getUserProfile(user.uid);
+                
+                try {
+                    const response = await fetch('/api/create-tripay-transaction', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            planId: 'premium-plan-1', // ID unik untuk paket premium
+                            amount: 50000, // Jumlah pembayaran dalam Rupiah
+                            name: profile.name,
+                            email: profile.email,
+                            phone: '', // Tambahkan nomor telepon jika tersedia
+                            userId: user.uid
+                        })
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error);
+                    }
+
+                    const result = await response.json();
+                    
+                    if (result.data && result.data.checkout_url) {
+                        // Arahkan pengguna ke halaman pembayaran
+                        window.location.href = result.data.checkout_url;
+                    } else {
+                        showErrorModal("Gagal mendapatkan URL pembayaran dari Tripay.");
+                    }
+                    
+                    getEl('upgrade-modal').classList.add('hidden');
+                } catch (error) {
+                    console.error("Error creating Tripay transaction:", error);
+                    showErrorModal(error.message || "Gagal membuat transaksi pembayaran.");
+                }
+            });
+        }
 
         if(loginBtn) loginBtn.addEventListener('click', signInWithGoogle);
         if(logoutBtn) logoutBtn.addEventListener('click', signOutUser);
