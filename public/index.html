@@ -1261,7 +1261,7 @@ ATURAN MUTLAK: Balas HANYA dengan objek JSON yang valid, mengikuti skema yang di
 
         const platforms = Array.from(document.querySelectorAll('.platform-checkbox:checked')).map(el => el.value);
         const contentMoodRadio = document.querySelector('input[name="content-mood"]:checked');
-        const businessStageRadio = document.querySelector('input[name="business-stage']:checked');
+        const businessStageRadio = document.querySelector('input[name="business-stage"]:checked');
 
         const allInputs = {
             'business-name': getEl('business-name').value,
@@ -1455,7 +1455,7 @@ ${languageInstruction}`;
     };
 
     const handleRegenerateIdea = async (index, buttonElement, container, draft) => {
-        // PERUBAHAN BARU: Periksa status premium sebelum menghasilkan konten
+        // PERUBAHAN BARU: Periksa status premium sebelum membuat ulang ide
         if (!isPaidUser()) {
             showUpgradeModal("Fitur Khusus Premium", "Untuk membuat ulang ide konten, silakan tingkatkan akun Anda ke versi premium.");
             return;
