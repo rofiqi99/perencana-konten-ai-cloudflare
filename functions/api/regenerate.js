@@ -73,7 +73,7 @@ export async function onRequestPost(context) {
 
         while (attempts < maxAttempts) {
             geminiApiKey = allApiKeys[currentKeyIndex];
-            const geminiApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${geminiApiKey}`;
+            const geminiApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`;
             const geminiPayload = {
                 contents: [{ role: "user", parts: [{ text: prompt }] }],
                 generationConfig: {
