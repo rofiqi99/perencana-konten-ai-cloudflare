@@ -64,7 +64,7 @@ export async function onRequestPost(context) {
                 headers: { 'Content-Type': 'application/json' },
             });
         }
-        
+
         // Pilih kunci berikutnya dari pool secara bergiliran.
         const geminiApiKey = allApiKeys[lastUsedKeyIndex];
         console.log(`Menggunakan API Key dari pool (indeks: ${lastUsedKeyIndex})`);
@@ -80,7 +80,7 @@ export async function onRequestPost(context) {
             };
         }
 
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`;
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${geminiApiKey}`;
 
         let geminiResponse;
         const maxRetries = 5;
@@ -103,7 +103,7 @@ export async function onRequestPost(context) {
                     delay *= 2;
                     continue;
                 }
-                
+
                 const errorResult = await geminiResponse.json();
                 return new Response(JSON.stringify({ error: errorResult.error?.message || "Terjadi kesalahan pada API Gemini." }), {
                     status: geminiResponse.status,
@@ -122,10 +122,10 @@ export async function onRequestPost(context) {
                 headers: { 'Content-Type': 'application/json' },
             });
         }
-        
+
         const geminiResult = await geminiResponse.json();
         const text = geminiResult.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
-        
+
         return new Response(text, {
             status: 200,
             headers: { 'Content-Type': 'application/json' },

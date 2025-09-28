@@ -42,7 +42,7 @@ export async function onRequestPost(context) {
 
         const { itemToReplace, context: currentInputs } = await request.json();
         const prompt = buildRegeneratePrompt(itemToReplace, currentInputs);
-        
+
         const allApiKeys = [
             env.GEMINI_API_KEY_PRIMARY, env.GEMINI_API_KEY_SECONDARY_1, env.GEMINI_API_KEY_SECONDARY_2,
             env.GEMINI_API_KEY_SECONDARY_3, env.GEMINI_API_KEY_SECONDARY_4, env.GEMINI_API_KEY_SECONDARY_5,
@@ -73,7 +73,7 @@ export async function onRequestPost(context) {
 
         while (attempts < maxAttempts) {
             geminiApiKey = allApiKeys[currentKeyIndex];
-            const geminiApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`;
+            const geminiApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${geminiApiKey}`;
             const geminiPayload = {
                 contents: [{ role: "user", parts: [{ text: prompt }] }],
                 generationConfig: {
