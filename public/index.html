@@ -677,19 +677,6 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
             </div>
         </div>
 
-        <div id="upgrade-modal" class="fixed inset-0 bg-slate-900/50 flex items-center justify-center p-4 hidden z-50">
-            <div class="bg-white rounded-lg shadow-xl p-8 max-w-sm w-full text-center modal-content-bg relative">
-                <button id="close-upgrade-modal" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors">
-                    <i class="fas fa-times fa-lg"></i>
-                </button>
-                <div class="mb-4">
-                    <i class="fas fa-gem fa-3x" style="color: #9333ea;"></i>
-                </div>
-                <h3 class="text-xl font-semibold text-slate-900 mt-6">Buka Fitur Premium</h3>
-                <p class="text-slate-600 mt-2">Tingkatkan akun Anda untuk menikmati semua fitur tanpa batas.</p>
-                <button id="upgrade-now-btn" class="mt-6 bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors w-full">Upgrade Sekarang</button>
-            </div>
-        </div>
         <div id="caption-modal" class="fixed inset-0 bg-slate-900/50 flex items-center justify-center p-4 hidden z-40">
             <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col modal-content-bg">
                 <div class="p-4 border-b border-slate-200 flex justify-between items-center">
@@ -779,45 +766,6 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
         };
     };
 
-    // --- TIER & USAGE LOGIC ---
-    const isLoggedInUser = () => {
-        const user = auth.currentUser;
-        return user; // Cek apakah ada pengguna yang login (anonim atau tidak)
-    };
-
-    const isPaidUser = () => {
-        // Logika ini akan memeriksa status langganan dari profil pengguna
-        return userProfile && userProfile.isPremium === true;
-    };
-
-    const getAnonymousUsageCount = () => {
-        return 0;
-    };
-
-    const incrementAnonymousUsageCount = () => {
-        if (isLoggedInUser()) return; 
-        const currentCount = getAnonymousUsageCount();
-        localStorage.setItem('anonymousUsageCount', currentCount + 1);
-    };
-
-    const showUpgradeModal = (title, message) => {
-        const upgradeModal = getEl('upgrade-modal');
-        const modalTitle = upgradeModal.querySelector('h3');
-        const modalMessage = upgradeModal.querySelector('p');
-
-        if(modalTitle) modalTitle.textContent = title;
-        if(modalMessage) modalMessage.textContent = message;
-
-        if(upgradeModal) upgradeModal.classList.remove('hidden');
-    };
-
-    const showLoginPromptModal = (featureName) => {
-        showInfoModal(
-            "Fitur Terbatas",
-            `Untuk menggunakan fitur "${featureName}", silakan masuk dengan akun Google Anda.`
-        );
-    };
-
     // --- USER PROFILE LOGIC ---
     const getUserProfile = async (uid) => {
         if (!db) return null;
@@ -829,8 +777,7 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
             const newUserProfile = {
                 email: auth.currentUser.email,
                 name: auth.currentUser.displayName,
-                createdAt: new Date(),
-                isPremium: false
+                createdAt: new Date()
             };
             await setDoc(userDocRef, newUserProfile);
             return newUserProfile;
@@ -864,7 +811,7 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
     };
 
     const saveFormStateToFirestore = async () => {
-        if (!isLoggedInUser()) return;
+        if (!auth.currentUser) return;
         const formState = getFormInputs(true);
         const userDocRef = doc(db, 'users', userId);
         try {
@@ -879,8 +826,11 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
 
     // --- DRAFT & EXPORT LOGIC ---
     const showDraftsModal = async () => {
-        if (!isLoggedInUser()) {
-            showLoginPromptModal("Melihat Draf");
+        if (!auth.currentUser) {
+            showInfoModal(
+            "Fitur Terbatas",
+            `Untuk menggunakan fitur "Melihat Draf", silakan masuk dengan akun Google Anda.`
+            );
             return;
         }
 
@@ -933,8 +883,11 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
     };
 
     const saveCurrentPlanAsDraft = async () => {
-        if (!isLoggedInUser()) {
-            showLoginPromptModal("Menyimpan Draf");
+        if (!auth.currentUser) {
+            showInfoModal(
+            "Fitur Terbatas",
+            `Untuk menggunakan fitur "Menyimpan Draf", silakan masuk dengan akun Google Anda.`
+            );
             return;
         }
 
@@ -1096,12 +1049,6 @@ body.dark .platform-checkbox:not(:checked) + label:hover {
 
     // --- Core Application Logic ---
     const generatePlan = async () => {
-        // PERUBAHAN BARU: Periksa status premium sebelum menghasilkan konten
-        if (!isPaidUser()) {
-            showUpgradeModal("Fitur Khusus Premium", "Untuk menghasilkan rencana konten, silakan tingkatkan akun Anda ke versi premium.");
-            return;
-        }
-
         showLoading();
         try {
             const saveDraftBtn = getEl('save-draft-btn');
@@ -1455,12 +1402,6 @@ ${languageInstruction}`;
     };
 
     const handleRegenerateIdea = async (index, buttonElement, container, draft) => {
-        // PERUBAHAN BARU: Periksa status premium sebelum membuat ulang ide
-        if (!isPaidUser()) {
-            showUpgradeModal("Fitur Khusus Premium", "Untuk membuat ulang ide konten, silakan tingkatkan akun Anda ke versi premium.");
-            return;
-        }
-
         let dataArray = draft ? draft.planData : generatedData;
         const itemToReplace = dataArray[index];
 
@@ -1985,59 +1926,6 @@ END:VCALENDAR`;
         const icsDownloadBtn = getEl('ics-download-btn');
         const loginBtn = getEl('login-btn');
         const logoutBtn = getEl('logout-btn');
-        const closeUpgradeModalBtn = getEl('close-upgrade-modal');
-        const upgradeNowBtn = getEl('upgrade-now-btn');
-
-        if(closeUpgradeModalBtn) closeUpgradeModalBtn.addEventListener('click', () => {
-            getEl('upgrade-modal').classList.add('hidden');
-        });
-
-        if (upgradeNowBtn) {
-            upgradeNowBtn.addEventListener('click', async () => {
-                const user = auth.currentUser;
-                if (!user) {
-                    showLoginPromptModal("Upgrade Akun");
-                    return;
-                }
-                
-                // Mendapatkan user profile untuk nama dan email
-                const profile = await getUserProfile(user.uid);
-                
-                try {
-                    const response = await fetch('/api/create-tripay-transaction', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            planId: 'premium-plan-1', // ID unik untuk paket premium
-                            amount: 50000, // Jumlah pembayaran dalam Rupiah
-                            name: profile.name,
-                            email: profile.email,
-                            phone: '', // Tambahkan nomor telepon jika tersedia
-                            userId: user.uid
-                        })
-                    });
-
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(errorData.error);
-                    }
-
-                    const result = await response.json();
-                    
-                    if (result.data && result.data.checkout_url) {
-                        // Arahkan pengguna ke halaman pembayaran
-                        window.location.href = result.data.checkout_url;
-                    } else {
-                        showErrorModal("Gagal mendapatkan URL pembayaran dari Tripay.");
-                    }
-                    
-                    getEl('upgrade-modal').classList.add('hidden');
-                } catch (error) {
-                    console.error("Error creating Tripay transaction:", error);
-                    showErrorModal(error.message || "Gagal membuat transaksi pembayaran.");
-                }
-            });
-        }
 
         if(loginBtn) loginBtn.addEventListener('click', signInWithGoogle);
         if(logoutBtn) logoutBtn.addEventListener('click', signOutUser);
